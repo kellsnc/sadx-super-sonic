@@ -3,6 +3,7 @@
 #include "Characters/Sonic.h"
 
 void Objects_Init();
+void WaterHack_Init();
 
 Trampoline* Sonic_Exec_t = nullptr;
 Trampoline* Sonic_Display_t = nullptr;
@@ -124,6 +125,7 @@ extern "C"
 		WriteJump(PlayMusic, PlayMusic_r);
 
 		Objects_Init();
+		WaterHack_Init();
 	}
 
 	__declspec(dllexport) ModInfo SADXModInfo = { ModLoaderVer };

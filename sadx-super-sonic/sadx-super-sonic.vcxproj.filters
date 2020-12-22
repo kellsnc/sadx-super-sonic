@@ -53,5 +53,8 @@
     <ClCompile Include="objects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="water-hack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
