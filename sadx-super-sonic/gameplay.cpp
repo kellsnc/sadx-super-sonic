@@ -8,6 +8,7 @@ bool SonicDetransformNAct(EntityData1* data, CharObj2* co2) {
     if (data->Status & Status_DoNextAction) {
         if (data->NextAction == NextAction_SuperSonicStop) {
             co2->Upgrades &= ~Upgrades_SuperSonic;
+            co2->Powerups &= ~Powerups_Invincibility;
             DoSonicGroundAnimation(co2, data);
 
             if (data->Status & Status_Ball) {
@@ -83,9 +84,6 @@ void GamePlay_HackActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
             break;
         case Act_Sonic_Spring:
             data->Action = Act_SuperSonic_Spring;
-            break;
-        case Act_Sonic_Jump:
-            data->Action = Act_SuperSonic_Jump;
             break;
         case Act_Sonic_HomingAttack:
             data->Action = Act_SuperSonic_Homing;

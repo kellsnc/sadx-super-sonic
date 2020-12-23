@@ -43,6 +43,46 @@ void __cdecl Sonic_SuperPhysics_Load_r(task* tsk) {
 	}
 }
 
+void LoadSonicDashTrail_r(EntityData1* player) {
+	ObjectMaster* obj = nullptr;
+	CharObj2* co2 = CharObj2Ptrs[player->CharIndex];
+
+	if (co2->Upgrades & Upgrades_SuperSonic) {
+		obj = LoadObject(LoadObj_Data1, 6, (ObjectFuncPtr)0x55FB80);
+	}
+	else {
+		obj = LoadObject(LoadObj_Data1, 6, SonicDashTrail_Init);
+	}
+	
+	if (obj) {
+		obj->Data1->CharIndex = player->CharIndex;
+	}
+}
+
+void LoadSonicDashEffect_r(EntityData1* player) {
+	ObjectMaster* obj = nullptr;
+	CharObj2* co2 = CharObj2Ptrs[player->CharIndex];
+
+	if (co2->Upgrades & Upgrades_SuperSonic) {
+		obj = LoadObject(LoadObj_Data1, 5, (ObjectFuncPtr)0x55FB20);
+	}
+	else {
+		obj = LoadObject(LoadObj_Data1, 5, (ObjectFuncPtr)0x4A2A40);
+	}
+	
+	if (obj) {
+		obj->Data1->CharIndex = player->CharIndex;
+	}
+}
+
+void SonicChargeSpindashEffect_r(ObjectMaster* obj) {
+	CharObj2* co2 = CharObj2Ptrs[obj->Data1->CharIndex];
+
+	if ((co2->Upgrades & Upgrades_SuperSonic) != Upgrades_SuperSonic) {
+		SonicChargeSpindashEffect(obj);
+	}
+}
+
 void Objects_Init(const IniFile* config) {
 	Sonic_SuperPhysics_Load_t = new Trampoline((int)Sonic_SuperPhysics_Load, (int)Sonic_SuperPhysics_Load + 0x8, Sonic_SuperPhysics_Load_r);
 	
@@ -52,5 +92,11 @@ void Objects_Init(const IniFile* config) {
 		obj->ang[0] = 32768;
 		obj->pos[1] = -3.0f;
 		obj->pos[2] = -5850.0f;
+	}
+
+	if (config->getBool("General", "ExtendedGameplay", true)) {
+		WriteJump(LoadSonicDashTrail, LoadSonicDashTrail_r);
+		WriteJump((void*)0x4940B0, LoadSonicDashEffect_r);
+		WriteData((ObjectFuncPtr*)0x49AE58, SonicChargeSpindashEffect_r);
 	}
 }

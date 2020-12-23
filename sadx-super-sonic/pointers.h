@@ -7,6 +7,7 @@ static constexpr int MaxPlayers = 4;
 FunctionPointer(void, DrawObject, (NJS_OBJECT*), 0x408530);
 FunctionPointer(Bool, IsEventPerforming, (), 0x42FB00);
 ObjectFunc(UpdateSetDataAndDelete, 0x46C150);
+ObjectFunc(SonicChargeSpindashEffect, 0x4A2A10);
 
 FunctionPointer(void, SomethingJumpPanel, (EntityData1* data), 0x4B8470);
 

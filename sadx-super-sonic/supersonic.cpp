@@ -9,6 +9,8 @@ static Trampoline* Sonic_Exec_t = nullptr;
 static Trampoline* Sonic_Display_t = nullptr;
 static Trampoline* Sonic_Delete_t = nullptr;
 
+static bool ChangeMusic = true;
+
 static const int clips[] = {
 	402,
 	508,
@@ -18,7 +20,7 @@ static const int clips[] = {
 };
 
 inline void RestoreMusic() {
-	if (CurrentSong == MusicIDs_ThemeOfSuperSonic) {
+	if (ChangeMusic == true && CurrentSong == MusicIDs_ThemeOfSuperSonic) {
 		CurrentSong = LastSong;
 	}
 }
@@ -66,7 +68,10 @@ void CheckSuperSonicTransform(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 		// If it's player 1, play sound & update music
 		if (data->CharIndex == 0) {
 			PlayVoice(396);
-			PlayMusic_r(MusicIDs::MusicIDs_ThemeOfSuperSonic);
+
+			if (ChangeMusic == true) {
+				PlayMusic_r(MusicIDs::MusicIDs_ThemeOfSuperSonic);
+			}
 		}
 	}
 }
@@ -103,7 +108,7 @@ bool DecreaseRings() {
 void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 	if (co2->Upgrades & Upgrades_SuperSonic) {
 		co2->Powerups |= Powerups_Invincibility;
-
+		
 		// Consume rings:
 #ifndef _DEBUG
 		if (data->CharIndex == 0 && DecreaseRings()) {
@@ -114,10 +119,19 @@ void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 
 	switch (data->Action) {
 	case Act_Sonic_Jump:
-		CheckSuperSonicTransform(data, mwp, co2);
+		if (co2->Upgrades & Upgrades_SuperSonic) {
+			CheckSuperSonicDetransform(data, mwp, co2);
+		}
+		else {
+			CheckSuperSonicTransform(data, mwp, co2);
+		}
+		
 		break;
 	case Act_SuperSonic_Jump:
-		CheckSuperSonicDetransform(data, mwp, co2);
+		if (CurrentLevel != LevelIDs_PerfectChaos) {
+			CheckSuperSonicDetransform(data, mwp, co2);
+		}
+
 		break;
 	}
 
@@ -174,9 +188,13 @@ void SuperSonic_Init(const HelperFunctions& helperFunctions, const IniFile* conf
 	Sonic_Display_t = new Trampoline((int)Sonic_Display, (int)Sonic_Display + 0x7, Sonic_Display_r);
 	Sonic_Delete_t = new Trampoline((int)Sonic_Delete, (int)Sonic_Delete + 0x5, Sonic_Delete_r);
 
-	// Music change stuff
-	WriteJump(PlayMusic, PlayMusic_r);
-
 	// Always initialize Super Sonic weld data
 	WriteData<2>(reinterpret_cast<Uint8*>(0x0049AC6A), 0x90i8);
+
+	// Do we change the music to Super Sonic's themet?
+	ChangeMusic = config->getBool("General", "ChangeMusic", true);
+
+	if (ChangeMusic) {
+		WriteJump(PlayMusic, PlayMusic_r);
+	}
 }
