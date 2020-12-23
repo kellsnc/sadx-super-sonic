@@ -4,6 +4,8 @@ static bool ExtendedGamePlay = true;
 
 static AnimData_t SuperSonicAnimData[SonicAnimData_Length];
 
+static bool AlwaysSuperSonic = false;
+
 bool SonicDetransformNAct(EntityData1* data, CharObj2* co2) {
     if (data->Status & Status_DoNextAction) {
         if (data->NextAction == NextAction_SuperSonicStop) {
@@ -50,7 +52,7 @@ static void __declspec(naked) _SuperSonic_NAct() {
 }
 
 void GamePlay_HackDisplay(EntityData1* data, CharObj2* co2) {
-    if (ExtendedGamePlay == false || CurrentLevel == LevelIDs_PerfectChaos) {
+    if ((ExtendedGamePlay == false && IsEventPerforming() == false) || CurrentLevel == LevelIDs_PerfectChaos) {
         return;
     }
 
@@ -67,7 +69,7 @@ void GamePlay_HackDisplay(EntityData1* data, CharObj2* co2) {
 }
 
 void GamePlay_HackActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
-    if (ExtendedGamePlay == false || CurrentLevel == LevelIDs_PerfectChaos || SonicDetransformNAct(data, co2)) {
+    if ((ExtendedGamePlay == false && IsEventPerforming() == false) || CurrentLevel == LevelIDs_PerfectChaos || SonicDetransformNAct(data, co2)) {
         return;
     }
 
@@ -145,12 +147,21 @@ void SuperSonic_InitAnimTable() {
     SuperSonicAnimData[Anm_Sonic_Walk3] = SonicAnimData[Anm_SuperSonic_Move2];
     SuperSonicAnimData[Anm_Sonic_Run1] = SonicAnimData[Anm_SuperSonic_Move2];
     SuperSonicAnimData[Anm_Sonic_Run2] = SonicAnimData[Anm_SuperSonic_Move3];
+    SuperSonicAnimData[Anm_Sonic_Win] = SonicAnimData[Anm_SuperSonic_Win];
+
+    if (AlwaysSuperSonic == true) {
+        CharSelDataList[0].anonymous_1[0] = SonicAnimData[Anm_SuperSonic_Stand].Animation;
+        CharSelDataList[0].anonymous_1[1]->object = SONIC_OBJECTS[22];
+        CharSelDataList[0].anonymous_1[2]->object = SONIC_OBJECTS[22];
+        CharSelDataList[0].TextureList = &SUPERSONIC_TEXLIST;
+    }
 }
 
 void GamePlay_Init(const IniFile* config) {
     ExtendedGamePlay = config->getBool("General", "ExtendedGameplay", true);
+    AlwaysSuperSonic = config->getBool("General", "AlwaysSuperSonic", false);
 
-    if (ExtendedGamePlay == true) {
+    if (ExtendedGamePlay == true || AlwaysSuperSonic == true) {
         WriteJump((void*)0x494CD0, _SuperSonic_NAct);
     }
 }

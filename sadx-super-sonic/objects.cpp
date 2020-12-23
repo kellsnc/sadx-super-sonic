@@ -2,6 +2,13 @@
 
 Trampoline* Sonic_SuperPhysics_Load_t = nullptr;
 
+static bool CustomPhysics = true;
+
+static float SuperSonicDecel = *(float*)0x49439D; // -0.001f
+static float SuperSonicAirDecel = *(float*)0x4943A7; // -0.002f
+static float SuperSonicAirAccel = *(float*)0x4943B1; // 0.05f
+static float SuperSonicYOff = *(float*)0x4943BB; // 6.4f
+
 void __cdecl Sonic_SuperPhysicsLevel_Delete(task* tsk) {
 	CharObj2* co2 = CharObj2Ptrs[tsk->awp->work.sl[0]];
 	EntityData1* data = EntityData1Ptrs[tsk->awp->work.sl[0]]; // Use the actual character index to be compatible with Character Select
@@ -17,13 +24,7 @@ void __cdecl Sonic_SuperPhysicsLevel_Delete(task* tsk) {
 void __cdecl Sonic_SuperPhysicsLevel_Main(task* tsk) {
 	CharObj2* co2 = CharObj2Ptrs[tsk->awp->work.sl[0]];
 	
-	if (co2 != nullptr && co2->Upgrades & Upgrades_SuperSonic) {
-		co2->PhysicsData.RollDecel = -0.006f;
-		co2->PhysicsData.AirDecel = -0.02f;
-		co2->PhysicsData.AirAccel = 0.035f;
-		co2->PhysicsData.YOff = 6.4f;
-	}
-	else {
+	if (co2 == nullptr || (co2->Upgrades & Upgrades_SuperSonic) != Upgrades_SuperSonic) {
 		FreeTask(tsk);
 	}
 }
@@ -33,8 +34,15 @@ void __cdecl Sonic_SuperPhysics_Load_r(task* tsk) {
 		TARGET_DYNAMIC(Sonic_SuperPhysics_Load);
 	}
 	else {
+		CharObj2* co2 = CharObj2Ptrs[tsk->awp->work.sl[0]];
+
 		tsk->exec = Sonic_SuperPhysicsLevel_Main;
 		tsk->dest = Sonic_SuperPhysicsLevel_Delete;
+
+		co2->PhysicsData.RollDecel = SuperSonicDecel;
+		co2->PhysicsData.AirDecel = SuperSonicAirDecel;
+		co2->PhysicsData.AirAccel = SuperSonicAirAccel;
+		co2->PhysicsData.YOff = SuperSonicYOff;
 
 		// Remove Super Sonic's win height in levels
 		WriteData((float*)0x494E16, 0.0f);
@@ -83,7 +91,16 @@ void SonicChargeSpindashEffect_r(ObjectMaster* obj) {
 	}
 }
 
-void Objects_Init(const IniFile* config) {
+void Sonic_SuperAura_Load_r(ObjectMaster* obj) {
+	if (IsIngame()) {
+		obj->MainSub = Sonic_SuperAura_Main;
+		obj->DisplaySub = Sonic_SuperAura_Display;
+		obj->DeleteSub = Sonic_SuperAura_Delete;
+		*(char*)0x3C69DD0 = 0;
+	}
+}
+
+void Objects_Init(const IniFile* config, const IniFile* physics) {
 	Sonic_SuperPhysics_Load_t = new Trampoline((int)Sonic_SuperPhysics_Load, (int)Sonic_SuperPhysics_Load + 0x8, Sonic_SuperPhysics_Load_r);
 	
 	// Fixes upside down water plane in Emerald Coast 2
@@ -98,5 +115,15 @@ void Objects_Init(const IniFile* config) {
 		WriteJump(LoadSonicDashTrail, LoadSonicDashTrail_r);
 		WriteJump((void*)0x4940B0, LoadSonicDashEffect_r);
 		WriteData((ObjectFuncPtr*)0x49AE58, SonicChargeSpindashEffect_r);
+	}
+
+	if (config->getBool("General", "CustomPhysics", true)) {
+		SuperSonicDecel = physics->getFloat("SuperSonic", "SuperSonicDecel", -0.006f);
+		SuperSonicAirDecel = physics->getFloat("SuperSonic", "SuperSonicAirDecel", -0.02f);
+		SuperSonicAirAccel = physics->getFloat("SuperSonic", "SuperSonicAirAccel", 0.035f);
+	}
+
+	if (config->getBool("General", "AlwaysSuperSonic", false)) {
+		WriteJump(Sonic_SuperAura_Load, Sonic_SuperAura_Load_r);
 	}
 }

@@ -10,6 +10,8 @@ static Trampoline* Sonic_Display_t = nullptr;
 static Trampoline* Sonic_Delete_t = nullptr;
 
 static bool ChangeMusic = true;
+static bool RemoveLimitations = false;
+static bool AlwaysSuperSonic = false;
 
 static const int clips[] = {
 	402,
@@ -50,18 +52,10 @@ void __cdecl PlayMusic_r(MusicIDs song) {
 void CheckSuperSonicTransform(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 	if (LastStoryFlag == false && PressedButtons[data->CharIndex] & Buttons_B && MetalSonicFlag == false) {
 		
-#ifndef _DEBUG
-		// If Super Sonic story is finished
-		SetEventFlag(EventFlags_SuperSonicAdventureComplete);
-		if (!GetEventFlag(EventFlags_SuperSonicAdventureComplete)) {
+		// If Super Sonic story is finished & more than 50 rings
+		if (RemoveLimitations == false && (!GetEventFlag(EventFlags_SuperSonicAdventureComplete) || (data->CharIndex == 0 && Rings < 50))) {
 			return;
 		}
-
-		// If it's player 1; then you need at least 50 rings
-		if (data->CharIndex == 0 && Rings < 50) {
-			return;
-		}
-#endif
 
 		ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
 
@@ -77,12 +71,14 @@ void CheckSuperSonicTransform(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 }
 
 void DetransformSuperSonic(EntityData1* data, CharObj2* co2) {
-	ForcePlayerAction(data->CharIndex, NextAction_SuperSonicStop);
-	co2->Powerups &= ~Powerups_Invincibility;
+	if (AlwaysSuperSonic == false) {
+		ForcePlayerAction(data->CharIndex, NextAction_SuperSonicStop);
+		co2->Powerups &= ~Powerups_Invincibility;
 
-	if (data->CharIndex == 0) {
-		PlayVoice(clips[rand() % LengthOfArray(clips)]);
-		RestoreMusic();
+		if (data->CharIndex == 0) {
+			PlayVoice(clips[rand() % LengthOfArray(clips)]);
+			RestoreMusic();
+		}
 	}
 }
 
@@ -110,11 +106,13 @@ void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 		co2->Powerups |= Powerups_Invincibility;
 		
 		// Consume rings:
-#ifndef _DEBUG
-		if (data->CharIndex == 0 && DecreaseRings()) {
+		if (IsEventPerforming() == true || (RemoveLimitations == false && data->CharIndex == 0 && DecreaseRings())) {
 			DetransformSuperSonic(data, co2);
 		}
-#endif
+	}
+	else if (AlwaysSuperSonic == true && IsEventPerforming() == false) {
+		ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
+		LoadPVM(SuperSonicPVM.Name, SuperSonicPVM.TexList);
 	}
 
 	switch (data->Action) {
@@ -193,8 +191,14 @@ void SuperSonic_Init(const HelperFunctions& helperFunctions, const IniFile* conf
 
 	// Do we change the music to Super Sonic's themet?
 	ChangeMusic = config->getBool("General", "ChangeMusic", true);
+	RemoveLimitations = config->getBool("General", "RemoveLimitations", false);
+	AlwaysSuperSonic = config->getBool("General", "AlwaysSuperSonic", false);
 
 	if (ChangeMusic) {
 		WriteJump(PlayMusic, PlayMusic_r);
 	}
+
+#ifdef _DEBUG
+	RemoveLimitations = true;
+#endif
 }

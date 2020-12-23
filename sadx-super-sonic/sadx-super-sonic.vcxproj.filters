@@ -63,4 +63,14 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\data\configschema.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\data\physics.ini">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

@@ -112,6 +112,12 @@
     <ClCompile Include="supersonic.cpp" />
     <ClCompile Include="water-hack.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\data\configschema.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\data\physics.ini" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
