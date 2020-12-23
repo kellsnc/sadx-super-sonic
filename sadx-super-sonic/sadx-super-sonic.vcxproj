@@ -102,6 +102,7 @@
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="entry.cpp" />
+    <ClCompile Include="gameplay.cpp" />
     <ClCompile Include="ninja-utils.cpp" />
     <ClCompile Include="objects.cpp" />
     <ClCompile Include="pch.cpp">

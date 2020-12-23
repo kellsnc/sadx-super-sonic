@@ -4,10 +4,17 @@
 
 void Objects_Init();
 void WaterHack_Init();
+void GamePlay_Init();
+void GamePlay_HackDisplay(EntityData1* data, CharObj2* co2);
+void GamePlay_HackActions(EntityData1* data, motionwk* mwp, CharObj2* co2);
 
-Trampoline* Sonic_Exec_t = nullptr;
-Trampoline* Sonic_Display_t = nullptr;
-Trampoline* Sonic_Delete_t = nullptr;
+static Trampoline* Sonic_Exec_t = nullptr;
+static Trampoline* Sonic_Display_t = nullptr;
+static Trampoline* Sonic_Delete_t = nullptr;
+
+static AnimData SuperSonicAnimData[SonicAnimData_Length];
+
+static bool ExtendedGamePlay = true;
 
 static const int clips[] = {
 	402,
@@ -77,6 +84,11 @@ void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 		CheckSuperSonicDetransform(data, mwp, co2);
 		break;
 	}
+
+	// Series of hack to allow spindash and stuff
+	if (ExtendedGamePlay == true) {
+		GamePlay_HackActions(data, mwp, co2);
+	}
 }
 
 void Sonic_Display_r(task* tsk) {
@@ -91,6 +103,11 @@ void Sonic_Display_r(task* tsk) {
 		SuperSonicFlag = 0;
 	}
 
+	// Series of hacks to allow normal actions with Super Sonic
+	if (ExtendedGamePlay == true) {
+		GamePlay_HackDisplay(data, co2);
+	}
+	
 	TARGET_DYNAMIC(Sonic_Display)(tsk);
 }
 
@@ -126,6 +143,10 @@ extern "C"
 
 		Objects_Init();
 		WaterHack_Init();
+
+		if (ExtendedGamePlay == true) {
+			GamePlay_Init();
+		}
 	}
 
 	__declspec(dllexport) ModInfo SADXModInfo = { ModLoaderVer };
