@@ -48,6 +48,6 @@ static void __declspec(naked) SuperWaterCheck()
 	}
 }
 
-void WaterHack_Init() {
+void WaterHack_Init(const IniFile* config) {
 	WriteJump(reinterpret_cast<void*>(0x004496E1), SuperWaterCheck);
 }

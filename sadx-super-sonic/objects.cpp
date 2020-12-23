@@ -43,7 +43,7 @@ void __cdecl Sonic_SuperPhysics_Load_r(task* tsk) {
 	}
 }
 
-void Objects_Init() {
+void Objects_Init(const IniFile* config) {
 	Sonic_SuperPhysics_Load_t = new Trampoline((int)Sonic_SuperPhysics_Load, (int)Sonic_SuperPhysics_Load + 0x8, Sonic_SuperPhysics_Load_r);
 	
 	// Fixes upside down water plane in Emerald Coast 2
@@ -53,7 +53,4 @@ void Objects_Init() {
 		obj->pos[1] = -3.0f;
 		obj->pos[2] = -5850.0f;
 	}
-
-	// Always initialize Super Sonic weld data.
-	WriteData<2>(reinterpret_cast<Uint8*>(0x0049AC6A), 0x90i8);
 }
