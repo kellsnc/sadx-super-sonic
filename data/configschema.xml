@@ -9,9 +9,9 @@
         <HelpText>The game will play Super Sonic's theme upon transformation.</HelpText>
       </Property>
       <Property name="RemoveLimitations" type="bool" defaultvalue="False" display="Remove limitations">
-        <HelpText>Remove the need for 50 rings & completed story.</HelpText>
+        <HelpText>Remove the need for 50 rings &amp; completed story.</HelpText>
       </Property>
-      <Property name="AlwaysSuperSonic" type="bool" defaultvalue="False" display="Always Super Sonic">
+      <Property name="AlwaysSuperSonic" type="bool" defaultvalue="False" display="Always Super Sonic (experimental)">
         <HelpText>Sonic will always be Super Sonic.</HelpText>
       </Property>
       <Property name="CustomPhysics" type="bool" defaultvalue="True" display="Custom Physics">

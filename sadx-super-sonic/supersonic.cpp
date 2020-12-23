@@ -71,7 +71,7 @@ void CheckSuperSonicTransform(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 }
 
 void DetransformSuperSonic(EntityData1* data, CharObj2* co2) {
-	if (AlwaysSuperSonic == false) {
+	if (AlwaysSuperSonic == false) { // Don't detransform if this is enabled
 		ForcePlayerAction(data->CharIndex, NextAction_SuperSonicStop);
 		co2->Powerups &= ~Powerups_Invincibility;
 
@@ -101,40 +101,52 @@ bool DecreaseRings() {
 	return false;
 }
 
-void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
+bool HandleSuperSonicState(EntityData1* data, CharObj2* co2) {
 	if (co2->Upgrades & Upgrades_SuperSonic) {
 		co2->Powerups |= Powerups_Invincibility;
-		
+
 		// Consume rings:
 		if (IsEventPerforming() == true || (RemoveLimitations == false && data->CharIndex == 0 && DecreaseRings())) {
 			DetransformSuperSonic(data, co2);
+
+			return false; // skip custom actions
 		}
 	}
+
+	// Always force Super Sonic if enabled
 	else if (AlwaysSuperSonic == true && IsEventPerforming() == false) {
 		ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
-		LoadPVM(SuperSonicPVM.Name, SuperSonicPVM.TexList);
+		LoadPVM(SuperSonicPVM.Name, SuperSonicPVM.TexList); // failsafe, it's not always loaded
+
+		return false; // skip custom actions
 	}
 
-	switch (data->Action) {
-	case Act_Sonic_Jump:
-		if (co2->Upgrades & Upgrades_SuperSonic) {
-			CheckSuperSonicDetransform(data, mwp, co2);
-		}
-		else {
-			CheckSuperSonicTransform(data, mwp, co2);
-		}
-		
-		break;
-	case Act_SuperSonic_Jump:
-		if (CurrentLevel != LevelIDs_PerfectChaos) {
-			CheckSuperSonicDetransform(data, mwp, co2);
+	return true; // you can run custom actions
+}
+
+void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
+	if (HandleSuperSonicState(data, co2)) {
+		switch (data->Action) {
+		case Act_Sonic_Jump:
+			if (co2->Upgrades & Upgrades_SuperSonic) {
+				CheckSuperSonicDetransform(data, mwp, co2);
+			}
+			else {
+				CheckSuperSonicTransform(data, mwp, co2);
+			}
+
+			break;
+		case Act_SuperSonic_Jump:
+			if (CurrentLevel != LevelIDs_PerfectChaos) {
+				CheckSuperSonicDetransform(data, mwp, co2);
+			}
+
+			break;
 		}
 
-		break;
+		// Series of hack to allow spindash and stuff
+		GamePlay_HackActions(data, mwp, co2);
 	}
-
-	// Series of hack to allow spindash and stuff
-	GamePlay_HackActions(data, mwp, co2);
 }
 
 void Sonic_Display_r(task* tsk) {
@@ -189,16 +201,17 @@ void SuperSonic_Init(const HelperFunctions& helperFunctions, const IniFile* conf
 	// Always initialize Super Sonic weld data
 	WriteData<2>(reinterpret_cast<Uint8*>(0x0049AC6A), 0x90i8);
 
-	// Do we change the music to Super Sonic's themet?
+	// Read configuration
 	ChangeMusic = config->getBool("General", "ChangeMusic", true);
 	RemoveLimitations = config->getBool("General", "RemoveLimitations", false);
 	AlwaysSuperSonic = config->getBool("General", "AlwaysSuperSonic", false);
 
+	if (AlwaysSuperSonic == true) {
+		RemoveLimitations = true;
+	}
+
+	// Apply music changes
 	if (ChangeMusic) {
 		WriteJump(PlayMusic, PlayMusic_r);
 	}
-
-#ifdef _DEBUG
-	RemoveLimitations = true;
-#endif
 }

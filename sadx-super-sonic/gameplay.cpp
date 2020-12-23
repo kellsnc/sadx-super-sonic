@@ -1,10 +1,9 @@
 #include "pch.h"
 
 static bool ExtendedGamePlay = true;
+static bool AlwaysSuperSonic = false;
 
 static AnimData_t SuperSonicAnimData[SonicAnimData_Length];
-
-static bool AlwaysSuperSonic = false;
 
 bool SonicDetransformNAct(EntityData1* data, CharObj2* co2) {
     if (data->Status & Status_DoNextAction) {
@@ -59,7 +58,7 @@ void GamePlay_HackDisplay(EntityData1* data, CharObj2* co2) {
     if (co2->Upgrades & Upgrades_SuperSonic) {
         WriteData((NJS_TEXLIST**)0x4949E9, &SUPERSONIC_TEXLIST); // Force Super Sonic's texlist
         WriteData<1>((void*)0x494AED, co2->AnimationThing.Index); // Hack for the ball not to flash
-        co2->AnimationThing.AnimData = SuperSonicAnimData;
+        co2->AnimationThing.AnimData = SuperSonicAnimData; // Change the animation set
     }
     else {
         WriteData((NJS_TEXLIST**)0x4949E9, &SONIC_TEXLIST);
@@ -69,10 +68,12 @@ void GamePlay_HackDisplay(EntityData1* data, CharObj2* co2) {
 }
 
 void GamePlay_HackActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
-    if ((ExtendedGamePlay == false && IsEventPerforming() == false) || CurrentLevel == LevelIDs_PerfectChaos || SonicDetransformNAct(data, co2)) {
+    if ((ExtendedGamePlay == false && IsEventPerforming() == false) 
+        || CurrentLevel == LevelIDs_PerfectChaos || SonicDetransformNAct(data, co2)) {
         return;
     }
 
+    // Use Super Sonic actions when we can, force Sonic's when it's better
     if (co2->Upgrades & Upgrades_SuperSonic) {
         switch (data->Action) {
         case Act_SuperSonic_Stand:
@@ -122,8 +123,9 @@ NJS_OBJECT* GetSuperSonicModel(unsigned int animation) {
     }
 }
 
+// Initialize the custom animation table for Super Sonic
 void SuperSonic_InitAnimTable() {
-    if (ExtendedGamePlay == true) {
+    if (ExtendedGamePlay == true || AlwaysSuperSonic == true) {
         memcpy(&SuperSonicAnimData, &SonicAnimData, sizeof(AnimData_t) * SonicAnimData_Length);
 
         for (int i = 0; i < SonicAnimData_Length; ++i) {
