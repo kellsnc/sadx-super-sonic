@@ -21,7 +21,7 @@ static const int clips[] = {
 	1461
 };
 
-inline void RestoreMusic() {
+void RestoreMusic() {
 	if (ChangeMusic == true && CurrentSong == MusicIDs_ThemeOfSuperSonic) {
 		CurrentSong = LastSong;
 	}
@@ -117,6 +117,7 @@ bool HandleSuperSonicState(EntityData1* data, CharObj2* co2) {
 	else if (AlwaysSuperSonic == true && IsEventPerforming() == false) {
 		ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
 		LoadPVM(SuperSonicPVM.Name, SuperSonicPVM.TexList); // failsafe, it's not always loaded
+		SONIC_TEXLIST.textures = SUPERSONIC_TEXLIST.textures;
 
 		return false; // skip custom actions
 	}
@@ -197,7 +198,7 @@ void SuperSonic_Init(const HelperFunctions& helperFunctions, const IniFile* conf
 	Sonic_Exec_t = new Trampoline((int)Sonic_Main, (int)Sonic_Main + 0x7, Sonic_Exec_r);
 	Sonic_Display_t = new Trampoline((int)Sonic_Display, (int)Sonic_Display + 0x7, Sonic_Display_r);
 	Sonic_Delete_t = new Trampoline((int)Sonic_Delete, (int)Sonic_Delete + 0x5, Sonic_Delete_r);
-
+	
 	// Always initialize Super Sonic weld data
 	WriteData<2>(reinterpret_cast<Uint8*>(0x0049AC6A), 0x90i8);
 

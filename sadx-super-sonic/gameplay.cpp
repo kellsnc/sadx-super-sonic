@@ -94,6 +94,12 @@ void GamePlay_HackActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
         case Act_Sonic_Path:
             data->Action = Act_SuperSonic_Path;
             break;
+        case Act_Sonic_JumpPanel: // sadx is bad
+            if (data->CollisionInfo->CollidingObject || data->Status & Status_Unknown1) {
+                data->Action = Act_Sonic_JumpPanelOn;
+            }
+
+            break;
         }
     }
 }
