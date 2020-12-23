@@ -4,17 +4,27 @@ static bool ExtendedGamePlay = true;
 
 static AnimData_t SuperSonicAnimData[SonicAnimData_Length];
 
-signed int __cdecl SuperSonic_NAct_r(EntityData2* data2, CharObj2* co2, EntityData1* data) {
+bool SonicDetransformNAct(EntityData1* data, CharObj2* co2) {
     if (data->Status & Status_DoNextAction) {
-        co2->Upgrades &= ~Upgrades_SuperSonic;
-        DoSonicGroundAnimation(co2, data);
+        if (data->NextAction == NextAction_SuperSonicStop) {
+            co2->Upgrades &= ~Upgrades_SuperSonic;
+            DoSonicGroundAnimation(co2, data);
 
-        if (data->Status & Status_Ball) {
-            data->Status &= ~(Status_Attack | Status_Ball);
+            if (data->Status & Status_Ball) {
+                data->Status &= ~(Status_Attack | Status_Ball);
+            }
+
+            data->Status &= ~Status_OnPath;
+
+            return true;
         }
+    }
 
-        data->Status &= ~Status_OnPath;
+    return false;
+}
 
+signed int __cdecl SuperSonic_NAct_r(EntityData2* data2, CharObj2* co2, EntityData1* data) {
+    if (SonicDetransformNAct(data, co2)) {
         return true;
     }
     
@@ -56,7 +66,7 @@ void GamePlay_HackDisplay(EntityData1* data, CharObj2* co2) {
 }
 
 void GamePlay_HackActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
-    if (ExtendedGamePlay == false || CurrentLevel == LevelIDs_PerfectChaos) {
+    if (ExtendedGamePlay == false || CurrentLevel == LevelIDs_PerfectChaos || SonicDetransformNAct(data, co2)) {
         return;
     }
 
@@ -68,11 +78,11 @@ void GamePlay_HackActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
         case Act_SuperSonic_Walk:
             data->Action = Act_Sonic_Walk;
             break;
-        case Act_SuperSonic_Launched:
-            data->Action = Act_Sonic_Launch;
+        case Act_Sonic_Launch:
+            data->Action = Act_SuperSonic_Launched;
             break;
-        case Act_SuperSonic_Spring:
-            data->Action = Act_Sonic_Spring;
+        case Act_Sonic_Spring:
+            data->Action = Act_SuperSonic_Spring;
             break;
         case Act_Sonic_Jump:
             data->Action = Act_SuperSonic_Jump;

@@ -45,16 +45,17 @@ void __cdecl PlayMusic_r(MusicIDs song) {
 	}
 }
 
-
 void CheckSuperSonicTransform(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 	if (LastStoryFlag == false && PressedButtons[data->CharIndex] & Buttons_B && MetalSonicFlag == false) {
 		
-
 #ifndef _DEBUG
+		// If Super Sonic story is finished
+		SetEventFlag(EventFlags_SuperSonicAdventureComplete);
 		if (!GetEventFlag(EventFlags_SuperSonicAdventureComplete)) {
 			return;
 		}
 
+		// If it's player 1; then you need at least 50 rings
 		if (data->CharIndex == 0 && Rings < 50) {
 			return;
 		}
@@ -86,21 +87,27 @@ void CheckSuperSonicDetransform(EntityData1* data, motionwk* mwp, CharObj2* co2)
 	}
 }
 
+bool DecreaseRings() {
+	if (Rings > 0) {
+		if (FrameCounterUnpaused % 60 == 0) {
+			AddRings(-1);
+		}
+	}
+	else {
+		return true;
+	}
+
+	return false;
+}
+
 void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 	if (co2->Upgrades & Upgrades_SuperSonic) {
 		co2->Powerups |= Powerups_Invincibility;
 
 		// Consume rings:
 #ifndef _DEBUG
-		if (data->CharIndex == 0) {
-			if (Rings > 0) {
-				if (FrameCounterUnpaused % 60 == 0) {
-					Rings -= 1;
-				}
-			}
-			else {
-				DetransformSuperSonic(data, co2);
-			}
+		if (data->CharIndex == 0 && DecreaseRings()) {
+			DetransformSuperSonic(data, co2);
 		}
 #endif
 	}
@@ -130,7 +137,7 @@ void Sonic_Display_r(task* tsk) {
 		SuperSonicFlag = 0;
 	}
 
-	// Series of hacks to allow normal actions with Super Sonic
+	// Series of hacks to allow normal animations with Super Sonic
 	GamePlay_HackDisplay(data, co2);
 
 	TARGET_DYNAMIC(Sonic_Display)(tsk);
@@ -142,7 +149,7 @@ void Sonic_Exec_r(task* tsk) {
 	CharObj2* co2 = (CharObj2*)mwp->work.ptr; // physics, animation info, and countless other things
 
 	if (data->Action != Act_Sonic_Init) {
-		Sonic_NewActions(data, mwp, co2);
+		Sonic_NewActions(data, mwp, co2); // Add the transform and detransform actions
 	}
 
 	TARGET_DYNAMIC(Sonic_Exec)(tsk);
