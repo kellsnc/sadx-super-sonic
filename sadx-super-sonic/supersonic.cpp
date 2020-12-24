@@ -50,7 +50,7 @@ void __cdecl PlayMusic_r(MusicIDs song) {
 }
 
 void CheckSuperSonicTransform(EntityData1* data, motionwk* mwp, CharObj2* co2) {
-	if (LastStoryFlag == false && PressedButtons[data->CharIndex] & Buttons_B && MetalSonicFlag == false) {
+	if (PressedButtons[data->CharIndex] & Buttons_B) {
 		
 		// If Super Sonic story is finished & more than 50 rings
 		if (RemoveLimitations == false && (!GetEventFlag(EventFlags_SuperSonicAdventureComplete) || (data->CharIndex == 0 && Rings < 50))) {
@@ -71,14 +71,12 @@ void CheckSuperSonicTransform(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 }
 
 void DetransformSuperSonic(EntityData1* data, CharObj2* co2) {
-	if (AlwaysSuperSonic == false) { // Don't detransform if this is enabled
-		ForcePlayerAction(data->CharIndex, NextAction_SuperSonicStop);
-		co2->Powerups &= ~Powerups_Invincibility;
+	ForcePlayerAction(data->CharIndex, NextAction_SuperSonicStop);
+	co2->Powerups &= ~Powerups_Invincibility;
 
-		if (data->CharIndex == 0) {
-			PlayVoice(clips[rand() % LengthOfArray(clips)]);
-			RestoreMusic();
-		}
+	if (data->CharIndex == 0) {
+		PlayVoice(clips[rand() % LengthOfArray(clips)]);
+		RestoreMusic();
 	}
 }
 
@@ -88,64 +86,61 @@ void CheckSuperSonicDetransform(EntityData1* data, motionwk* mwp, CharObj2* co2)
 	}
 }
 
-bool DecreaseRings() {
-	if (Rings > 0) {
-		if (FrameCounterUnpaused % 60 == 0) {
-			AddRings(-1);
-		}
-	}
-	else {
-		return true;
-	}
-
-	return false;
-}
-
+// Handle Super Sonic things common to every action (ring decrease, invincibility...)
 bool HandleSuperSonicState(EntityData1* data, CharObj2* co2) {
 	if (co2->Upgrades & Upgrades_SuperSonic) {
 		co2->Powerups |= Powerups_Invincibility;
 
 		// Consume rings:
-		if (IsEventPerforming() == true || (RemoveLimitations == false && data->CharIndex == 0 && DecreaseRings())) {
-			DetransformSuperSonic(data, co2);
-
-			return false; // skip custom actions
+		if (RemoveLimitations == false && data->CharIndex == 0) {
+			if (Rings > 0) {
+				if (FrameCounterUnpaused % 60 == 0) {
+					AddRings(-1);
+				}
+			}
+			else {
+				DetransformSuperSonic(data, co2);
+				return false;
+			}
 		}
 	}
 
 	// Always force Super Sonic if enabled
-	else if (AlwaysSuperSonic == true && IsEventPerforming() == false) {
+	else if (AlwaysSuperSonic == true) {
 		ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
 		LoadPVM(SuperSonicPVM.Name, SuperSonicPVM.TexList); // failsafe, it's not always loaded
-		SONIC_TEXLIST.textures = SUPERSONIC_TEXLIST.textures;
 
-		return false; // skip custom actions
+		return false;
 	}
 
-	return true; // you can run custom actions
+	return true;
 }
 
 void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 	if (HandleSuperSonicState(data, co2)) {
-		switch (data->Action) {
-		case Act_Sonic_Jump:
-			if (co2->Upgrades & Upgrades_SuperSonic) {
-				CheckSuperSonicDetransform(data, mwp, co2);
-			}
-			else {
-				CheckSuperSonicTransform(data, mwp, co2);
-			}
 
-			break;
-		case Act_SuperSonic_Jump:
-			if (CurrentLevel != LevelIDs_PerfectChaos) {
-				CheckSuperSonicDetransform(data, mwp, co2);
-			}
+		// Skip transformation actions if AlwaysSuperSonic is enabled
+		if (AlwaysSuperSonic == false) {
+			switch (data->Action) {
+			case Act_Sonic_Jump:
+				if (co2->Upgrades & Upgrades_SuperSonic) {
+					CheckSuperSonicDetransform(data, mwp, co2);
+				}
+				else {
+					CheckSuperSonicTransform(data, mwp, co2);
+				}
 
-			break;
+				break;
+			case Act_SuperSonic_Jump:
+				if (CurrentLevel != LevelIDs_PerfectChaos) {
+					CheckSuperSonicDetransform(data, mwp, co2);
+				}
+
+				break;
+			}
 		}
 
-		// Series of hack to allow spindash and stuff
+		// Series of hack to allow Sonic's actions for Super Sonic
 		GamePlay_HackActions(data, mwp, co2);
 	}
 }
@@ -154,26 +149,30 @@ void Sonic_Display_r(task* tsk) {
 	EntityData1* data = (EntityData1*)tsk->twp;
 	CharObj2* co2 = (CharObj2*)tsk->mwp->work.ptr;
 
-	// SuperSonicFlag is just a flag to change sonic's lighting, no other use
-	if (co2->Upgrades & Upgrades_SuperSonic) {
-		SuperSonicFlag = 1;
-	}
-	else {
-		SuperSonicFlag = 0;
-	}
+	// If in last story or metal sonic, don't run custom super sonic
+	if (LastStoryFlag == false && MetalSonicFlag == false) {
 
-	// Series of hacks to allow normal animations with Super Sonic
-	GamePlay_HackDisplay(data, co2);
+		// SuperSonicFlag is just a flag to change sonic's lighting, no other use
+		if (co2->Upgrades & Upgrades_SuperSonic) {
+			SuperSonicFlag = 1;
+		}
+		else {
+			SuperSonicFlag = 0;
+		}
+
+		// Series of hacks to allow Sonic's animations on Super Sonic
+		GamePlay_HackDisplay(data, co2);
+	}
 
 	TARGET_DYNAMIC(Sonic_Display)(tsk);
 }
 
 void Sonic_Exec_r(task* tsk) {
-	EntityData1* data = (EntityData1*)tsk->twp; // main task containing position, rotation, scale
-	motionwk* mwp = tsk->mwp; // task containing movement information
-	CharObj2* co2 = (CharObj2*)mwp->work.ptr; // physics, animation info, and countless other things
+	EntityData1* data = (EntityData1*)tsk->twp;
+	motionwk* mwp = tsk->mwp;
+	CharObj2* co2 = (CharObj2*)mwp->work.ptr;
 
-	if (data->Action != Act_Sonic_Init) {
+	if (data->Action != Act_Sonic_Init && LastStoryFlag == false && MetalSonicFlag == false) {
 		Sonic_NewActions(data, mwp, co2); // Add the transform and detransform actions
 	}
 
@@ -185,7 +184,7 @@ void Sonic_Delete_r(task* tsk) {
 	CharObj2* co2 = (CharObj2*)tsk->mwp->work.ptr;
 
 	// Restore things if the player is deleted, useful for compatiblity with Character Select
-	if (co2->Upgrades & Upgrades_SuperSonic && data->CharIndex == 0) {
+	if (LastStoryFlag == false && co2->Upgrades & Upgrades_SuperSonic && data->CharIndex == 0) {
 		RestoreMusic();
 	}
 

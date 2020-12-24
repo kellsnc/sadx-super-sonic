@@ -5,6 +5,23 @@ static bool AlwaysSuperSonic = false;
 
 static AnimData_t SuperSonicAnimData[SonicAnimData_Length];
 
+void GamePlay_HackDisplay(EntityData1* data, CharObj2* co2) {
+    if (ExtendedGamePlay == false && IsEventPerforming() == false) {
+        return; // Only run this function if extended gameplay is enabled, or it's an event (with "Always Super Sonic")
+    }
+
+    if (co2->Upgrades & Upgrades_SuperSonic) {
+        WriteData((NJS_TEXLIST**)0x4949E9, &SUPERSONIC_TEXLIST); // Force Super Sonic's texlist
+        WriteData<1>((void*)0x494AED, co2->AnimationThing.Index); // Hack for the ball not to flash
+        co2->AnimationThing.AnimData = SuperSonicAnimData; // Change the animation set
+    }
+    else {
+        WriteData((NJS_TEXLIST**)0x4949E9, &SONIC_TEXLIST);
+        WriteData<1>((void*)0x494AED, 0x91);
+        co2->AnimationThing.AnimData = SonicAnimData;
+    }
+}
+
 bool SonicDetransformNAct(EntityData1* data, CharObj2* co2) {
     if (data->Status & Status_DoNextAction) {
         if (data->NextAction == NextAction_SuperSonicStop) {
@@ -25,52 +42,9 @@ bool SonicDetransformNAct(EntityData1* data, CharObj2* co2) {
     return false;
 }
 
-signed int __cdecl SuperSonic_NAct_r(EntityData2* data2, CharObj2* co2, EntityData1* data) {
-    if (SonicDetransformNAct(data, co2)) {
-        return true;
-    }
-    
-    if (data->Status & Status_HoldObject) {
-        return Sonic_HoldingObject_NAct(data, co2, data2);
-    }
-    
-    return Sonic_NAct(co2, data, data2);
-}
-
-static void __declspec(naked) _SuperSonic_NAct() {
-    __asm {
-        push esi // data
-        push ecx // co2
-        push eax // data2
-        call SuperSonic_NAct_r
-        add esp, 4 // data2<eax> is also used for return value
-        pop ecx // co2
-        pop esi // data
-        retn
-    }
-}
-
-void GamePlay_HackDisplay(EntityData1* data, CharObj2* co2) {
-    if ((ExtendedGamePlay == false && IsEventPerforming() == false) || CurrentLevel == LevelIDs_PerfectChaos) {
-        return;
-    }
-
-    if (co2->Upgrades & Upgrades_SuperSonic) {
-        WriteData((NJS_TEXLIST**)0x4949E9, &SUPERSONIC_TEXLIST); // Force Super Sonic's texlist
-        WriteData<1>((void*)0x494AED, co2->AnimationThing.Index); // Hack for the ball not to flash
-        co2->AnimationThing.AnimData = SuperSonicAnimData; // Change the animation set
-    }
-    else {
-        WriteData((NJS_TEXLIST**)0x4949E9, &SONIC_TEXLIST);
-        WriteData<1>((void*)0x494AED, 0x91);
-        co2->AnimationThing.AnimData = SonicAnimData;
-    }
-}
-
 void GamePlay_HackActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
-    if ((ExtendedGamePlay == false && IsEventPerforming() == false) 
-        || CurrentLevel == LevelIDs_PerfectChaos || SonicDetransformNAct(data, co2)) {
-        return;
+    if ((ExtendedGamePlay == false && IsEventPerforming() == false) || SonicDetransformNAct(data, co2)) {
+        return; // Live above + check detransformation
     }
 
     // Use Super Sonic actions when we can, force Sonic's when it's better
@@ -82,22 +56,25 @@ void GamePlay_HackActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
         case Act_SuperSonic_Walk:
             data->Action = Act_Sonic_Walk;
             break;
-        case Act_Sonic_Launch:
-            data->Action = Act_SuperSonic_Launched;
+        case Act_SuperSonic_Launched:
+            data->Action = Act_Sonic_Launch;
             break;
-        case Act_Sonic_Spring:
-            data->Action = Act_SuperSonic_Spring;
+        case Act_SuperSonic_Spring:
+            data->Action = Act_Sonic_Spring;
             break;
-        case Act_Sonic_HomingAttack:
-            data->Action = Act_SuperSonic_Homing;
+        case Act_SuperSonic_Homing:
+            data->Action = Act_Sonic_HomingAttack;
             break;
         case Act_Sonic_Path:
             data->Action = Act_SuperSonic_Path;
             break;
+        case Act_SuperSonic_Jump:
+            data->Action = Act_Sonic_Jump;
+            break;
         case Act_Sonic_JumpPanel: // sadx is bad
-            if (data->CollisionInfo->CollidingObject || data->Status & Status_Unknown1) {
-                data->Action = Act_Sonic_JumpPanelOn;
-            }
+            data->Action = Act_Sonic_Fall;
+            NullifyVelocity((EntityData2*)mwp, co2);
+            PrintDebug("[SuperSonic] Invalid action: 'Act_Sonic_JumpPanel'. Action cancelled. \n");
 
             break;
         }
@@ -168,8 +145,4 @@ void SuperSonic_InitAnimTable() {
 void GamePlay_Init(const IniFile* config) {
     ExtendedGamePlay = config->getBool("General", "ExtendedGameplay", true);
     AlwaysSuperSonic = config->getBool("General", "AlwaysSuperSonic", false);
-
-    if (ExtendedGamePlay == true || AlwaysSuperSonic == true) {
-        WriteJump((void*)0x494CD0, _SuperSonic_NAct);
-    }
 }
