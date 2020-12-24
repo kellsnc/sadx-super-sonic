@@ -139,10 +139,10 @@ void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 				break;
 			}
 		}
-
-		// Series of hack to allow Sonic's actions for Super Sonic
-		GamePlay_HackActions(data, mwp, co2);
 	}
+
+	// Series of hack to allow Sonic's actions for Super Sonic
+	GamePlay_HackActions(data, mwp, co2);
 }
 
 void Sonic_Display_r(task* tsk) {
