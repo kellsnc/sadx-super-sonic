@@ -25,15 +25,12 @@ void GamePlay_HackDisplay(EntityData1* data, CharObj2* co2) {
 bool SonicDetransformNAct(EntityData1* data, CharObj2* co2) {
     if (data->Status & Status_DoNextAction) {
         if (data->NextAction == NextAction_SuperSonicStop) {
-            co2->Upgrades &= ~Upgrades_SuperSonic;
-            co2->Powerups &= ~Powerups_Invincibility;
+            co2->Upgrades &= ~(Upgrades_SuperSonic | Powerups_Invincibility | Status_OnPath);
             DoSonicGroundAnimation(co2, data);
 
             if (data->Status & Status_Ball) {
                 data->Status &= ~(Status_Attack | Status_Ball);
             }
-
-            data->Status &= ~Status_OnPath;
 
             return true;
         }
@@ -74,7 +71,7 @@ void GamePlay_HackActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
         case Act_Sonic_JumpPanel: // sadx is bad
             data->Action = Act_Sonic_Fall;
             NullifyVelocity((EntityData2*)mwp, co2);
-            PrintDebug("[SuperSonic] Invalid action: 'Act_Sonic_JumpPanel'. Action cancelled. \n");
+            PrintDebug("[SuperSonic] Invalid action \"Act_Sonic_JumpPanel\" cancelled.\n");
 
             break;
         }
@@ -139,6 +136,8 @@ void SuperSonic_InitAnimTable() {
         CharSelDataList[0].anonymous_1[1]->object = SONIC_OBJECTS[22];
         CharSelDataList[0].anonymous_1[2]->object = SONIC_OBJECTS[22];
         CharSelDataList[0].TextureList = &SUPERSONIC_TEXLIST;
+
+        //todo cutscene swaps
     }
 }
 

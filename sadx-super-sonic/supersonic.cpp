@@ -209,7 +209,7 @@ void SuperSonic_Init(const HelperFunctions& helperFunctions, const IniFile* conf
 	if (AlwaysSuperSonic == true) {
 		RemoveLimitations = true;
 	}
-
+	
 	// Apply music changes
 	if (ChangeMusic) {
 		WriteJump(PlayMusic, PlayMusic_r);
