@@ -116,8 +116,19 @@ bool HandleSuperSonicState(EntityData1* data, CharObj2* co2) {
 	return true;
 }
 
+void CheckTikalVoice(EntityData1* data, CharObj2* co2) {
+	if (GetEventFlag(EventFlags_SuperSonicAdventureComplete) &&
+		(co2->Upgrades & Upgrades_SuperSonic) != Upgrades_SonicMask &&
+		GetEventFlag((EventFlags)0x39) == false && RemoveLimitations == false &&
+		GameState == 15 && CurrentLevel < LevelIDs_Chaos0) {
+		PlayVoice(1676);
+		SetEventFlag((EventFlags)0x39);
+	}
+}
+
 void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 	if (HandleSuperSonicState(data, co2)) {
+		CheckTikalVoice(data, co2);
 
 		// Skip transformation actions if AlwaysSuperSonic is enabled
 		if (AlwaysSuperSonic == false) {
