@@ -12,6 +12,9 @@ static Trampoline* Sonic_Delete_t = nullptr;
 static bool ChangeMusic = true;
 static bool RemoveLimitations = false;
 static bool AlwaysSuperSonic = false;
+static bool EnableTikalUnusedVoice = true;
+static Buttons TransformButton = Buttons_B;
+static bool DetransformButton = true;
 
 static const int clips[] = {
 	402,
@@ -50,7 +53,7 @@ void __cdecl PlayMusic_r(MusicIDs song) {
 }
 
 void CheckSuperSonicTransform(EntityData1* data, motionwk* mwp, CharObj2* co2) {
-	if (PressedButtons[data->CharIndex] & Buttons_B) {
+	if (PressedButtons[data->CharIndex] & TransformButton) {
 		
 		// If Super Sonic story is finished & more than 50 rings
 		if (RemoveLimitations == false && (!GetEventFlag(EventFlags_SuperSonicAdventureComplete) || (data->CharIndex == 0 && Rings < 50))) {
@@ -81,7 +84,7 @@ void DetransformSuperSonic(EntityData1* data, CharObj2* co2) {
 }
 
 void CheckSuperSonicDetransform(EntityData1* data, motionwk* mwp, CharObj2* co2) {
-	if (co2->Upgrades & Upgrades_SuperSonic && PressedButtons[data->CharIndex] & Buttons_B) {
+	if (co2->Upgrades & Upgrades_SuperSonic && DetransformButton == true && PressedButtons[data->CharIndex] & TransformButton) {
 		DetransformSuperSonic(data, co2);
 	}
 }
@@ -117,12 +120,13 @@ bool HandleSuperSonicState(EntityData1* data, CharObj2* co2) {
 }
 
 void CheckTikalVoice(EntityData1* data, CharObj2* co2) {
-	if (GetEventFlag(EventFlags_SuperSonicAdventureComplete) &&
-		(co2->Upgrades & Upgrades_SuperSonic) != Upgrades_SonicMask &&
+	if (EnableTikalUnusedVoice == true && GetEventFlag(EventFlags_SuperSonicAdventureComplete) &&
+		(co2->Upgrades & Upgrades_SuperSonic) != Upgrades_SuperSonic &&
 		GetEventFlag((EventFlags)0x39) == false && RemoveLimitations == false &&
 		GameState == 15 && CurrentLevel < LevelIDs_Chaos0) {
 		PlayVoice(1676);
 		SetEventFlag((EventFlags)0x39);
+		SaveSave();
 	}
 }
 
@@ -216,7 +220,10 @@ void SuperSonic_Init(const HelperFunctions& helperFunctions, const IniFile* conf
 	ChangeMusic = config->getBool("General", "ChangeMusic", true);
 	RemoveLimitations = config->getBool("General", "RemoveLimitations", false);
 	AlwaysSuperSonic = config->getBool("General", "AlwaysSuperSonic", false);
-
+	EnableTikalUnusedVoice = config->getBool("General", "EnableTikalUnusedVoice", true);
+	TransformButton = config->getInt("General", "TransformButton", 0) == 0 ? Buttons_B : Buttons_X;
+	DetransformButton = config->getBool("General", "DetransformButton", true);
+	
 	if (AlwaysSuperSonic == true) {
 		RemoveLimitations = true;
 	}

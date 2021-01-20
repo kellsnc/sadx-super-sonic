@@ -1,6 +1,7 @@
 #include "pch.h"
 
 Trampoline* Sonic_SuperPhysics_Load_t = nullptr;
+Trampoline* Sonic_DisplayLightDashModel_t = nullptr;
 
 static bool CustomPhysics = true;
 
@@ -125,6 +126,13 @@ void Sonic_SuperAura_Load_r(ObjectMaster* obj) {
 	}
 }
 
+void __cdecl Sonic_DisplayLightDashModel_r(EntityData1* data, EntityData2* data2, CharObj2* co2) {
+	if ((co2->Upgrades & Upgrades_SuperSonic) != Upgrades_SuperSonic) {
+		NonStaticFunctionPointer(void, original, (EntityData1 * data, EntityData2 * data2, CharObj2 * co2), Sonic_DisplayLightDashModel_t->Target());
+		original(data, data2, co2);
+	}
+}
+
 void Objects_Init(const IniFile* config, const IniFile* physics) {
 	Sonic_SuperPhysics_Load_t = new Trampoline((int)Sonic_SuperPhysics_Load, (int)Sonic_SuperPhysics_Load + 0x8, Sonic_SuperPhysics_Load_r);
 	
@@ -140,6 +148,7 @@ void Objects_Init(const IniFile* config, const IniFile* physics) {
 		WriteJump(LoadSonicDashTrail, LoadSonicDashTrail_r);
 		WriteJump((void*)0x4940B0, LoadSonicDashEffect_r);
 		WriteData((ObjectFuncPtr*)0x49AE58, SonicChargeSpindashEffect_r);
+		Sonic_DisplayLightDashModel_t = new Trampoline((int)Sonic_DisplayLightDashModel, (int)Sonic_DisplayLightDashModel + 0x5, Sonic_DisplayLightDashModel_r);
 	}
 
 	if (config->getBool("General", "CustomPhysics", true)) {
