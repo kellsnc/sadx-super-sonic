@@ -130,6 +130,7 @@ void SuperSonic_InitAnimTable() {
     SuperSonicAnimData[Anm_Sonic_Run1] = SonicAnimData[Anm_SuperSonic_Move2];
     SuperSonicAnimData[Anm_Sonic_Run2] = SonicAnimData[Anm_SuperSonic_Move3];
     SuperSonicAnimData[Anm_Sonic_Win] = SonicAnimData[Anm_SuperSonic_Win];
+    SuperSonicAnimData[Anm_Sonic_Land] = SonicAnimData[Anm_SuperSonic_Land];
 
     if (AlwaysSuperSonic == true) {
         CharSelDataList[0].anonymous_1[0] = SonicAnimData[Anm_SuperSonic_Stand].Animation;
