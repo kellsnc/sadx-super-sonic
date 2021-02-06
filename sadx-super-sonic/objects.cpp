@@ -1,7 +1,5 @@
 #include "pch.h"
 
-DataPointer();
-
 Trampoline* Sonic_SuperPhysics_Load_t = nullptr;
 Trampoline* Sonic_DisplayLightDashModel_t = nullptr;
 
