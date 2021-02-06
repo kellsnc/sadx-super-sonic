@@ -1,5 +1,7 @@
 #include "pch.h"
 
+DataPointer();
+
 Trampoline* Sonic_SuperPhysics_Load_t = nullptr;
 Trampoline* Sonic_DisplayLightDashModel_t = nullptr;
 
@@ -59,7 +61,7 @@ void __cdecl Sonic_SuperPhysicsLevel_Main(task* tsk) {
 }
 
 void __cdecl Sonic_SuperPhysics_Load_r(task* tsk) {
-	if (CurrentLevel == LevelIDs_PerfectChaos) {
+	if (LastStoryFlag == true) {
 		TARGET_DYNAMIC(Sonic_SuperPhysics_Load);
 	}
 	else {

@@ -95,7 +95,7 @@ bool HandleSuperSonicState(EntityData1* data, CharObj2* co2) {
 		co2->Powerups |= Powerups_Invincibility;
 
 		// Consume rings:
-		if (RemoveLimitations == false && data->CharIndex == 0) {
+		if (RemoveLimitations == false && data->CharIndex == 0 && TimeThing == 1) {
 			if (Rings > 0) {
 				if (FrameCounterUnpaused % 60 == 0) {
 					AddRings(-1);
