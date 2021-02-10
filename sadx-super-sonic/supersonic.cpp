@@ -147,10 +147,7 @@ void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 
 				break;
 			case Act_SuperSonic_Jump:
-				if (CurrentLevel != LevelIDs_PerfectChaos) {
-					CheckSuperSonicDetransform(data, mwp, co2);
-				}
-
+				CheckSuperSonicDetransform(data, mwp, co2);
 				break;
 			}
 		}
