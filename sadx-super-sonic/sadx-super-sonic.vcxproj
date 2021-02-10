@@ -98,6 +98,7 @@
     <ClInclude Include="ninja-utils.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="pointers.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />

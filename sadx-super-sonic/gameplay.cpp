@@ -2,6 +2,7 @@
 
 static bool ExtendedGamePlay = true;
 static bool AlwaysSuperSonic = false;
+static bool CustomAnims = true;
 
 static AnimData_t SuperSonicAnimData[SonicAnimData_Length];
 
@@ -110,6 +111,15 @@ NJS_OBJECT* GetSuperSonicModel(unsigned int animation) {
     }
 }
 
+void CustomSuperSonicAnim(int id, const char* name) {
+    AnimationFile* file = nullptr;
+    LoadAnimationFile(&file, name);
+
+    if (file) {
+        SuperSonicAnimData[id].Animation->motion = file->getmotion();
+    }
+}
+
 // Initialize the custom animation table for Super Sonic
 void SuperSonic_InitAnimTable() {
     if (ExtendedGamePlay == true || AlwaysSuperSonic == true) {
@@ -126,6 +136,11 @@ void SuperSonic_InitAnimTable() {
         }
     }
 
+    CustomSuperSonicAnim(19, "SS_011");
+    CustomSuperSonicAnim(66, "SS_051");
+    CustomSuperSonicAnim(67, "SS_053");
+    CustomSuperSonicAnim(68, "SS_052");
+
     SuperSonicAnimData[Anm_Sonic_StandToStance] = SonicAnimData[Anm_SuperSonic_Stand];
     SuperSonicAnimData[Anm_Sonic_Stance] = SonicAnimData[Anm_SuperSonic_Stand];
     SuperSonicAnimData[Anm_Sonic_Stand] = SonicAnimData[Anm_SuperSonic_Stand];
@@ -137,7 +152,6 @@ void SuperSonic_InitAnimTable() {
     SuperSonicAnimData[Anm_Sonic_Run1] = SonicAnimData[Anm_SuperSonic_Move2];
     SuperSonicAnimData[Anm_Sonic_Run2] = SonicAnimData[Anm_SuperSonic_Move3];
     SuperSonicAnimData[Anm_Sonic_Win] = SonicAnimData[Anm_SuperSonic_Win];
-    SuperSonicAnimData[Anm_Sonic_Land] = SonicAnimData[Anm_SuperSonic_Land];
 
     if (AlwaysSuperSonic == true) {
         CharSelDataList[0].anonymous_1[0] = SonicAnimData[Anm_SuperSonic_Stand].Animation;
@@ -152,4 +166,5 @@ void SuperSonic_InitAnimTable() {
 void GamePlay_Init(const IniFile* config) {
     ExtendedGamePlay = config->getBool("General", "ExtendedGameplay", true);
     AlwaysSuperSonic = config->getBool("General", "AlwaysSuperSonic", false);
+    CustomAnims = config->getBool("General", "CustomAnims", true);
 }

@@ -8,10 +8,14 @@ void SuperSonic_InitAnimTable();
 
 static bool Initialized = false;
 
+HelperFunctions HelperFunctionsGlobal;
+
 extern "C" {
 	__declspec(dllexport) void __cdecl Init(const char* path, const HelperFunctions& helperFunctions) {
 		const IniFile* config = new IniFile(std::string(path) + "\\config.ini");
 		const IniFile* physics = new IniFile(std::string(path) + "\\physics.ini");
+
+		HelperFunctionsGlobal = helperFunctions;
 
 		SuperSonic_Init(helperFunctions, config); // Main code to load Super Sonic
 		Objects_Init(config, physics); // Edit external objects like SpinDash Trail, SuperPhysics...
