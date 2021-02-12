@@ -41,15 +41,17 @@ bool SonicDetransformNAct(EntityData1* data, CharObj2* co2) {
 }
 
 void GamePlay_HackActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
-    if ((ExtendedGamePlay == false && IsEventPerforming() == false) || SonicDetransformNAct(data, co2)) {
+    if (data->Action == Act_Sonic_Death || (ExtendedGamePlay == false && IsEventPerforming() == false) || SonicDetransformNAct(data, co2)) {
         return; // Live above + check detransformation
     }
 
-    if (data->Status & Status_HoldObject) {
-        Sonic_HoldingObject_NAct(data, co2, (EntityData2*)mwp);
-    }
-    else {
-        Sonic_NAct(co2, data, (EntityData2*)mwp);
+    if (data->Action != Act_Sonic_Stand) {
+        if (data->Status & Status_HoldObject) {
+            Sonic_HoldingObject_NAct(data, co2, (EntityData2*)mwp);
+        }
+        else {
+            Sonic_NAct(co2, data, (EntityData2*)mwp);
+        }
     }
 
     // Use Super Sonic actions when we can, force Sonic's when it's better

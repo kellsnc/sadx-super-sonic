@@ -30,9 +30,6 @@ void __cdecl Sonic_SuperPhysicsLevel_Delete(task* tsk) {
 	if (co2 != nullptr) {
 		ResetSuperPhysics(&co2->PhysicsData, EntityData1Ptrs[tsk->awp->work.sl[0]]->CharID);
 	}
-
-	// Restore Super Sonic's win height
-	WriteData((float*)0x494E16, 10.0f);
 }
 
 void __cdecl Sonic_SuperPhysicsLevel_Main(task* tsk) {
@@ -60,7 +57,8 @@ void __cdecl Sonic_SuperPhysicsLevel_Main(task* tsk) {
 
 void __cdecl Sonic_SuperPhysics_Load_r(task* tsk) {
 	if (LastStoryFlag == true) {
-		TARGET_DYNAMIC(Sonic_SuperPhysics_Load);
+		TARGET_DYNAMIC(Sonic_SuperPhysics_Load)(tsk);
+		WriteData((float*)0x494E16, 10.0f);
 	}
 	else {
 		CharObj2* co2 = CharObj2Ptrs[tsk->awp->work.sl[0]];
@@ -134,7 +132,7 @@ void __cdecl Sonic_DisplayLightDashModel_r(EntityData1* data, EntityData2* data2
 }
 
 void Objects_Init(const IniFile* config, const IniFile* physics) {
-	Sonic_SuperPhysics_Load_t = new Trampoline((int)Sonic_SuperPhysics_Load, (int)Sonic_SuperPhysics_Load + 0x8, Sonic_SuperPhysics_Load_r);
+	Sonic_SuperPhysics_Load_t = new Trampoline((int)Sonic_SuperPhysics_Load, (int)Sonic_SuperPhysics_Load + 0x6, Sonic_SuperPhysics_Load_r);
 	
 	// Fixes upside down water plane in Emerald Coast 2
 	if (GeoLists[LevelIDs_EmeraldCoast * 8 + 1] == &Geo_ECoast2 && Geo_ECoast2.Col[1].Flags & ColFlags_Water) {
