@@ -103,6 +103,24 @@ void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 	}
 }
 
+bool Blacklist_NormalSuperSonic(EntityData1* data, CharObj2* co2) {
+	switch (CurrentLevel) {
+	default:
+		break;
+	case LevelIDs_Casinopolis:
+		return CurrentAct == 2 || CurrentAct == 3;
+	case LevelIDs_SpeedHighway:
+		return CurrentAct == 1;
+	}
+
+	if (co2->AnimationThing.Index < Anm_SuperSonic_Stand || co2->AnimationThing.Index > Anm_SuperSonic_Jump) {
+		return true;
+	}
+
+	return data->Status & Status_DoNextAction &&
+		(data->NextAction == 12 || (data->NextAction == 13 && CurrentLevel == LevelIDs_TwinklePark));
+}
+
 void Sonic_Exec_r(task* tsk) {
 	EntityData1* data = (EntityData1*)tsk->twp;
 	motionwk* mwp = tsk->mwp;
@@ -130,7 +148,7 @@ void Sonic_Exec_r(task* tsk) {
 				SuperSonic_Rings(data, co2);
 
 				// if advanced super sonic is disabled, detransform Super on invalid actions.
-				if (data->Action < Act_SuperSonic_Stand || data->Action > Act_SuperSonic_Jump) {
+				if (UseAdvancedSuperSonic() == false && Blacklist_NormalSuperSonic(data, co2)) {
 					DetransformSuperSonic(data, co2); 
 				}
 			}

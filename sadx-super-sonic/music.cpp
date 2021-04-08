@@ -2,7 +2,7 @@
 
 // Changes to force the last boss music if the option enabled, and to perform transformation voices
 
-static int CurrentSong2 = 0;
+static int CurrentSong2 = -1;
 
 static const int clips[] = {
 	402,
@@ -15,7 +15,7 @@ static const int clips[] = {
 void RestoreMusic() {
 	if (ChangeMusic == true && CurrentSong == MusicIDs_ThemeOfSuperSonic) {
 		CurrentSong = LastSong;
-		CurrentSong2 = LastSong;
+		CurrentSong2 = -1;
 	}
 }
 
@@ -32,6 +32,7 @@ void __cdecl PlayMusic_r(MusicIDs song) {
 		// If the Super Sonic Theme theme is currently playing, save the new registered song for later
 		else if (CurrentSong2 == MusicIDs::MusicIDs_ThemeOfSuperSonic) {
 			CurrentSong = MusicIDs::MusicIDs_ThemeOfSuperSonic;
+			CurrentSong2 = CurrentSong;
 			LastSong = song;
 		}
 
