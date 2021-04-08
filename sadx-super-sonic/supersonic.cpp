@@ -1,127 +1,27 @@
 #include "pch.h"
 
-void GamePlay_HackDisplay(EntityData1* data, CharObj2* co2);
-void GamePlay_HackActions(EntityData1* data, motionwk* mwp, CharObj2* co2);
-
-static const PVMEntry SuperSonicPVM = { "SUPERSONIC", &SUPERSONIC_TEXLIST };
-
 static Trampoline* Sonic_Exec_t = nullptr;
 static Trampoline* Sonic_Display_t = nullptr;
 static Trampoline* Sonic_Delete_t = nullptr;
 
-static bool ChangeMusic = true;
-static bool RemoveLimitations = false;
-static bool AlwaysSuperSonic = false;
-static bool EnableTikalUnusedVoice = true;
-static Buttons TransformButton = Buttons_B;
-static bool DetransformButton = true;
+void Sonic_Display_r(task* tsk) {
+	CharObj2* co2 = (CharObj2*)tsk->mwp->work.ptr;
 
-static const int clips[] = {
-	402,
-	508,
-	874,
-	1427,
-	1461
-};
-
-void RestoreMusic() {
-	if (ChangeMusic == true && CurrentSong == MusicIDs_ThemeOfSuperSonic) {
-		CurrentSong = LastSong;
-	}
-}
-
-void __cdecl PlayMusic_r(MusicIDs song) {
-	if (Music_Enabled) {
-
-		// If the Super Sonic Theme is requested, keep the level song in LastSong
-		if (song == MusicIDs::MusicIDs_ThemeOfSuperSonic) {
-			LastSong = CurrentSong;
-			CurrentSong = song;
-		}
-
-		// If the Super Sonic Theme theme is currently playing, save the new registered song for later
-		else if (CurrentSong == MusicIDs::MusicIDs_ThemeOfSuperSonic) {
-			LastSong = song;
-		}
-
-		// Else normal behaviour
-		else {
-			CurrentSong = song;
-			LastSong = song;
-		}
-	}
-}
-
-void CheckSuperSonicTransform(EntityData1* data, motionwk* mwp, CharObj2* co2) {
-	if (PressedButtons[data->CharIndex] & TransformButton) {
-		
-		// If Super Sonic story is finished & more than 50 rings
-		if (RemoveLimitations == false && (!GetEventFlag(EventFlags_SuperSonicAdventureComplete) || (data->CharIndex == 0 && Rings < 50))) {
-			return;
-		}
-
-		ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
-
-		// If it's player 1, play sound & update music
-		if (data->CharIndex == 0) {
-			PlayVoice(396);
-
-			if (ChangeMusic == true) {
-				PlayMusic_r(MusicIDs::MusicIDs_ThemeOfSuperSonic);
-			}
-		}
-	}
-}
-
-void DetransformSuperSonic(EntityData1* data, CharObj2* co2) {
-	ForcePlayerAction(data->CharIndex, NextAction_SuperSonicStop);
-	co2->Powerups &= ~Powerups_Invincibility;
-
-	if (data->CharIndex == 0) {
-		PlayVoice(clips[rand() % LengthOfArray(clips)]);
-		RestoreMusic();
-	}
-}
-
-void CheckSuperSonicDetransform(EntityData1* data, motionwk* mwp, CharObj2* co2) {
-	if (co2->Upgrades & Upgrades_SuperSonic && DetransformButton == true && PressedButtons[data->CharIndex] & TransformButton) {
-		DetransformSuperSonic(data, co2);
-	}
-}
-
-// Handle Super Sonic things common to every action (ring decrease, invincibility...)
-bool HandleSuperSonicState(EntityData1* data, CharObj2* co2) {
+	// SuperSonicFlag is just a flag to change sonic's lighting, no other use
 	if (co2->Upgrades & Upgrades_SuperSonic) {
-		co2->Powerups |= Powerups_Invincibility;
-
-		// Consume rings:
-		if (RemoveLimitations == false && data->CharIndex == 0 && TimeThing == 1) {
-			if (Rings > 0) {
-				if (FrameCounterUnpaused % 60 == 0) {
-					AddRings(-1);
-				}
-			}
-			else {
-				DetransformSuperSonic(data, co2);
-				return false;
-			}
-		}
+		SuperSonicFlag = 1;
+	}
+	else {
+		SuperSonicFlag = 0;
 	}
 
-	// Always force Super Sonic if enabled
-	else if (AlwaysSuperSonic == true) {
-		ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
-		LoadPVM(SuperSonicPVM.Name, SuperSonicPVM.TexList); // failsafe, it's not always loaded
+	GamePlay_HackDisplay((EntityData1*)tsk->twp, co2);
 
-		return false;
-	}
-
-	return true;
+	TARGET_DYNAMIC(Sonic_Display)(tsk);
 }
 
 void CheckTikalVoice(EntityData1* data, CharObj2* co2) {
 	if (EnableTikalUnusedVoice == true && GetEventFlag(EventFlags_SuperSonicAdventureComplete) &&
-		(co2->Upgrades & Upgrades_SuperSonic) != Upgrades_SuperSonic &&
 		GetEventFlag((EventFlags)0x39) == false && RemoveLimitations == false &&
 		GameState == 15 && CurrentLevel < LevelIDs_Chaos0) {
 		PlayVoice(1676);
@@ -130,53 +30,76 @@ void CheckTikalVoice(EntityData1* data, CharObj2* co2) {
 	}
 }
 
-void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
-	if (HandleSuperSonicState(data, co2)) {
-		CheckTikalVoice(data, co2);
+void CheckSuperSonicTransform(EntityData1* data, CharObj2* co2) {
+	if (PressedButtons[data->CharIndex] & TransformButton) {
+		// If Super Sonic story is finished & more than 50 rings
+		if (RemoveLimitations == false && (!GetEventFlag(EventFlags_SuperSonicAdventureComplete) || (data->CharIndex == 0 && Rings < 50))) {
+			return;
+		}
 
-		// Skip transformation actions if AlwaysSuperSonic is enabled
-		if (AlwaysSuperSonic == false) {
-			switch (data->Action) {
-			case Act_Sonic_Jump:
-				if (co2->Upgrades & Upgrades_SuperSonic) {
-					CheckSuperSonicDetransform(data, mwp, co2);
-				}
-				else {
-					CheckSuperSonicTransform(data, mwp, co2);
-				}
+		GamePlay_SetSuperAnims();
 
-				break;
-			case Act_SuperSonic_Jump:
-				CheckSuperSonicDetransform(data, mwp, co2);
-				break;
+		ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
+
+		// If it's player 1, play sound & update music
+		if (data->CharIndex == 0) {
+			TransformMusicAndSound();
+		}
+	}
+}
+
+void DetransformSuperSonic(EntityData1* data, CharObj2* co2) {
+	ForcePlayerAction(data->CharIndex, NextAction_SuperSonicStop);
+	co2->Powerups &= ~Powerups_Invincibility;
+
+	GamePlay_UnsetSuperAnims();
+
+	// If it's player 1, play sound & reset music
+	if (data->CharIndex == 0) {
+		DetransformMusicAndSound();
+	}
+}
+
+void CheckSuperSonicDetransform(EntityData1* data, CharObj2* co2) {
+	if (co2->Upgrades & Upgrades_SuperSonic && DetransformButton == true && PressedButtons[data->CharIndex] & TransformButton) {
+		DetransformSuperSonic(data, co2);
+	}
+}
+
+void SuperSonicAct(EntityData1* data, CharObj2* co2) {
+	co2->Powerups |= Powerups_Invincibility;
+
+	// Consume rings:
+	if (RemoveLimitations == false && data->CharIndex == 0 && TimeThing == 1) {
+		if (Rings > 0) {
+			if (FrameCounterUnpaused % 60 == 0) {
+				AddRings(-1);
 			}
 		}
+		else {
+			DetransformSuperSonic(data, co2);
+		}
+	}
+}
+
+void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
+	switch (data->Action) {
+	case Act_Sonic_Jump:
+		if (co2->Upgrades & Upgrades_SuperSonic) {
+			CheckSuperSonicDetransform(data, co2);
+		}
+		else {
+			CheckSuperSonicTransform(data, co2);
+		}
+
+		break;
+	case Act_SuperSonic_Jump:
+		CheckSuperSonicDetransform(data, co2);
+		break;
 	}
 
 	// Series of hack to allow Sonic's actions for Super Sonic
 	GamePlay_HackActions(data, mwp, co2);
-}
-
-void Sonic_Display_r(task* tsk) {
-	EntityData1* data = (EntityData1*)tsk->twp;
-	CharObj2* co2 = (CharObj2*)tsk->mwp->work.ptr;
-
-	// If in last story or metal sonic, don't run custom super sonic
-	if (LastStoryFlag == false && MetalSonicFlag == false) {
-
-		// SuperSonicFlag is just a flag to change sonic's lighting, no other use
-		if (co2->Upgrades & Upgrades_SuperSonic) {
-			SuperSonicFlag = 1;
-		}
-		else {
-			SuperSonicFlag = 0;
-		}
-
-		// Series of hacks to allow Sonic's animations on Super Sonic
-		GamePlay_HackDisplay(data, co2);
-	}
-
-	TARGET_DYNAMIC(Sonic_Display)(tsk);
 }
 
 void Sonic_Exec_r(task* tsk) {
@@ -184,8 +107,30 @@ void Sonic_Exec_r(task* tsk) {
 	motionwk* mwp = tsk->mwp;
 	CharObj2* co2 = (CharObj2*)mwp->work.ptr;
 
-	if (data->Action != Act_Sonic_Init && LastStoryFlag == false && MetalSonicFlag == false) {
-		Sonic_NewActions(data, mwp, co2); // Add the transform and detransform actions
+	if (LastStoryFlag == false && MetalSonicFlag == false) {
+		if (data->Action == Act_Sonic_Init) {
+
+			// Force load Super Sonic if option enabled, otherwise check for Tikal's unused voice
+			if (AlwaysSuperSonic == true) {
+				ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
+				LoadPVM("SUPERSONIC", &SUPERSONIC_TEXLIST);
+				GamePlay_SetSuperAnims();
+			}
+			else {
+				CheckTikalVoice(data, co2);
+			}
+		}
+		else {
+
+			// Only transform/detransform or decrease rings if AlwaysSuperSonic disabled.
+			if (AlwaysSuperSonic == false) {
+				Sonic_NewActions(data, mwp, co2);
+
+				if (co2->Upgrades & Upgrades_SuperSonic) {
+					SuperSonicAct(data, co2); // decrease rings, stuff
+				}
+			}
+		}
 	}
 
 	TARGET_DYNAMIC(Sonic_Exec)(tsk);
@@ -200,11 +145,14 @@ void Sonic_Delete_r(task* tsk) {
 		RestoreMusic();
 	}
 
+	// Just in case
+	GamePlay_UnsetSuperAnims();
+
 	TARGET_DYNAMIC(Sonic_Delete)(tsk);
 }
 
-void SuperSonic_Init(const HelperFunctions& helperFunctions, const IniFile* config) {
-	helperFunctions.RegisterCharacterPVM(Characters_Sonic, SuperSonicPVM);
+void SuperSonic_Init() {
+	HelperFunctionsGlobal.RegisterCharacterPVM(Characters_Sonic, { "SUPERSONIC", &SUPERSONIC_TEXLIST });
 
 	Sonic_Exec_t = new Trampoline((int)Sonic_Main, (int)Sonic_Main + 0x7, Sonic_Exec_r);
 	Sonic_Display_t = new Trampoline((int)Sonic_Display, (int)Sonic_Display + 0x7, Sonic_Display_r);
@@ -212,21 +160,4 @@ void SuperSonic_Init(const HelperFunctions& helperFunctions, const IniFile* conf
 	
 	// Always initialize Super Sonic weld data
 	WriteData<2>(reinterpret_cast<Uint8*>(0x0049AC6A), 0x90i8);
-
-	// Read configuration
-	ChangeMusic = config->getBool("General", "ChangeMusic", true);
-	RemoveLimitations = config->getBool("General", "RemoveLimitations", false);
-	AlwaysSuperSonic = config->getBool("General", "AlwaysSuperSonic", false);
-	EnableTikalUnusedVoice = config->getBool("General", "EnableTikalUnusedVoice", true);
-	TransformButton = config->getInt("General", "TransformButton", 0) == 0 ? Buttons_B : Buttons_X;
-	DetransformButton = config->getBool("General", "DetransformButton", true);
-	
-	if (AlwaysSuperSonic == true) {
-		RemoveLimitations = true;
-	}
-	
-	// Apply music changes
-	if (ChangeMusic) {
-		WriteJump(PlayMusic, PlayMusic_r);
-	}
 }

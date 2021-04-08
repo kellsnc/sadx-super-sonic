@@ -1,25 +1,103 @@
 #include "pch.h"
 
-static bool ExtendedGamePlay = true;
-static bool AlwaysSuperSonic = false;
-static bool CustomAnims = true;
+// Series of hacky hacks coming straight from hell to allow Sonic actions as Super Sonic
 
-static AnimData_t SuperSonicAnimData[SonicAnimData_Length];
+Trampoline* njAction_t = nullptr;
+Trampoline* njAction_Queue_t = nullptr;
+
+NJS_ACTION new_action;
+AnimationFile* customAnims[4] = {};
+std::vector<std::pair<AnimData, int>> Backups;
+
+bool DrawSuperSonic = false;
+
+#define REPLACEANIM(a, b) Backups.push_back({SonicAnimData[a], a}); SonicAnimData[a] = SonicAnimData[b];
+#define REPLACEMOTION(a, b) Backups.push_back({SonicAnimData[a], a}); SonicAnimData[a].Animation->motion = customAnims[b]->getmotion();
+
+NJS_OBJECT* SonicObjectToSuperSonic(NJS_OBJECT* object) {
+    if (object == SONIC_OBJECTS[0]) {
+        return SONIC_OBJECTS[22];
+    } 
+    else if (object == SONIC_OBJECTS[56] || object == SONIC_OBJECTS[70] || object == SONIC_OBJECTS[66]) {
+        return SONIC_ACTIONS[142]->object;
+    }
+    else {
+        return object;
+    }
+}
+
+NJS_ACTION* njAction_Hack(NJS_ACTION* action) {
+    if (DrawSuperSonic == true) {
+        new_action = { SonicObjectToSuperSonic(action->object), action->motion };
+        DrawSuperSonic = false;
+        return &new_action;
+    }
+    else {
+        return action;
+    }
+}
+
+void __cdecl njAction_r(NJS_ACTION* action, Float frame) {
+    TARGET_DYNAMIC(njAction)(njAction_Hack(action), frame);
+}
+
+void __cdecl njAction_Queue_r(NJS_ACTION* action, float frame, QueuedModelFlagsB flags) {
+    TARGET_DYNAMIC(njAction_Queue)(njAction_Hack(action), frame, flags);
+}
 
 void GamePlay_HackDisplay(EntityData1* data, CharObj2* co2) {
-    if (ExtendedGamePlay == false && IsEventPerforming() == false) {
-        return; // Only run this function if extended gameplay is enabled, or it's an event (with "Always Super Sonic")
+    if (ExtendedGamePlay == false || (AlwaysSuperSonic == false && IsEventPerforming() == true)) {
+        return;
     }
-
+    
     if (co2->Upgrades & Upgrades_SuperSonic) {
         WriteData((NJS_TEXLIST**)0x4949E9, &SUPERSONIC_TEXLIST); // Force Super Sonic's texlist
         WriteData<1>((void*)0x494AED, co2->AnimationThing.Index); // Hack for the ball not to flash
-        co2->AnimationThing.AnimData = SuperSonicAnimData; // Change the animation set
+        DrawSuperSonic = true;
+
+        SonicAnimData[Anm_Sonic_Stand].AnimationSpeed = 0.25f;
+        SonicAnimData[Anm_Sonic_Walk1].AnimationSpeed = 0.5f;
+        SonicAnimData[Anm_Sonic_Walk2].AnimationSpeed = 0.5f;
+        SonicAnimData[Anm_Sonic_Walk3].AnimationSpeed = 0.5f;
     }
     else {
         WriteData((NJS_TEXLIST**)0x4949E9, &SONIC_TEXLIST);
         WriteData<1>((void*)0x494AED, 0x91);
-        co2->AnimationThing.AnimData = SonicAnimData;
+    }
+}
+
+void GamePlay_UnsetSuperAnims() {
+    if (ExtendedGamePlay == true) {
+        for (auto& i : Backups) {
+            SonicAnimData[i.second] = i.first;
+        }
+
+        Backups.clear();
+    }
+}
+
+void GamePlay_SetSuperAnims() {
+    if (ExtendedGamePlay == true) {
+        if (Backups.empty() == true) {
+            REPLACEANIM(Anm_Sonic_Stand, Anm_SuperSonic_Stand);
+            REPLACEANIM(Anm_Sonic_Stance, Anm_SuperSonic_Stand);
+            REPLACEANIM(Anm_Sonic_StandToStance, Anm_SuperSonic_Stand);
+            REPLACEANIM(Anm_Sonic_StandUpwardSlope, Anm_SuperSonic_Stand);
+            REPLACEANIM(Anm_Sonic_StandDownwardSlope, Anm_SuperSonic_Stand);
+            REPLACEANIM(Anm_Sonic_Walk1, Anm_SuperSonic_StandToMove);
+            REPLACEANIM(Anm_Sonic_Walk2, Anm_SuperSonic_Move1);
+            REPLACEANIM(Anm_Sonic_Walk3, Anm_SuperSonic_Move2);
+            REPLACEANIM(Anm_Sonic_Run1, Anm_SuperSonic_Move2);
+            REPLACEANIM(Anm_Sonic_Run2, Anm_SuperSonic_Move3);
+            REPLACEANIM(Anm_Sonic_Win, Anm_SuperSonic_Win);
+    
+            if (CustomAnims == true) {
+                REPLACEMOTION(Anm_Sonic_Land, 0);
+                REPLACEMOTION(Anm_Sonic_MonkeyBarsMove, 1);
+                REPLACEMOTION(Anm_Sonic_MonkeyBarsHoldLeft, 2);
+                REPLACEMOTION(Anm_Sonic_MonkeyBarsHoldRight, 3);
+            }
+        }
     }
 }
 
@@ -88,85 +166,16 @@ void GamePlay_HackActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
     }
 }
 
-NJS_OBJECT* GetSuperSonicModel(unsigned int animation) {
-    switch (animation) {
-    case Anm_SuperSonic_Stand:
-    case Anm_SuperSonic_StandToMove:
-    case Anm_SuperSonic_Move1:
-    case Anm_SuperSonic_Move2:
-    case Anm_SuperSonic_Move3:
-    case Anm_SuperSonic_Spring:
-    case Anm_SuperSonic_SpringFall:
-    case Anm_SuperSonic_Fall:
-    case Anm_SuperSonic_Land:
-    case Anm_SuperSonic_Win:
-    case Anm_SuperSonic_WinToStand:
-    case Anm_SuperSonic_Jump:
-        return SonicAnimData[animation].Animation->object;
-    case Anm_Sonic_Jump:
-    case Anm_Sonic_JumpOrSpin:
-    case Anm_Sonic_Bowling:
-    case Anm_Sonic_Roll:
-        return SONIC_ACTIONS[142]->object;
-    default:
-        return SONIC_OBJECTS[22];
-    }
-}
+void GamePlay_Init() {
+    if (ExtendedGamePlay == true) {
+        njAction_t = new Trampoline((int)njAction, (int)njAction + 0x9, njAction_r);
+        njAction_Queue_t = new Trampoline((int)njAction_Queue, (int)njAction_Queue + 0x8, njAction_Queue_r);
 
-void CustomSuperSonicAnim(int id, const char* name) {
-    AnimationFile* file = nullptr;
-    LoadAnimationFile(&file, name);
-
-    if (file) {
-        SuperSonicAnimData[id].Animation->motion = file->getmotion();
-    }
-}
-
-// Initialize the custom animation table for Super Sonic
-void SuperSonic_InitAnimTable() {
-    if (ExtendedGamePlay == true || AlwaysSuperSonic == true) {
-        memcpy(&SuperSonicAnimData, &SonicAnimData, sizeof(AnimData_t) * SonicAnimData_Length);
-
-        for (int i = 0; i < SonicAnimData_Length; ++i) {
-            SuperSonicAnimData[i] = SonicAnimData[i];
-            SuperSonicAnimData[i].Animation = new NJS_ACTION();
-
-            if (SonicAnimData[i].Animation) {
-                SuperSonicAnimData[i].Animation->motion = SonicAnimData[i].Animation->motion;
-                SuperSonicAnimData[i].Animation->object = GetSuperSonicModel(i);
-            }
+        if (CustomAnims == true) {
+            LoadAnimationFile(&customAnims[0], "SS_011");
+            LoadAnimationFile(&customAnims[1], "SS_051");
+            LoadAnimationFile(&customAnims[2], "SS_053");
+            LoadAnimationFile(&customAnims[3], "SS_052");
         }
     }
-
-    CustomSuperSonicAnim(19, "SS_011");
-    CustomSuperSonicAnim(66, "SS_051");
-    CustomSuperSonicAnim(67, "SS_053");
-    CustomSuperSonicAnim(68, "SS_052");
-
-    SuperSonicAnimData[Anm_Sonic_StandToStance] = SonicAnimData[Anm_SuperSonic_Stand];
-    SuperSonicAnimData[Anm_Sonic_Stance] = SonicAnimData[Anm_SuperSonic_Stand];
-    SuperSonicAnimData[Anm_Sonic_Stand] = SonicAnimData[Anm_SuperSonic_Stand];
-    SuperSonicAnimData[Anm_Sonic_StandUpwardSlope] = SonicAnimData[Anm_SuperSonic_Stand];
-    SuperSonicAnimData[Anm_Sonic_StandDownwardSlope] = SonicAnimData[Anm_SuperSonic_Stand];
-    SuperSonicAnimData[Anm_Sonic_Walk1] = SonicAnimData[Anm_SuperSonic_StandToMove];
-    SuperSonicAnimData[Anm_Sonic_Walk2] = SonicAnimData[Anm_SuperSonic_Move1];
-    SuperSonicAnimData[Anm_Sonic_Walk3] = SonicAnimData[Anm_SuperSonic_Move2];
-    SuperSonicAnimData[Anm_Sonic_Run1] = SonicAnimData[Anm_SuperSonic_Move2];
-    SuperSonicAnimData[Anm_Sonic_Run2] = SonicAnimData[Anm_SuperSonic_Move3];
-    SuperSonicAnimData[Anm_Sonic_Win] = SonicAnimData[Anm_SuperSonic_Win];
-
-    if (AlwaysSuperSonic == true) {
-        CharSelDataList[0].anonymous_1[0] = SonicAnimData[Anm_SuperSonic_Stand].Animation;
-        CharSelDataList[0].anonymous_1[1]->object = SONIC_OBJECTS[22];
-        CharSelDataList[0].anonymous_1[2]->object = SONIC_OBJECTS[22];
-        CharSelDataList[0].TextureList = &SUPERSONIC_TEXLIST;
-
-        //todo cutscene swaps
-    }
-}
-
-void GamePlay_Init(const IniFile* config) {
-    ExtendedGamePlay = config->getBool("General", "ExtendedGameplay", true);
-    AlwaysSuperSonic = config->getBool("General", "AlwaysSuperSonic", false);
-    CustomAnims = config->getBool("General", "CustomAnims", true);
 }

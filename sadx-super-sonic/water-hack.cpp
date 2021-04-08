@@ -1,6 +1,6 @@
 #include "pch.h"
 
-// Code by SonicFreak94
+// By SonicFreak94
 
 static int __stdcall SuperWaterCheck_C(EntityData1* data1, CharObj2* data2)
 {
@@ -16,6 +16,7 @@ static int __stdcall SuperWaterCheck_C(EntityData1* data1, CharObj2* data2)
 
 static const void* surface_solid = reinterpret_cast<void*>(0x004496E7);
 static const void* surface_water = reinterpret_cast<void*>(0x004497B6);
+
 static void __declspec(naked) SuperWaterCheck()
 {
 	__asm
@@ -48,6 +49,14 @@ static void __declspec(naked) SuperWaterCheck()
 	}
 }
 
-void WaterHack_Init(const IniFile* config) {
+void WaterHack_Init() {
 	WriteJump(reinterpret_cast<void*>(0x004496E1), SuperWaterCheck);
+
+	// Fixes upside down water plane in Emerald Coast 2
+	if (GeoLists[LevelIDs_EmeraldCoast * 8 + 1] == &Geo_ECoast2 && Geo_ECoast2.Col[1].Flags & ColFlags_Water) {
+		NJS_OBJECT* obj = Geo_ECoast2.Col[1].Model;
+		obj->ang[0] = 32768;
+		obj->pos[1] = -3.0f;
+		obj->pos[2] = -5850.0f;
+	}
 }
