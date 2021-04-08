@@ -1,5 +1,7 @@
 #include "pch.h"
 
+// Main code for transforming, detransforming, losing rings, etc.
+
 static Trampoline* Sonic_Exec_t = nullptr;
 static Trampoline* Sonic_Display_t = nullptr;
 static Trampoline* Sonic_Delete_t = nullptr;
@@ -7,17 +9,16 @@ static Trampoline* Sonic_Delete_t = nullptr;
 void Sonic_Display_r(task* tsk) {
 	CharObj2* co2 = (CharObj2*)tsk->mwp->work.ptr;
 
-	// SuperSonicFlag is just a flag to change sonic's lighting, no other use
-	if (co2->Upgrades & Upgrades_SuperSonic) {
-		SuperSonicFlag = 1;
+	// Just a flag to change sonic's lighting, no other use
+	SuperSonicFlag = co2->Upgrades & Upgrades_SuperSonic ? 1 : 0;
+
+	// If the advanced config is enabled, use a custom drawing function
+	if (SuperSonicFlag && UseAdvancedSuperSonic()) {
+		SuperSonic_Display((EntityData1*)tsk->twp, co2);
 	}
 	else {
-		SuperSonicFlag = 0;
+		TARGET_DYNAMIC(Sonic_Display)(tsk);
 	}
-
-	GamePlay_HackDisplay((EntityData1*)tsk->twp, co2);
-
-	TARGET_DYNAMIC(Sonic_Display)(tsk);
 }
 
 void CheckTikalVoice(EntityData1* data, CharObj2* co2) {
@@ -31,7 +32,8 @@ void CheckTikalVoice(EntityData1* data, CharObj2* co2) {
 }
 
 void CheckSuperSonicTransform(EntityData1* data, CharObj2* co2) {
-	if (PressedButtons[data->CharIndex] & TransformButton) {
+	if (PressedButtons[data->CharIndex] & TransformButton && IsEventPerforming() == false) {
+		
 		// If Super Sonic story is finished & more than 50 rings
 		if (RemoveLimitations == false && (!GetEventFlag(EventFlags_SuperSonicAdventureComplete) || (data->CharIndex == 0 && Rings < 50))) {
 			return;
@@ -57,7 +59,7 @@ void DetransformSuperSonic(EntityData1* data, CharObj2* co2) {
 }
 
 void CheckSuperSonicDetransform(EntityData1* data, CharObj2* co2) {
-	if (co2->Upgrades & Upgrades_SuperSonic && DetransformButton == true && PressedButtons[data->CharIndex] & TransformButton) {
+	if (co2->Upgrades & Upgrades_SuperSonic && ((DetransformButton == true && PressedButtons[data->CharIndex] & TransformButton) || IsEventPerforming() == true)) {
 		DetransformSuperSonic(data, co2);
 	}
 }
@@ -93,9 +95,6 @@ void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 		CheckSuperSonicDetransform(data, co2);
 		break;
 	}
-
-	// Series of hack to allow Sonic's actions for Super Sonic
-	GamePlay_HackActions(data, mwp, co2);
 }
 
 void Sonic_Exec_r(task* tsk) {
@@ -105,15 +104,7 @@ void Sonic_Exec_r(task* tsk) {
 
 	if (LastStoryFlag == false && MetalSonicFlag == false) {
 		if (data->Action == Act_Sonic_Init) {
-
-			// Force load Super Sonic if option enabled, otherwise check for Tikal's unused voice
-			if (AlwaysSuperSonic == true) {
-				ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
-				LoadPVM("SUPERSONIC", &SUPERSONIC_TEXLIST);
-			}
-			else {
-				CheckTikalVoice(data, co2);
-			}
+			CheckTikalVoice(data, co2);
 		}
 		else {
 
@@ -124,6 +115,10 @@ void Sonic_Exec_r(task* tsk) {
 				if (co2->Upgrades & Upgrades_SuperSonic) {
 					SuperSonicAct(data, co2); // decrease rings, stuff
 				}
+			}
+			
+			if (UseAdvancedSuperSonic()) {
+				SuperSonic_Actions(data, mwp, co2);
 			}
 		}
 	}

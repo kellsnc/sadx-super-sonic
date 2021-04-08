@@ -13,7 +13,6 @@
 #include "mod.h"
 #include "sadx-utils.h"
 #include "ninja-utils.h"
-#include "utils.h"
 
 #include "Characters/Common.h"
 #include "Characters/Sonic.h"

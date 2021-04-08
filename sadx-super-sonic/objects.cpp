@@ -1,5 +1,7 @@
 #include "pch.h"
 
+// Code to adapt Sonic sub objects to Super Sonic
+
 Trampoline* Sonic_DisplayLightDashModel_t = nullptr;
 
 void LoadSonicDashTrail_r(EntityData1* player) {

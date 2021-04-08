@@ -1,5 +1,7 @@
 #include "pch.h"
 
+// Entry point of the mod
+
 HelperFunctions HelperFunctionsGlobal;
 
 Buttons TransformButton = Buttons_B;

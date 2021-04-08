@@ -99,12 +99,11 @@
     <ClInclude Include="ninja-utils.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="sadx-utils.h" />
-    <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="animations.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="entry.cpp" />
+    <ClCompile Include="mod.cpp" />
     <ClCompile Include="gameplay.cpp" />
     <ClCompile Include="music.cpp" />
     <ClCompile Include="ninja-utils.cpp" />

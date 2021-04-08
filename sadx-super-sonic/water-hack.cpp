@@ -1,6 +1,6 @@
 #include "pch.h"
 
-// By SonicFreak94
+// By SonicFreak94, prevents Sonic from going through water planes
 
 static int __stdcall SuperWaterCheck_C(EntityData1* data1, CharObj2* data2)
 {

@@ -1,5 +1,7 @@
 #include "pch.h"
 
+// Code to replace Super Sonic physics with custom, softer ones
+
 Trampoline* Sonic_SuperPhysics_Load_t = nullptr;
 
 static float SuperSonicDecel = *(float*)0x49439D; // -0.001f

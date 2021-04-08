@@ -1,5 +1,8 @@
 #include "pch.h"
 
+// Hacks to get Super Sonic to show on Sonic's animations
+// + fixes some animation that break Super Sonic
+
 FastcallFunctionPointer(void, SuperSonic_WalkAni, (CharObj2* co2, EntityData2* data2), 0x491820);
 
 Trampoline* Sonic_WalkAni_t = nullptr;
@@ -9,8 +12,6 @@ Trampoline* njAction_Queue_t = nullptr;
 
 NJS_ACTION new_action;
 AnimationFile* customAnims[4] = {};
-
-extern bool DrawSuperSonic;
 
 NJS_MOTION* SuperSonicMotionFixes(NJS_MOTION* motion) {
 	if (motion == SONIC_ACTIONS[11]->motion) {
@@ -42,27 +43,10 @@ NJS_OBJECT* SonicObjectToSuperSonic(NJS_OBJECT* object) {
 	}
 }
 
-NJS_ACTION* njAction_Hack(NJS_ACTION* action) {
-	if (DrawSuperSonic == true) {
-		njSetTexture(&SUPERSONIC_TEXLIST);
+void njAction_SuperSonic(NJS_ACTION* action, Float frame) {
+	new_action = { SonicObjectToSuperSonic(action->object), SuperSonicMotionFixes(action->motion) };
 
-		new_action = { SonicObjectToSuperSonic(action->object), SuperSonicMotionFixes(action->motion) };
-
-		DrawSuperSonic = false;
-
-		return &new_action;
-	}
-	else {
-		return action;
-	}
-}
-
-void __cdecl njAction_r(NJS_ACTION* action, Float frame) {
-	TARGET_DYNAMIC(njAction)(njAction_Hack(action), frame);
-}
-
-void __cdecl njAction_Queue_r(NJS_ACTION* action, float frame, QueuedModelFlagsB flags) {
-	TARGET_DYNAMIC(njAction_Queue)(njAction_Hack(action), frame, flags);
+	njAction(&new_action, frame);
 }
 
 void __cdecl Sonic_WalkAni_r(EntityData1* data, EntityData2* data2, CharObj2* co2) {
@@ -125,8 +109,6 @@ void Animations_Init() {
 	if (ExtendedGamePlay == true) {
 		Sonic_WalkAni_t = new Trampoline(0x495CD0, 0x495CD5, Sonic_WalkAni_asm);
 		Sonic_GroundAnim_t = new Trampoline(0x491660, 0x49166B, Sonic_GroundAnim_asm);
-		njAction_t = new Trampoline((int)njAction, (int)njAction + 0x9, njAction_r);
-		njAction_Queue_t = new Trampoline((int)njAction_Queue, (int)njAction_Queue + 0x8, njAction_Queue_r);
 
 		if (CustomAnims == true) {
 			LoadAnimationFile(&customAnims[0], "SS_011");

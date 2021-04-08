@@ -1,18 +1,57 @@
 #include "pch.h"
 
-bool DrawSuperSonic = false;
+// Series of modifications to allow Sonic actions on Super Sonic
 
-void GamePlay_HackDisplay(EntityData1* data, CharObj2* co2) {
-    if (ExtendedGamePlay == false || (AlwaysSuperSonic == false && IsEventPerforming() == true)) {
-        return;
-    }
-    
-    if (co2->Upgrades & Upgrades_SuperSonic) {
-        WriteData<1>((void*)0x494AED, co2->AnimationThing.Index); // Hack for the ball not to flash
-        DrawSuperSonic = true;
-    }
-    else {
-        WriteData<1>((void*)0x494AED, 0x91); // Retore ball hack
+bool UseAdvancedSuperSonic() {
+    return ExtendedGamePlay == true && (AlwaysSuperSonic == true || IsEventPerforming() == false);
+}
+
+void SuperSonic_Display(EntityData1* data, CharObj2* co2) {
+    if (!MissedFrames && IsVisible(&data->Position, 15.0f)) {
+        Direct3D_SetZFunc(1u);
+        BackupConstantAttr();
+        AddConstantAttr(0, NJD_FLAG_IGNORE_SPECULAR);
+        njControl3D_Backup();
+        njControl3D(NJD_CONTROL_3D_CONSTANT_MATERIAL);
+        SetMaterialAndSpriteColor_Float(1.0f, 1.0f, 1.0f, 1.0f);
+        Direct3D_PerformLighting(4);
+
+        int current_anim = co2->AnimationThing.Index;
+
+        if (co2->AnimationThing.State == 2)
+        {
+            current_anim = co2->AnimationThing.LastIndex;
+        }
+
+        if (!(data->InvulnerableTime & 2)) {
+            njSetTexture(&SUPERSONIC_TEXLIST);
+
+            njPushMatrixEx();
+            njTranslateEx(&data->CollisionInfo->CollisionArray->center);
+            njRotateZ_(data->Rotation.z);
+            njRotateX_(data->Rotation.x);
+            njRotateY_((-0x8000 - LOWORD(data->Rotation.y)));
+
+            // Spindash deform
+            if (current_anim == Anm_Sonic_JumpOrSpin && data->Status & (Status_Unknown1 | Status_Ground)) {
+                njTranslateY(-1.0f);
+                njRotateZ(nullptr, 0x2000);
+                njScale(nullptr, 0.7f, 1.1f, 0.8f);
+            }
+
+            njAction_SuperSonic(co2->AnimationThing.AnimData[current_anim].Animation, co2->AnimationThing.Frame);
+
+            njPopMatrixEx();
+            Direct3D_PerformLighting(0);
+            ClampGlobalColorThing_Thing();
+            njControl3D_Restore();
+            RestoreConstantAttr();
+            Direct3D_ResetZFunc();
+
+            if (IsGamePaused()) {
+                DrawCharacterShadow(data, &co2->_struct_a3);
+            }
+        }
     }
 }
 
@@ -33,9 +72,16 @@ bool SonicDetransformNAct(EntityData1* data, CharObj2* co2) {
     return false;
 }
 
-void GamePlay_HackActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
-    if (data->Action == Act_Sonic_Death || (ExtendedGamePlay == false && IsEventPerforming() == false) || SonicDetransformNAct(data, co2)) {
-        return; // Live above + check detransformation
+void SuperSonic_Actions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
+    if (data->Action == Act_Sonic_Death || SonicDetransformNAct(data, co2)) {
+        return;
+    }
+
+    // Always force Super Sonic if enabled
+    if (AlwaysSuperSonic == true && !(co2->Upgrades & Upgrades_SuperSonic)) {
+        ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
+        LoadPVM("SUPERSONIC", &SUPERSONIC_TEXLIST);
+        return;
     }
 
     if (data->Action != Act_Sonic_Stand) {

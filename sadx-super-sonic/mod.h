@@ -2,6 +2,8 @@
 
 #define TARGET_DYNAMIC(name) ((decltype(name##_r)*)name##_t->Target())
 
+extern HelperFunctions HelperFunctionsGlobal;
+
 extern Buttons TransformButton;
 extern bool EnableTikalUnusedVoice;
 extern bool RemoveLimitations;
@@ -19,8 +21,10 @@ void Music_Init();
 void Physics_Init(const char* path);
 void Animations_Init();
 
+void njAction_SuperSonic(NJS_ACTION* action, Float frame);
+bool UseAdvancedSuperSonic();
 void RestoreMusic();
 void TransformMusicAndSound();
 void DetransformMusicAndSound();
-void GamePlay_HackDisplay(EntityData1* data, CharObj2* co2);
-void GamePlay_HackActions(EntityData1* data, motionwk* mwp, CharObj2* co2);
+void SuperSonic_Display(EntityData1* data, CharObj2* co2);
+void SuperSonic_Actions(EntityData1* data, motionwk* mwp, CharObj2* co2);
