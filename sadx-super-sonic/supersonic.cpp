@@ -135,13 +135,6 @@ void Sonic_Exec_r(task* tsk) {
 				Sonic_NewActions(data, mwp, co2);
 			}
 
-			// Always force Super Sonic if enabled
-			if (AlwaysSuperSonic == true && IsSuperSonic(co2) == false) {
-				ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
-				LoadPVM("SUPERSONIC", &SUPERSONIC_TEXLIST);
-				return;
-			}
-
 			// Super Sonic actions
 			if (IsSuperSonic(co2) == true) {
 				SuperSonic_Actions(data, mwp, co2);
@@ -151,6 +144,12 @@ void Sonic_Exec_r(task* tsk) {
 				if (UseAdvancedSuperSonic() == false && Blacklist_NormalSuperSonic(data, co2)) {
 					DetransformSuperSonic(data, co2); 
 				}
+			}
+
+			// Always force Super Sonic if enabled
+			if (AlwaysSuperSonic == true && IsSuperSonic(co2) == false) {
+				ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
+				LoadPVM("SUPERSONIC", &SUPERSONIC_TEXLIST);
 			}
 		}
 	}
