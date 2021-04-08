@@ -13,7 +13,7 @@ static const int clips[] = {
 };
 
 void RestoreMusic() {
-	if (CurrentSong == MusicIDs_ThemeOfSuperSonic) {
+	if (ChangeMusic == true && CurrentSong == MusicIDs_ThemeOfSuperSonic) {
 		CurrentSong = LastSong;
 	}
 }
@@ -57,10 +57,8 @@ void DetransformMusicAndSound() {
 	if (EnableTransformationVoice == true) {
 		PlayVoice(clips[rand() % LengthOfArray(clips)]);
 	}
-	
-	if (ChangeMusic == true) {
-		RestoreMusic();
-	}
+
+	RestoreMusic();
 }
 
 void Music_Init() {

@@ -120,6 +120,9 @@ void Sonic_Exec_r(task* tsk) {
 			if (UseAdvancedSuperSonic()) {
 				SuperSonic_Actions(data, mwp, co2);
 			}
+			else if (co2->Upgrades & Upgrades_SuperSonic && (data->Action < Act_SuperSonic_Stand || data->Action > Act_SuperSonic_Jump)) {
+ 				DetransformSuperSonic(data, co2); // if advanced super sonic is disabled, detransform Super on invalid actions
+			}
 		}
 	}
 
