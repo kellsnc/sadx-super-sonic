@@ -6,11 +6,15 @@ static Trampoline* Sonic_Exec_t = nullptr;
 static Trampoline* Sonic_Display_t = nullptr;
 static Trampoline* Sonic_Delete_t = nullptr;
 
+bool IsSuperSonic(CharObj2* co2) {
+	return (co2->Upgrades & Upgrades_SuperSonic);
+}
+
 void Sonic_Display_r(task* tsk) {
 	CharObj2* co2 = (CharObj2*)tsk->mwp->work.ptr;
 
 	// Just a flag to change sonic's lighting, no other use
-	SuperSonicFlag = co2->Upgrades & Upgrades_SuperSonic ? 1 : 0;
+	SuperSonicFlag = IsSuperSonic(co2) == true ? 1 : 0;
 
 	// If the advanced config is enabled, use a custom drawing function
 	if (SuperSonicFlag && UseAdvancedSuperSonic()) {
@@ -49,22 +53,24 @@ void CheckSuperSonicTransform(EntityData1* data, CharObj2* co2) {
 }
 
 void DetransformSuperSonic(EntityData1* data, CharObj2* co2) {
-	ForcePlayerAction(data->CharIndex, NextAction_SuperSonicStop);
-	co2->Powerups &= ~Powerups_Invincibility;
+	if (AlwaysSuperSonic == false) {
+		ForcePlayerAction(data->CharIndex, NextAction_SuperSonicStop);
+		co2->Powerups &= ~Powerups_Invincibility;
 
-	// If it's player 1, play sound & reset music
-	if (data->CharIndex == 0) {
-		DetransformMusicAndSound();
+		// If it's player 1, play sound & reset music
+		if (data->CharIndex == 0) {
+			DetransformMusicAndSound();
+		}
 	}
 }
 
 void CheckSuperSonicDetransform(EntityData1* data, CharObj2* co2) {
-	if (co2->Upgrades & Upgrades_SuperSonic && ((DetransformButton == true && PressedButtons[data->CharIndex] & TransformButton) || IsEventPerforming() == true)) {
+	if (IsSuperSonic(co2) == true && ((DetransformButton == true && PressedButtons[data->CharIndex] & TransformButton) || IsEventPerforming() == true)) {
 		DetransformSuperSonic(data, co2);
 	}
 }
 
-void SuperSonicAct(EntityData1* data, CharObj2* co2) {
+void SuperSonic_Rings(EntityData1* data, CharObj2* co2) {
 	co2->Powerups |= Powerups_Invincibility;
 
 	// Consume rings:
@@ -83,7 +89,7 @@ void SuperSonicAct(EntityData1* data, CharObj2* co2) {
 void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 	switch (data->Action) {
 	case Act_Sonic_Jump:
-		if (co2->Upgrades & Upgrades_SuperSonic) {
+		if (IsSuperSonic(co2)) {
 			CheckSuperSonicDetransform(data, co2);
 		}
 		else {
@@ -107,21 +113,26 @@ void Sonic_Exec_r(task* tsk) {
 			CheckTikalVoice(data, co2);
 		}
 		else {
-
-			// Only transform/detransform or decrease rings if AlwaysSuperSonic disabled.
 			if (AlwaysSuperSonic == false) {
 				Sonic_NewActions(data, mwp, co2);
+			}
 
-				if (co2->Upgrades & Upgrades_SuperSonic) {
-					SuperSonicAct(data, co2); // decrease rings, stuff
-				}
+			// Always force Super Sonic if enabled
+			if (AlwaysSuperSonic == true && IsSuperSonic(co2) == false) {
+				ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
+				LoadPVM("SUPERSONIC", &SUPERSONIC_TEXLIST);
+				return;
 			}
-			
-			if (UseAdvancedSuperSonic()) {
+
+			// Super Sonic actions
+			if (IsSuperSonic(co2) == true) {
 				SuperSonic_Actions(data, mwp, co2);
-			}
-			else if (co2->Upgrades & Upgrades_SuperSonic && (data->Action < Act_SuperSonic_Stand || data->Action > Act_SuperSonic_Jump)) {
- 				DetransformSuperSonic(data, co2); // if advanced super sonic is disabled, detransform Super on invalid actions
+				SuperSonic_Rings(data, co2);
+
+				// if advanced super sonic is disabled, detransform Super on invalid actions.
+				if (data->Action < Act_SuperSonic_Stand || data->Action > Act_SuperSonic_Jump) {
+					DetransformSuperSonic(data, co2); 
+				}
 			}
 		}
 	}
@@ -134,7 +145,7 @@ void Sonic_Delete_r(task* tsk) {
 	CharObj2* co2 = (CharObj2*)tsk->mwp->work.ptr;
 
 	// Restore things if the player is deleted, useful for compatiblity with Character Select
-	if (LastStoryFlag == false && co2->Upgrades & Upgrades_SuperSonic && data->CharIndex == 0) {
+	if (LastStoryFlag == false && IsSuperSonic(co2) == true && data->CharIndex == 0) {
 		RestoreMusic();
 	}
 

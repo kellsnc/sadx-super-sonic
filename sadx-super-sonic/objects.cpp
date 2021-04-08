@@ -8,7 +8,7 @@ void LoadSonicDashTrail_r(EntityData1* player) {
 	ObjectMaster* obj = nullptr;
 	CharObj2* co2 = CharObj2Ptrs[player->CharIndex];
 
-	if (co2->Upgrades & Upgrades_SuperSonic) {
+	if (IsSuperSonic(co2) == true) {
 		obj = LoadObject(LoadObj_Data1, 6, (ObjectFuncPtr)0x55FB80);
 	}
 	else {
@@ -24,7 +24,7 @@ void LoadSonicDashEffect_r(EntityData1* player) {
 	ObjectMaster* obj = nullptr;
 	CharObj2* co2 = CharObj2Ptrs[player->CharIndex];
 
-	if (co2->Upgrades & Upgrades_SuperSonic) {
+	if (IsSuperSonic(co2) == true) {
 		obj = LoadObject(LoadObj_Data1, 5, (ObjectFuncPtr)0x55FB20);
 	}
 	else {
@@ -39,7 +39,7 @@ void LoadSonicDashEffect_r(EntityData1* player) {
 void SonicChargeSpindashEffect_r(ObjectMaster* obj) {
 	CharObj2* co2 = CharObj2Ptrs[obj->Data1->CharIndex];
 
-	if ((co2->Upgrades & Upgrades_SuperSonic) != Upgrades_SuperSonic) {
+	if (IsSuperSonic(co2) == false) {
 		SonicChargeSpindashEffect(obj);
 	}
 }
@@ -54,7 +54,7 @@ void Sonic_SuperAura_Load_r(ObjectMaster* obj) {
 }
 
 void __cdecl Sonic_DisplayLightDashModel_r(EntityData1* data, EntityData2* data2, CharObj2* co2) {
-	if ((co2->Upgrades & Upgrades_SuperSonic) != Upgrades_SuperSonic) {
+	if (IsSuperSonic(co2) == false) {
 		TARGET_DYNAMIC(Sonic_DisplayLightDashModel)(data, data2, co2);
 	}
 }

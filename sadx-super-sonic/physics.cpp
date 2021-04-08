@@ -48,7 +48,7 @@ void __cdecl Sonic_SuperPhysicsLevel_Main(task* tsk) {
 		}
 	}
 
-	if (co2 == nullptr || (co2->Upgrades & Upgrades_SuperSonic) != Upgrades_SuperSonic) {
+	if (co2 == nullptr || IsSuperSonic(co2) == false) {
 		FreeTask(tsk);
 	}
 }

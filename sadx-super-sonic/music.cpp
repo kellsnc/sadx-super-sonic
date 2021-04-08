@@ -15,6 +15,7 @@ static const int clips[] = {
 void RestoreMusic() {
 	if (ChangeMusic == true && CurrentSong == MusicIDs_ThemeOfSuperSonic) {
 		CurrentSong = LastSong;
+		CurrentSong2 = LastSong;
 	}
 }
 

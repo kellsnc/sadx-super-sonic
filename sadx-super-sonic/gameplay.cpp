@@ -73,14 +73,7 @@ bool SonicDetransformNAct(EntityData1* data, CharObj2* co2) {
 }
 
 void SuperSonic_Actions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
-    if (data->Action == Act_Sonic_Death || SonicDetransformNAct(data, co2)) {
-        return;
-    }
-
-    // Always force Super Sonic if enabled
-    if (AlwaysSuperSonic == true && !(co2->Upgrades & Upgrades_SuperSonic)) {
-        ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
-        LoadPVM("SUPERSONIC", &SUPERSONIC_TEXLIST);
+    if (UseAdvancedSuperSonic() == false || data->Action == Act_Sonic_Death || SonicDetransformNAct(data, co2)) {
         return;
     }
 
@@ -94,7 +87,7 @@ void SuperSonic_Actions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
     }
 
     // Use Super Sonic actions when we can, force Sonic's when it's better
-    if (co2->Upgrades & Upgrades_SuperSonic) {
+    if (IsSuperSonic(co2) == true) {
         switch (data->Action) {
         case Act_SuperSonic_Stand:
             data->Action = Act_Sonic_Stand;

@@ -22,6 +22,8 @@ void Music_Init();
 void Physics_Init(const char* path);
 void Animations_Init();
 
+bool IsSuperSonic(CharObj2* co2);
+void DetransformSuperSonic(EntityData1* data, CharObj2* co2);
 void njAction_SuperSonic(NJS_ACTION* action, Float frame);
 bool UseAdvancedSuperSonic();
 void RestoreMusic();
