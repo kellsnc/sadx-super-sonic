@@ -40,7 +40,7 @@ extern "C" {
 		SuperSonic_Init(); // Main code to load Super Sonic
 		Objects_Init(); // Edit external objects like SpinDash Trail, SuperPhysics...
 		WaterHack_Init(); // Hack to allow the player to float on water when Super Sonic
-		GamePlay_Init(); // Allow Sonic actions for Super Sonic
+		Animations_Init(); // Allow Sonic actions for Super Sonic
 		Music_Init();
 		Physics_Init(path);
 	}

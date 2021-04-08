@@ -74,6 +74,9 @@
     <ClCompile Include="physics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="animations.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="..\data\configschema.xml">

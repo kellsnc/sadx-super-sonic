@@ -2,7 +2,6 @@
 
 static constexpr int MaxPlayers = 4;
 
-FunctionPointer(void, DrawObject, (NJS_OBJECT*), 0x408530);
 FunctionPointer(Bool, IsEventPerforming, (), 0x42FB00);
 ObjectFunc(SonicChargeSpindashEffect, 0x4A2A10);
 

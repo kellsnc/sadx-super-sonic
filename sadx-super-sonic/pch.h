@@ -8,6 +8,7 @@
 #include "AnimationFile.h"
 #include "Trampoline.h"
 #include "IniFile.hpp"
+#include "UsercallFunctionHandler.h"
 
 #include "mod.h"
 #include "sadx-utils.h"

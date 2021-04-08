@@ -37,8 +37,6 @@ void CheckSuperSonicTransform(EntityData1* data, CharObj2* co2) {
 			return;
 		}
 
-		GamePlay_SetSuperAnims();
-
 		ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
 
 		// If it's player 1, play sound & update music
@@ -51,8 +49,6 @@ void CheckSuperSonicTransform(EntityData1* data, CharObj2* co2) {
 void DetransformSuperSonic(EntityData1* data, CharObj2* co2) {
 	ForcePlayerAction(data->CharIndex, NextAction_SuperSonicStop);
 	co2->Powerups &= ~Powerups_Invincibility;
-
-	GamePlay_UnsetSuperAnims();
 
 	// If it's player 1, play sound & reset music
 	if (data->CharIndex == 0) {
@@ -114,7 +110,6 @@ void Sonic_Exec_r(task* tsk) {
 			if (AlwaysSuperSonic == true) {
 				ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
 				LoadPVM("SUPERSONIC", &SUPERSONIC_TEXLIST);
-				GamePlay_SetSuperAnims();
 			}
 			else {
 				CheckTikalVoice(data, co2);
@@ -144,9 +139,6 @@ void Sonic_Delete_r(task* tsk) {
 	if (LastStoryFlag == false && co2->Upgrades & Upgrades_SuperSonic && data->CharIndex == 0) {
 		RestoreMusic();
 	}
-
-	// Just in case
-	GamePlay_UnsetSuperAnims();
 
 	TARGET_DYNAMIC(Sonic_Delete)(tsk);
 }
