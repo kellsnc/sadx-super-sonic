@@ -13,7 +13,7 @@ static const int clips[] = {
 };
 
 void RestoreMusic() {
-	if (ChangeMusic == true && CurrentSong == MusicIDs_ThemeOfSuperSonic) {
+	if (CurrentSong == MusicIDs_ThemeOfSuperSonic) {
 		CurrentSong = LastSong;
 	}
 }
@@ -44,20 +44,27 @@ void __cdecl PlayMusic_r(MusicIDs song) {
 }
 
 void TransformMusicAndSound() {
-	PlayVoice(396);
-
+	if (EnableTransformationVoice == true) {
+		PlayVoice(396);
+	}
+	
 	if (ChangeMusic == true) {
 		PlayMusic_r(MusicIDs::MusicIDs_ThemeOfSuperSonic);
 	}
 }
 
 void DetransformMusicAndSound() {
-	PlayVoice(clips[rand() % LengthOfArray(clips)]);
-	RestoreMusic();
+	if (EnableTransformationVoice == true) {
+		PlayVoice(clips[rand() % LengthOfArray(clips)]);
+	}
+	
+	if (ChangeMusic == true) {
+		RestoreMusic();
+	}
 }
 
 void Music_Init() {
-	if (ChangeMusic) {
+	if (ChangeMusic == true) {
 		WriteJump(PlayMusic, PlayMusic_r);
 	}
 }

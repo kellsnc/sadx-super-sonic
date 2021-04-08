@@ -5,6 +5,7 @@
 HelperFunctions HelperFunctionsGlobal;
 
 Buttons TransformButton = Buttons_B;
+bool EnableTransformationVoice = true;
 bool EnableTikalUnusedVoice = true;
 bool RemoveLimitations = false;
 bool DetransformButton = true;

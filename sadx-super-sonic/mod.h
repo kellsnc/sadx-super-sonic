@@ -5,6 +5,7 @@
 extern HelperFunctions HelperFunctionsGlobal;
 
 extern Buttons TransformButton;
+extern bool EnableTransformationVoice;
 extern bool EnableTikalUnusedVoice;
 extern bool RemoveLimitations;
 extern bool DetransformButton;
