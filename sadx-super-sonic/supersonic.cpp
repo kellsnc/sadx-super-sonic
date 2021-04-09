@@ -162,7 +162,7 @@ void Sonic_Delete_r(task* tsk) {
 	CharObj2* co2 = (CharObj2*)tsk->mwp->work.ptr;
 
 	// Restore things if the player is deleted, useful for compatiblity with Character Select
-	if (LastStoryFlag == false && IsSuperSonic(co2) == true && data->CharIndex == 0) {
+	if (data->CharIndex == 0) {
 		RestoreMusic();
 	}
 

@@ -29,10 +29,16 @@ void __cdecl PlayMusic_r(MusicIDs song) {
 			CurrentSong2 = song;
 		}
 
-		// If the Super Sonic Theme theme is currently playing, save the new registered song for later
+		// Special jingle priority
+		else if (song == MusicIDs::MusicIDs_SpeedUp || song == MusicIDs::MusicIDs_Invincibility || song == MusicIDs::MusicIDs_RoundClear) {
+			CurrentSong = song;
+			CurrentSong2 = song;
+			LastSong = song;
+		}
+
+		// If the Super Sonic Theme theme is currently playing, save the new song for later
 		else if (CurrentSong2 == MusicIDs::MusicIDs_ThemeOfSuperSonic) {
-			CurrentSong = MusicIDs::MusicIDs_ThemeOfSuperSonic;
-			CurrentSong2 = CurrentSong;
+			CurrentSong = CurrentSong2;
 			LastSong = song;
 		}
 

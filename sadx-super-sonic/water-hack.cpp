@@ -8,7 +8,7 @@ static int __stdcall SuperWaterCheck_C(EntityData1* data1, CharObj2* data2)
 
 	if (data1->CharID == Characters_Sonic && (data2->Upgrades & Upgrades_SuperSonic) != 0)
 	{
-		return pad && !(pad->HeldButtons & Buttons_B);
+		return pad && !(pad->HeldButtons & Buttons_Y);
 	}
 
 	return false;
