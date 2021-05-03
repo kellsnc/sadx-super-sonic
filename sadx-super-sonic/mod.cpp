@@ -45,7 +45,6 @@ extern "C" {
 		Objects_Init(); // Edit external objects like SpinDash Trail, SuperPhysics...
 		WaterHack_Init(); // Hack to allow the player to float on water when Super Sonic
 		Animations_Init(); // Allow Sonic actions for Super Sonic
-		Music_Init();
 		Physics_Init(path);
 	}
 

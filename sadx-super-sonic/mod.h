@@ -18,7 +18,6 @@ extern bool CustomAnims;
 void SuperSonic_Init();
 void Objects_Init();
 void WaterHack_Init();
-void Music_Init();
 void Physics_Init(const char* path);
 void Animations_Init();
 

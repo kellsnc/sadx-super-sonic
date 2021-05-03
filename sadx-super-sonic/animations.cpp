@@ -35,7 +35,7 @@ NJS_OBJECT* SonicObjectToSuperSonic(NJS_OBJECT* object) {
 	if (object == SONIC_OBJECTS[0]) {
 		return SONIC_OBJECTS[22];
 	}
-	else if (object == SONIC_OBJECTS[56] || object == SONIC_OBJECTS[70] || object == SONIC_OBJECTS[66]) {
+	else if (object == SONIC_OBJECTS[66] || object == SONIC_OBJECTS[67]) {
 		return SONIC_ACTIONS[142]->object;
 	}
 	else {
