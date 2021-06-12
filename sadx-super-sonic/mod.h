@@ -31,4 +31,4 @@ void TransformMusicAndSound();
 void DetransformMusicAndSound();
 void SuperSonic_Actions(EntityData1* data, motionwk* mwp, CharObj2* co2);
 void SetSuperAnims(CharObj2* co2);
-void InitSuperAnims();
+void InitSuperAnims(EntityData1* data);

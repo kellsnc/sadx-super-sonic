@@ -9,6 +9,7 @@ FastcallFunctionPointer(void, SuperSonic_WalkAni, (CharObj2* co2, EntityData2* d
 static Trampoline* Sonic_WalkAni_t = nullptr;
 static Trampoline* Sonic_GroundAnim_t = nullptr;
 
+static NJS_OBJECT* SuperSonicEyeList[3];
 static AnimationFile* customAnims[4] = {};
 static AnimData_t SuperSonicAnimData[SonicAnimData_Length];
 
@@ -44,7 +45,7 @@ static NJS_OBJECT* GetSuperSonicModel(const unsigned int animation) {
 	}
 }
 
-void InitSuperAnims()
+void InitSuperAnims(EntityData1* data)
 {
 	if (animationsLoaded == false)
 	{
@@ -66,6 +67,10 @@ void InitSuperAnims()
 		SuperSonicAnimData[67].Animation->motion = customAnims[2]->getmotion();
 		SuperSonicAnimData[68].Animation->motion = customAnims[3]->getmotion();
 
+		SuperSonicEyeList[0] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling;
+		SuperSonicEyeList[1] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling->child->child->sibling->sibling->child->child->sibling;
+		SuperSonicEyeList[2] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling->child->child->sibling->child->child->sibling;
+
 		if (AlwaysSuperSonic == true)
 		{
 			CharSelDataList[0].anonymous_1[0] = SonicAnimData[Anm_SuperSonic_Stand].Animation;
@@ -76,6 +81,9 @@ void InitSuperAnims()
 
 		animationsLoaded = true;
 	}
+
+	// Eye tracking
+	CollisionCrashThing_Load(SuperSonicEyeList, data->CharIndex);
 }
 
 static void __cdecl Sonic_WalkAni_r(EntityData1* data, EntityData2* data2, CharObj2* co2)

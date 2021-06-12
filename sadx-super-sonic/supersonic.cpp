@@ -167,7 +167,7 @@ static void Sonic_Exec_r(task* tsk)
 	{
 		if (data->Action == Act_Sonic_Init)
 		{
-			InitSuperAnims();
+			InitSuperAnims(data);
 			CheckTikalVoice(data, co2);
 		}
 		else
