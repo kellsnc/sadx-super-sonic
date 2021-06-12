@@ -12,6 +12,7 @@ extern bool DetransformButton;
 extern bool AlwaysSuperSonic;
 extern bool ExtendedGamePlay;
 extern bool CustomPhysics;
+extern bool DisableAura;
 extern bool ChangeMusic;
 extern bool CustomAnims;
 

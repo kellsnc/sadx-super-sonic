@@ -2,12 +2,16 @@
 
 // Series of modifications to allow Sonic actions on Super Sonic
 
-bool UseAdvancedSuperSonic() {
+bool UseAdvancedSuperSonic()
+{
     return ExtendedGamePlay == true && (AlwaysSuperSonic == true || IsEventPerforming() == false);
 }
 
-void SuperSonic_Display(EntityData1* data, CharObj2* co2) {
-    if (!MissedFrames && IsVisible(&data->Position, 15.0f)) {
+// Custom display for Advanced Super Sonic
+void SuperSonic_Display(EntityData1* data, CharObj2* co2)
+{
+    if (!MissedFrames && IsVisible(&data->Position, 15.0f))
+    {
         Direct3D_SetZFunc(1u);
         BackupConstantAttr();
         AddConstantAttr(0, NJD_FLAG_IGNORE_SPECULAR);
@@ -23,7 +27,8 @@ void SuperSonic_Display(EntityData1* data, CharObj2* co2) {
             current_anim = co2->AnimationThing.LastIndex;
         }
 
-        if (!(data->InvulnerableTime & 2)) {
+        if (!(data->InvulnerableTime & 2))
+        {
             njSetTexture(&SUPERSONIC_TEXLIST);
 
             njPushMatrixEx();
@@ -33,7 +38,8 @@ void SuperSonic_Display(EntityData1* data, CharObj2* co2) {
             njRotateY_((-0x8000 - LOWORD(data->Rotation.y)));
 
             // Spindash deform
-            if (current_anim == Anm_Sonic_JumpOrSpin && data->Status & (Status_Unknown1 | Status_Ground)) {
+            if (current_anim == Anm_Sonic_JumpOrSpin && data->Status & (Status_Unknown1 | Status_Ground))
+            {
                 njTranslateY(-1.0f);
                 njRotateZ(nullptr, 0x2000);
                 njScale(nullptr, 0.7f, 1.1f, 0.8f);
@@ -48,47 +54,41 @@ void SuperSonic_Display(EntityData1* data, CharObj2* co2) {
             RestoreConstantAttr();
             Direct3D_ResetZFunc();
 
-            if (IsGamePaused()) {
+            if (IsGamePaused())
+            {
                 DrawCharacterShadow(data, &co2->_struct_a3);
             }
         }
     }
 }
 
-bool SonicDetransformNAct(EntityData1* data, CharObj2* co2) {
-    if (data->Status & Status_DoNextAction) {
-        if (data->NextAction == NextAction_SuperSonicStop) {
-            co2->Upgrades &= ~(Upgrades_SuperSonic | Powerups_Invincibility | Status_OnPath);
-            DoSonicGroundAnimation(co2, data);
-
-            if (data->Status & Status_Ball) {
-                data->Status &= ~(Status_Attack | Status_Ball);
-            }
-
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void SuperSonic_Actions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
-    if (UseAdvancedSuperSonic() == false || data->Action == Act_Sonic_Death || SonicDetransformNAct(data, co2)) {
+// Action handler for Advanced Super Sonic
+void SuperSonic_Actions(EntityData1* data, motionwk* mwp, CharObj2* co2)
+{
+    // Skip if disabled
+    if (UseAdvancedSuperSonic() == false || data->Action == Act_Sonic_Death)
+    {
         return;
     }
 
-    if (data->Action != Act_Sonic_Stand) {
-        if (data->Status & Status_HoldObject) {
+    // Run next actions again, fix weird things
+    if (data->Action != Act_Sonic_Stand)
+    {
+        if (data->Status & Status_HoldObject)
+        {
             Sonic_HoldingObject_NAct(data, co2, (EntityData2*)mwp);
         }
-        else {
+        else
+        {
             Sonic_NAct(co2, data, (EntityData2*)mwp);
         }
     }
 
     // Use Super Sonic actions when we can, force Sonic's when it's better
-    if (IsSuperSonic(co2) == true) {
-        switch (data->Action) {
+    if (IsSuperSonic(co2) == true)
+    {
+        switch (data->Action)
+        {
         case Act_SuperSonic_Stand:
             data->Action = Act_Sonic_Stand;
             break;

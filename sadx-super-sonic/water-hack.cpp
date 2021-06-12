@@ -2,11 +2,11 @@
 
 // By SonicFreak94, prevents Sonic from going through water planes
 
-static int __stdcall SuperWaterCheck_C(EntityData1* data1, CharObj2* data2)
+static int __stdcall SuperWaterCheck_C(EntityData1* data1, CharObj2* co2)
 {
 	auto pad = ControllerPointers[static_cast<int>(data1->CharIndex)];
 
-	if (data1->CharID == Characters_Sonic && (data2->Upgrades & Upgrades_SuperSonic) != 0)
+	if (data1->CharID == Characters_Sonic && IsSuperSonic(co2))
 	{
 		return pad && !(pad->HeldButtons & Buttons_Y);
 	}
@@ -49,11 +49,13 @@ static void __declspec(naked) SuperWaterCheck()
 	}
 }
 
-void WaterHack_Init() {
+void WaterHack_Init()
+{
 	WriteJump(reinterpret_cast<void*>(0x004496E1), SuperWaterCheck);
 
 	// Fixes upside down water plane in Emerald Coast 2
-	if (GeoLists[LevelIDs_EmeraldCoast * 8 + 1] == &Geo_ECoast2 && Geo_ECoast2.Col[1].Flags & ColFlags_Water) {
+	if (GeoLists[LevelIDs_EmeraldCoast * 8 + 1] == &Geo_ECoast2 && Geo_ECoast2.Col[1].Flags & ColFlags_Water)
+	{
 		NJS_OBJECT* obj = Geo_ECoast2.Col[1].Model;
 		obj->ang[0] = 32768;
 		obj->pos[1] = -3.0f;

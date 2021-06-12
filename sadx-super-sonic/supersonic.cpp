@@ -6,40 +6,52 @@ static Trampoline* Sonic_Exec_t = nullptr;
 static Trampoline* Sonic_Display_t = nullptr;
 static Trampoline* Sonic_Delete_t = nullptr;
 
-bool IsSuperSonic(CharObj2* co2) {
+bool IsSuperSonic(CharObj2* co2)
+{
 	return (co2->Upgrades & Upgrades_SuperSonic);
 }
 
-void Sonic_Display_r(task* tsk) {
+static bool IsStoryFinished()
+{
+	return GetEventFlag(EventFlags_SuperSonicAdventureComplete);
+}
+
+static void Sonic_Display_r(task* tsk)
+{
 	CharObj2* co2 = (CharObj2*)tsk->mwp->work.ptr;
 
 	// Just a flag to change sonic's lighting, no other use
 	SuperSonicFlag = IsSuperSonic(co2) == true ? 1 : 0;
 
 	// If the advanced config is enabled, use a custom drawing function
-	if (SuperSonicFlag && UseAdvancedSuperSonic()) {
+	if (SuperSonicFlag == 1 && UseAdvancedSuperSonic())
+	{
 		SuperSonic_Display((EntityData1*)tsk->twp, co2);
 	}
-	else {
+	else
+	{
 		TARGET_DYNAMIC(Sonic_Display)(tsk);
 	}
 }
 
-void CheckTikalVoice(EntityData1* data, CharObj2* co2) {
-	if (EnableTikalUnusedVoice == true && GetEventFlag(EventFlags_SuperSonicAdventureComplete) &&
-		GetEventFlag((EventFlags)0x39) == false && RemoveLimitations == false &&
-		GameState == 15 && CurrentLevel < LevelIDs_Chaos0) {
+static void CheckTikalVoice(EntityData1* data, CharObj2* co2)
+{
+	if (EnableTikalUnusedVoice == true && IsStoryFinished() == true &&
+	GetEventFlag((EventFlags)0x39) == false && RemoveLimitations == false &&
+	GameState == 15 && CurrentLevel < LevelIDs_Chaos0)
+	{
 		PlayVoice(1676);
 		SetEventFlag((EventFlags)0x39);
 		SaveSave();
 	}
 }
 
-void CheckSuperSonicTransform(EntityData1* data, CharObj2* co2) {
-	if (PressedButtons[data->CharIndex] & TransformButton && IsEventPerforming() == false) {
-		
+static void CheckSuperSonicTransform(EntityData1* data, CharObj2* co2)
+{
+	if (PressedButtons[data->CharIndex] & TransformButton && IsEventPerforming() == false)
+	{
 		// If Super Sonic story is finished & more than 50 rings
-		if (RemoveLimitations == false && (!GetEventFlag(EventFlags_SuperSonicAdventureComplete) || (data->CharIndex == 0 && Rings < 50))) {
+		if (RemoveLimitations == false && (IsStoryFinished() == false || (data->CharIndex == 0 && Rings < 50))) {
 			return;
 		}
 
@@ -52,42 +64,60 @@ void CheckSuperSonicTransform(EntityData1* data, CharObj2* co2) {
 	}
 }
 
-void DetransformSuperSonic(EntityData1* data, CharObj2* co2) {
-	if (AlwaysSuperSonic == false) {
-		ForcePlayerAction(data->CharIndex, NextAction_SuperSonicStop);
+void DetransformSuperSonic(EntityData1* data, CharObj2* co2)
+{
+	if (AlwaysSuperSonic == false)
+	{
+		co2->Upgrades &= ~(Upgrades_SuperSonic | Powerups_Invincibility | Status_OnPath);
+		DoSonicGroundAnimation(co2, data);
+
+		if (data->Status & Status_Ball)
+		{
+			data->Status &= ~(Status_Attack | Status_Ball);
+		}
+
 		co2->Powerups &= ~Powerups_Invincibility;
 
 		// If it's player 1, play sound & reset music
-		if (data->CharIndex == 0) {
+		if (data->CharIndex == 0)
+		{
 			DetransformMusicAndSound();
 		}
 	}
 }
 
-void CheckSuperSonicDetransform(EntityData1* data, CharObj2* co2) {
-	if (IsSuperSonic(co2) == true && ((DetransformButton == true && PressedButtons[data->CharIndex] & TransformButton) || IsEventPerforming() == true)) {
+static void CheckSuperSonicDetransform(EntityData1* data, CharObj2* co2)
+{
+	if (IsSuperSonic(co2) == true && ((DetransformButton == true && PressedButtons[data->CharIndex] & TransformButton) || IsEventPerforming() == true))
+	{
 		DetransformSuperSonic(data, co2);
 	}
 }
 
-void SuperSonic_Rings(EntityData1* data, CharObj2* co2) {
-	co2->Powerups |= Powerups_Invincibility;
-
+static void SuperSonic_Rings(EntityData1* data, CharObj2* co2)
+{
 	// Consume rings:
-	if (RemoveLimitations == false && data->CharIndex == 0 && TimeThing == 1) {
-		if (Rings > 0) {
-			if (FrameCounterUnpaused % 60 == 0) {
+	if (RemoveLimitations == false && data->CharIndex == 0 && TimeThing == 1)
+	{
+		if (Rings > 0)
+		{
+			if (FrameCounterUnpaused % 60 == 0)
+			{
 				AddRings(-1);
 			}
 		}
-		else {
+		else
+		{
+			Rings = 0; // just in case
 			DetransformSuperSonic(data, co2);
 		}
 	}
 }
 
-void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
-	switch (data->Action) {
+static void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2)
+{
+	switch (data->Action)
+	{
 	case Act_Sonic_Jump:
 		if (IsSuperSonic(co2)) {
 			CheckSuperSonicDetransform(data, co2);
@@ -103,8 +133,10 @@ void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2) {
 	}
 }
 
-bool Blacklist_NormalSuperSonic(EntityData1* data, CharObj2* co2) {
-	switch (CurrentLevel) {
+static bool Blacklist_NormalSuperSonic(EntityData1* data, CharObj2* co2)
+{
+	switch (CurrentLevel)
+	{
 	default:
 		break;
 	case LevelIDs_Casinopolis:
@@ -113,7 +145,8 @@ bool Blacklist_NormalSuperSonic(EntityData1* data, CharObj2* co2) {
 		return CurrentAct == 1;
 	}
 
-	if (co2->AnimationThing.Index < Anm_SuperSonic_Stand || co2->AnimationThing.Index > Anm_SuperSonic_Jump) {
+	if (co2->AnimationThing.Index < Anm_SuperSonic_Stand || co2->AnimationThing.Index > Anm_SuperSonic_Jump)
+	{
 		return true;
 	}
 
@@ -121,35 +154,44 @@ bool Blacklist_NormalSuperSonic(EntityData1* data, CharObj2* co2) {
 		(data->NextAction == 12 || (data->NextAction == 13 && CurrentLevel == LevelIDs_TwinklePark));
 }
 
-void Sonic_Exec_r(task* tsk) {
+static void Sonic_Exec_r(task* tsk)
+{
 	EntityData1* data = (EntityData1*)tsk->twp;
 	motionwk* mwp = tsk->mwp;
 	CharObj2* co2 = (CharObj2*)mwp->work.ptr;
 
-	if (LastStoryFlag == false && MetalSonicFlag == false) {
-		if (data->Action == Act_Sonic_Init) {
+	if (LastStoryFlag == false && MetalSonicFlag == false)
+	{
+		if (data->Action == Act_Sonic_Init)
+		{
 			CheckTikalVoice(data, co2);
 		}
 		else {
-			if (AlwaysSuperSonic == false) {
+			if (AlwaysSuperSonic == false)
+			{
 				Sonic_NewActions(data, mwp, co2);
 			}
 
 			// Super Sonic actions
-			if (IsSuperSonic(co2) == true) {
-				SuperSonic_Actions(data, mwp, co2);
-				SuperSonic_Rings(data, co2);
+			if (IsSuperSonic(co2) == true)
+			{
+				co2->Powerups |= Powerups_Invincibility;
+
+				SuperSonic_Actions(data, mwp, co2); // advanced actions if enabled
+				SuperSonic_Rings(data, co2); // deplete rings if enabled
 
 				// if advanced super sonic is disabled, detransform Super on invalid actions.
-				if (UseAdvancedSuperSonic() == false && Blacklist_NormalSuperSonic(data, co2)) {
+				if (UseAdvancedSuperSonic() == false && Blacklist_NormalSuperSonic(data, co2))
+				{
 					DetransformSuperSonic(data, co2); 
 				}
 			}
 
 			// Always force Super Sonic if enabled
-			if (AlwaysSuperSonic == true && IsSuperSonic(co2) == false) {
+			if (AlwaysSuperSonic == true && IsSuperSonic(co2) == false)
+			{
 				ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
-				LoadPVM("SUPERSONIC", &SUPERSONIC_TEXLIST);
+				LoadPVM("SUPERSONIC", &SUPERSONIC_TEXLIST); // just in case
 			}
 		}
 	}
@@ -159,10 +201,10 @@ void Sonic_Exec_r(task* tsk) {
 
 void Sonic_Delete_r(task* tsk) {
 	EntityData1* data = (EntityData1*)tsk->twp;
-	CharObj2* co2 = (CharObj2*)tsk->mwp->work.ptr;
-
+	
 	// Restore things if the player is deleted, useful for compatiblity with Character Select
-	if (data->CharIndex == 0) {
+	if (data->CharIndex == 0)
+	{
 		RestoreMusic();
 	}
 

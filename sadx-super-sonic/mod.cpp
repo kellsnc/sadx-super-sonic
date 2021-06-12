@@ -12,6 +12,7 @@ bool DetransformButton = true;
 bool AlwaysSuperSonic = false;
 bool ExtendedGamePlay = true;
 bool CustomPhysics = true;
+bool DisableAura = false;
 bool ChangeMusic = true;
 bool CustomAnims = true;
 
@@ -25,6 +26,7 @@ void ReadConfig(const char* path) {
 	AlwaysSuperSonic = config->getBool("General", "AlwaysSuperSonic", false);
 	ExtendedGamePlay = config->getBool("General", "ExtendedGameplay", true);
 	CustomPhysics = config->getBool("General", "CustomPhysics", true);
+	DisableAura = config->getBool("General", "DisableAura", false);
 	CustomAnims = config->getBool("General", "CustomAnims", true);
 	ChangeMusic = config->getBool("Sounds", "ChangeMusic", true);
 	
