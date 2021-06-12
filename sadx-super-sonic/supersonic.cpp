@@ -70,6 +70,8 @@ void DetransformSuperSonic(EntityData1* data, CharObj2* co2)
 {
 	if (AlwaysSuperSonic == false)
 	{
+		ForcePlayerAction(data->CharIndex, NextAction_SuperSonicStop);
+
 		co2->Upgrades &= ~(Upgrades_SuperSonic | Powerups_Invincibility | Status_OnPath);
 		DoSonicGroundAnimation(co2, data);
 
@@ -184,8 +186,7 @@ static void Sonic_Exec_r(task* tsk)
 
 				SuperSonic_Actions(data, mwp, co2); // advanced actions if enabled
 				SuperSonic_Rings(data, co2); // deplete rings if enabled
-				SetSuperAnims(co2);
-
+				
 				// if advanced super sonic is disabled, detransform Super on invalid actions.
 				if (UseAdvancedSuperSonic() == false && Blacklist_NormalSuperSonic(data, co2))
 				{

@@ -33,6 +33,8 @@ void SuperSonic_Actions(EntityData1* data, motionwk* mwp, CharObj2* co2)
         return;
     }
 
+    SetSuperAnims(co2);
+
     // Run next actions again, fixes weird things
     if (data->Action != Act_Sonic_Stand)
     {

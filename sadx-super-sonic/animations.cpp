@@ -17,7 +17,10 @@ static bool animationsLoaded = false;
 
 void SetSuperAnims(CharObj2* co2)
 {
-	co2->AnimationThing.AnimData = SuperSonicAnimData;
+	if (UseAdvancedSuperSonic() == true)
+	{
+		co2->AnimationThing.AnimData = SuperSonicAnimData;
+	}
 }
 
 static NJS_OBJECT* GetSuperSonicModel(const unsigned int animation) {
@@ -49,36 +52,42 @@ void InitSuperAnims(EntityData1* data)
 {
 	if (animationsLoaded == false)
 	{
-		// Fill the animation table at init in case mods edit animations
-		for (int i = 0; i < SonicAnimData_Length; ++i)
-		{
-			SuperSonicAnimData[i] = SonicAnimData[i];
-			SuperSonicAnimData[i].Animation = new NJS_ACTION();
-
-			if (SonicAnimData[i].Animation)
-			{
-				SuperSonicAnimData[i].Animation->motion = SonicAnimData[i].Animation->motion;
-				SuperSonicAnimData[i].Animation->object = GetSuperSonicModel(i);
-			}
-		}
-
-		SuperSonicAnimData[19].Animation->motion = customAnims[0]->getmotion();
-		SuperSonicAnimData[66].Animation->motion = customAnims[1]->getmotion();
-		SuperSonicAnimData[67].Animation->motion = customAnims[2]->getmotion();
-		SuperSonicAnimData[68].Animation->motion = customAnims[3]->getmotion();
-
 		SuperSonicEyeList[0] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling;
 		SuperSonicEyeList[1] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling->child->child->sibling->sibling->child->child->sibling;
 		SuperSonicEyeList[2] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling->child->child->sibling->child->child->sibling;
 
-		if (AlwaysSuperSonic == true)
+		if (UseAdvancedSuperSonic() == true)
 		{
-			CharSelDataList[0].anonymous_1[0] = SonicAnimData[Anm_SuperSonic_Stand].Animation;
-			CharSelDataList[0].anonymous_1[1]->object = SONIC_OBJECTS[22];
-			CharSelDataList[0].anonymous_1[2]->object = SONIC_OBJECTS[22];
-			CharSelDataList[0].TextureList = &SUPERSONIC_TEXLIST;
-		}
+			// Fill the animation table at init in case mods edit animations
+			for (int i = 0; i < SonicAnimData_Length; ++i)
+			{
+				SuperSonicAnimData[i] = SonicAnimData[i];
+				SuperSonicAnimData[i].Animation = new NJS_ACTION();
 
+				if (SonicAnimData[i].Animation)
+				{
+					SuperSonicAnimData[i].Animation->motion = SonicAnimData[i].Animation->motion;
+					SuperSonicAnimData[i].Animation->object = GetSuperSonicModel(i);
+				}
+			}
+
+			if (CustomAnims == true)
+			{
+				SuperSonicAnimData[19].Animation->motion = customAnims[0]->getmotion();
+				SuperSonicAnimData[66].Animation->motion = customAnims[1]->getmotion();
+				SuperSonicAnimData[67].Animation->motion = customAnims[2]->getmotion();
+				SuperSonicAnimData[68].Animation->motion = customAnims[3]->getmotion();
+			}
+
+			if (AlwaysSuperSonic == true)
+			{
+				CharSelDataList[0].anonymous_1[0] = SonicAnimData[Anm_SuperSonic_Stand].Animation;
+				CharSelDataList[0].anonymous_1[1]->object = SONIC_OBJECTS[22];
+				CharSelDataList[0].anonymous_1[2]->object = SONIC_OBJECTS[22];
+				CharSelDataList[0].TextureList = &SUPERSONIC_TEXLIST;
+			}
+		}
+		
 		animationsLoaded = true;
 	}
 
@@ -166,7 +175,7 @@ void CustomSuperSonicAnim(const int id, const char* name)
 
 void Animations_Init()
 {
-	if (ExtendedGamePlay == true)
+	if (UseAdvancedSuperSonic() == true)
 	{
 		Sonic_WalkAni_t = new Trampoline(0x495CD0, 0x495CD5, Sonic_WalkAni_asm);
 		Sonic_GroundAnim_t = new Trampoline(0x491660, 0x49166B, Sonic_GroundAnim_asm);
