@@ -23,15 +23,10 @@ static void Sonic_Display_r(task* tsk)
 	// Just a flag to change sonic's lighting, no other use
 	SuperSonicFlag = IsSuperSonic(co2) == true ? 1 : 0;
 
-	// If the advanced config is enabled, use a custom drawing function
-	if (SuperSonicFlag == 1 && UseAdvancedSuperSonic())
-	{
-		SuperSonic_Display((EntityData1*)tsk->twp, co2);
-	}
-	else
-	{
-		TARGET_DYNAMIC(Sonic_Display)(tsk);
-	}
+	// If Advanced Super Sonic is enabled, do trickery to play any animation with SS.
+	SuperSonic_HackDisplay(co2);
+
+	TARGET_DYNAMIC(Sonic_Display)(tsk);
 }
 
 static void CheckTikalVoice(EntityData1* data, CharObj2* co2)
@@ -46,6 +41,18 @@ static void CheckTikalVoice(EntityData1* data, CharObj2* co2)
 	}
 }
 
+static void TransformSuperSonic(EntityData1* data, CharObj2* co2)
+{
+	ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
+
+	SetSuperAnims(co2);
+
+	// If it's player 1, play sound & update music
+	if (data->CharIndex == 0) {
+		TransformMusicAndSound();
+	}
+}
+
 static void CheckSuperSonicTransform(EntityData1* data, CharObj2* co2)
 {
 	if (PressedButtons[data->CharIndex] & TransformButton && IsEventPerforming() == false)
@@ -55,12 +62,7 @@ static void CheckSuperSonicTransform(EntityData1* data, CharObj2* co2)
 			return;
 		}
 
-		ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
-
-		// If it's player 1, play sound & update music
-		if (data->CharIndex == 0) {
-			TransformMusicAndSound();
-		}
+		TransformSuperSonic(data, co2);
 	}
 }
 
@@ -77,6 +79,7 @@ void DetransformSuperSonic(EntityData1* data, CharObj2* co2)
 		}
 
 		co2->Powerups &= ~Powerups_Invincibility;
+		co2->AnimationThing.AnimData = SonicAnimData;
 
 		// If it's player 1, play sound & reset music
 		if (data->CharIndex == 0)
@@ -164,9 +167,11 @@ static void Sonic_Exec_r(task* tsk)
 	{
 		if (data->Action == Act_Sonic_Init)
 		{
+			InitSuperAnims();
 			CheckTikalVoice(data, co2);
 		}
-		else {
+		else
+		{
 			if (AlwaysSuperSonic == false)
 			{
 				Sonic_NewActions(data, mwp, co2);
@@ -179,6 +184,7 @@ static void Sonic_Exec_r(task* tsk)
 
 				SuperSonic_Actions(data, mwp, co2); // advanced actions if enabled
 				SuperSonic_Rings(data, co2); // deplete rings if enabled
+				SetSuperAnims(co2);
 
 				// if advanced super sonic is disabled, detransform Super on invalid actions.
 				if (UseAdvancedSuperSonic() == false && Blacklist_NormalSuperSonic(data, co2))
@@ -186,11 +192,9 @@ static void Sonic_Exec_r(task* tsk)
 					DetransformSuperSonic(data, co2); 
 				}
 			}
-
-			// Always force Super Sonic if enabled
-			if (AlwaysSuperSonic == true && IsSuperSonic(co2) == false)
+			else if (AlwaysSuperSonic == true)
 			{
-				ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
+				TransformSuperSonic(data, co2);
 				LoadPVM("SUPERSONIC", &SUPERSONIC_TEXLIST); // just in case
 			}
 		}

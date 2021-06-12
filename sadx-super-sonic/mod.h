@@ -24,10 +24,11 @@ void Animations_Init();
 
 bool IsSuperSonic(CharObj2* co2);
 void DetransformSuperSonic(EntityData1* data, CharObj2* co2);
-void njAction_SuperSonic(NJS_ACTION* action, Float frame);
 bool UseAdvancedSuperSonic();
+void SuperSonic_HackDisplay(CharObj2* co2);
 void RestoreMusic();
 void TransformMusicAndSound();
 void DetransformMusicAndSound();
-void SuperSonic_Display(EntityData1* data, CharObj2* co2);
 void SuperSonic_Actions(EntityData1* data, motionwk* mwp, CharObj2* co2);
+void SetSuperAnims(CharObj2* co2);
+void InitSuperAnims();

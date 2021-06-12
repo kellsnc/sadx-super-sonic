@@ -38,7 +38,8 @@ void ReadConfig(const char* path) {
 }
 
 extern "C" {
-	__declspec(dllexport) void __cdecl Init(const char* path, const HelperFunctions& helperFunctions) {
+	__declspec(dllexport) void __cdecl Init(const char* path, const HelperFunctions& helperFunctions)
+	{
 		HelperFunctionsGlobal = helperFunctions;
 
 		ReadConfig(path);

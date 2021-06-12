@@ -1,65 +1,95 @@
 #include "pch.h"
 
 /*
-* Hacks to get Super Sonic to show on Sonic's animations
-* + fixes some animation that break Super Sonic
+* Custom animation list for Super Sonic
 */
-//
 
 FastcallFunctionPointer(void, SuperSonic_WalkAni, (CharObj2* co2, EntityData2* data2), 0x491820);
 
 static Trampoline* Sonic_WalkAni_t = nullptr;
 static Trampoline* Sonic_GroundAnim_t = nullptr;
-static Trampoline* njAction_t = nullptr;
-static Trampoline* njAction_Queue_t = nullptr;
 
-static NJS_ACTION new_action;
 static AnimationFile* customAnims[4] = {};
+static AnimData_t SuperSonicAnimData[SonicAnimData_Length];
 
-static NJS_MOTION* SuperSonicMotionFixes(NJS_MOTION* motion) {
-	if (motion == SONIC_ACTIONS[11]->motion) {
-		return customAnims[0]->getmotion(); // Landing
-	}
-	else if (motion == SONIC_ACTIONS[51]->motion) {
-		return customAnims[1]->getmotion(); // Monkey climb
-	}
-	else if (motion == SONIC_ACTIONS[52]->motion) {
-		return customAnims[3]->getmotion(); // Monkey climb 2
-	}
-	else if (motion == SONIC_ACTIONS[53]->motion) {
-		return customAnims[2]->getmotion(); // Monkey climb 3
-	}
-	else {
-		return motion;
-	}
+static bool animationsLoaded = false;
+
+void SetSuperAnims(CharObj2* co2)
+{
+	co2->AnimationThing.AnimData = SuperSonicAnimData;
 }
 
-static NJS_OBJECT* SonicObjectToSuperSonic(NJS_OBJECT* object) {
-	if (object == SONIC_OBJECTS[0]) {
+static NJS_OBJECT* GetSuperSonicModel(const unsigned int animation) {
+	switch (animation) {
+	case Anm_SuperSonic_Stand:
+	case Anm_SuperSonic_StandToMove:
+	case Anm_SuperSonic_Move1:
+	case Anm_SuperSonic_Move2:
+	case Anm_SuperSonic_Move3:
+	case Anm_SuperSonic_Spring:
+	case Anm_SuperSonic_SpringFall:
+	case Anm_SuperSonic_Fall:
+	case Anm_SuperSonic_Land:
+	case Anm_SuperSonic_Win:
+	case Anm_SuperSonic_WinToStand:
+	case Anm_SuperSonic_Jump:
+		return SonicAnimData[animation].Animation->object;
+	case Anm_Sonic_Jump:
+	case Anm_Sonic_JumpOrSpin:
+	case Anm_Sonic_Bowling:
+	case Anm_Sonic_Roll:
+		return SONIC_ACTIONS[142]->object;
+	default:
 		return SONIC_OBJECTS[22];
 	}
-	else if (object == SONIC_OBJECTS[66] || object == SONIC_OBJECTS[67]) {
-		return SONIC_ACTIONS[142]->object;
-	}
-	else {
-		return object;
+}
+
+void InitSuperAnims()
+{
+	if (animationsLoaded == false)
+	{
+		// Fill the animation table at init in case mods edit animations
+		for (int i = 0; i < SonicAnimData_Length; ++i)
+		{
+			SuperSonicAnimData[i] = SonicAnimData[i];
+			SuperSonicAnimData[i].Animation = new NJS_ACTION();
+
+			if (SonicAnimData[i].Animation)
+			{
+				SuperSonicAnimData[i].Animation->motion = SonicAnimData[i].Animation->motion;
+				SuperSonicAnimData[i].Animation->object = GetSuperSonicModel(i);
+			}
+		}
+
+		SuperSonicAnimData[19].Animation->motion = customAnims[0]->getmotion();
+		SuperSonicAnimData[66].Animation->motion = customAnims[1]->getmotion();
+		SuperSonicAnimData[67].Animation->motion = customAnims[2]->getmotion();
+		SuperSonicAnimData[68].Animation->motion = customAnims[3]->getmotion();
+
+		if (AlwaysSuperSonic == true)
+		{
+			CharSelDataList[0].anonymous_1[0] = SonicAnimData[Anm_SuperSonic_Stand].Animation;
+			CharSelDataList[0].anonymous_1[1]->object = SONIC_OBJECTS[22];
+			CharSelDataList[0].anonymous_1[2]->object = SONIC_OBJECTS[22];
+			CharSelDataList[0].TextureList = &SUPERSONIC_TEXLIST;
+		}
+
+		animationsLoaded = true;
 	}
 }
 
-void njAction_SuperSonic(NJS_ACTION* action, Float frame) {
-	new_action = { SonicObjectToSuperSonic(action->object), SuperSonicMotionFixes(action->motion) };
-
-	njAction(&new_action, frame);
-}
-
-static void __cdecl Sonic_WalkAni_r(EntityData1* data, EntityData2* data2, CharObj2* co2) {
-	if (co2->Upgrades & Upgrades_SuperSonic) {
+static void __cdecl Sonic_WalkAni_r(EntityData1* data, EntityData2* data2, CharObj2* co2)
+{
+	if (co2->Upgrades & Upgrades_SuperSonic)
+	{
 		SuperSonic_WalkAni(co2, data2);
 	}
-	else {
+	else
+	{
 		const auto original = Sonic_WalkAni_t->Target();
 
-		__asm {
+		__asm
+		{
 			mov eax, co2
 			mov edi, data2
 			mov ecx, data
@@ -69,8 +99,10 @@ static void __cdecl Sonic_WalkAni_r(EntityData1* data, EntityData2* data2, CharO
 	}
 }
 
-static void __declspec(naked) Sonic_WalkAni_asm() {
-	__asm {
+static void __declspec(naked) Sonic_WalkAni_asm()
+{
+	__asm
+	{
 		push eax
 		push edi
 		push ecx
@@ -82,29 +114,45 @@ static void __declspec(naked) Sonic_WalkAni_asm() {
 	}
 }
 
-static void __cdecl Sonic_GroundAnim_r(EntityData1* data, CharObj2* co2) {
+static void __cdecl Sonic_GroundAnim_r(EntityData1* data, CharObj2* co2)
+{
 	const auto original = Sonic_GroundAnim_t->Target();
 
-	__asm {
+	__asm
+	{
 		mov esi, co2
 		mov ebx, data
 
 		call original
 	}
 
-	if (co2->Upgrades & Upgrades_SuperSonic) {
+	if (co2->Upgrades & Upgrades_SuperSonic)
+	{
 		co2->AnimationThing.Index = 134;
 	}
 }
 
-static void __declspec(naked) Sonic_GroundAnim_asm() {
-	__asm {
+static void __declspec(naked) Sonic_GroundAnim_asm()
+{
+	__asm
+	{
 		push esi
 		push ebx
 		call Sonic_GroundAnim_r
 		pop ebx
 		pop esi
 		retn
+	}
+}
+
+void CustomSuperSonicAnim(const int id, const char* name)
+{
+	AnimationFile* file = nullptr;
+	LoadAnimationFile(&file, name);
+
+	if (file)
+	{
+		SuperSonicAnimData[id].Animation->motion = file->getmotion();
 	}
 }
 

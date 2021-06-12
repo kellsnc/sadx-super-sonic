@@ -7,57 +7,19 @@ bool UseAdvancedSuperSonic()
     return ExtendedGamePlay == true && (AlwaysSuperSonic == true || IsEventPerforming() == false);
 }
 
-// Custom display for Advanced Super Sonic
-void SuperSonic_Display(EntityData1* data, CharObj2* co2)
+void SuperSonic_HackDisplay(CharObj2* co2)
 {
-    if (!MissedFrames && IsVisible(&data->Position, 15.0f))
+    if (UseAdvancedSuperSonic() == true)
     {
-        Direct3D_SetZFunc(1u);
-        BackupConstantAttr();
-        AddConstantAttr(0, NJD_FLAG_IGNORE_SPECULAR);
-        njControl3D_Backup();
-        njControl3D(NJD_CONTROL_3D_CONSTANT_MATERIAL);
-        SetMaterialAndSpriteColor_Float(1.0f, 1.0f, 1.0f, 1.0f);
-        Direct3D_PerformLighting(4);
-
-        int current_anim = co2->AnimationThing.Index;
-
-        if (co2->AnimationThing.State == 2)
+        if (SuperSonicFlag == 1)
         {
-            current_anim = co2->AnimationThing.LastIndex;
+            WriteData((NJS_TEXLIST**)0x4949E9, &SUPERSONIC_TEXLIST); // Force Super Sonic's texlist
+            WriteData<1>((void*)0x494AED, co2->AnimationThing.Index); // Hack for the ball not to flash
         }
-
-        if (!(data->InvulnerableTime & 2))
+        else
         {
-            njSetTexture(&SUPERSONIC_TEXLIST);
-
-            njPushMatrixEx();
-            njTranslateEx(&data->CollisionInfo->CollisionArray->center);
-            njRotateZ_(data->Rotation.z);
-            njRotateX_(data->Rotation.x);
-            njRotateY_((-0x8000 - LOWORD(data->Rotation.y)));
-
-            // Spindash deform
-            if (current_anim == Anm_Sonic_JumpOrSpin && data->Status & (Status_Unknown1 | Status_Ground))
-            {
-                njTranslateY(-1.0f);
-                njRotateZ(nullptr, 0x2000);
-                njScale(nullptr, 0.7f, 1.1f, 0.8f);
-            }
-
-            njAction_SuperSonic(co2->AnimationThing.AnimData[current_anim].Animation, co2->AnimationThing.Frame);
-
-            njPopMatrixEx();
-            Direct3D_PerformLighting(0);
-            ClampGlobalColorThing_Thing();
-            njControl3D_Restore();
-            RestoreConstantAttr();
-            Direct3D_ResetZFunc();
-
-            if (IsGamePaused())
-            {
-                DrawCharacterShadow(data, &co2->_struct_a3);
-            }
+            WriteData((NJS_TEXLIST**)0x4949E9, &SONIC_TEXLIST);
+            WriteData<1>((void*)0x494AED, 0x91);
         }
     }
 }
@@ -71,7 +33,7 @@ void SuperSonic_Actions(EntityData1* data, motionwk* mwp, CharObj2* co2)
         return;
     }
 
-    // Run next actions again, fix weird things
+    // Run next actions again, fixes weird things
     if (data->Action != Act_Sonic_Stand)
     {
         if (data->Status & Status_HoldObject)
