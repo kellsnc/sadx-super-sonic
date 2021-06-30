@@ -15,11 +15,22 @@ bool CustomPhysics = true;
 bool DisableAura = false;
 bool ChangeMusic = true;
 bool CustomAnims = true;
+bool EyeTracking = true;
 
-void ReadConfig(const char* path) {
+static const Buttons ButtonsList[]
+{
+	Buttons_B,
+	Buttons_X,
+	Buttons_Y,
+	Buttons_C,
+	Buttons_D,
+	Buttons_Z
+};
+
+static void ReadConfig(const char* path) {
 	const IniFile* config = new IniFile(std::string(path) + "\\config.ini");
 
-	TransformButton = config->getInt("General", "TransformButton", 0) == 0 ? Buttons_B : Buttons_X;
+	TransformButton = ButtonsList[config->getInt("General", "TransformButton", 0)];
 	EnableTransformationVoice = config->getBool("Sounds", "EnableTransformationVoice", true);
 	EnableTikalUnusedVoice = config->getBool("Sounds", "EnableTikalUnusedVoice", true);
 	DetransformButton = config->getBool("General", "DetransformButton", true);
@@ -29,6 +40,7 @@ void ReadConfig(const char* path) {
 	DisableAura = config->getBool("General", "DisableAura", false);
 	CustomAnims = config->getBool("General", "CustomAnims", true);
 	ChangeMusic = config->getBool("Sounds", "ChangeMusic", true);
+	EyeTracking = config->getBool("General", "EyeTracking", true);
 	
 	if (AlwaysSuperSonic == true || config->getBool("General", "RemoveLimitations", false)) {
 		RemoveLimitations = true;

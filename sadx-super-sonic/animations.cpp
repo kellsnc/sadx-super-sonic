@@ -52,10 +52,13 @@ void InitSuperAnims(EntityData1* data)
 {
 	if (animationsLoaded == false)
 	{
-		SuperSonicEyeList[0] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling;
-		SuperSonicEyeList[1] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling->child->child->sibling->sibling->child->child->sibling;
-		SuperSonicEyeList[2] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling->child->child->sibling->child->child->sibling;
-
+		if (EyeTracking == true)
+		{
+			SuperSonicEyeList[0] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling;
+			SuperSonicEyeList[1] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling->child->child->sibling->sibling->child->child->sibling;
+			SuperSonicEyeList[2] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling->child->child->sibling->child->child->sibling;
+		}
+		
 		if (UseAdvancedSuperSonic() == true)
 		{
 			// Fill the animation table at init in case mods edit animations
@@ -91,8 +94,10 @@ void InitSuperAnims(EntityData1* data)
 		animationsLoaded = true;
 	}
 
-	// Eye tracking
-	CollisionCrashThing_Load(SuperSonicEyeList, data->CharIndex);
+	if (EyeTracking == true)
+	{
+		CollisionCrashThing_Load(SuperSonicEyeList, data->CharIndex);
+	}
 }
 
 static void __cdecl Sonic_WalkAni_r(EntityData1* data, EntityData2* data2, CharObj2* co2)

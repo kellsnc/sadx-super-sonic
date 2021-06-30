@@ -15,6 +15,7 @@ extern bool CustomPhysics;
 extern bool DisableAura;
 extern bool ChangeMusic;
 extern bool CustomAnims;
+extern bool EyeTracking;
 
 void SuperSonic_Init();
 void Objects_Init();
