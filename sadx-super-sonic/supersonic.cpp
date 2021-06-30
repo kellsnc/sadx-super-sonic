@@ -6,6 +6,12 @@ static Trampoline* Sonic_Exec_t = nullptr;
 static Trampoline* Sonic_Display_t = nullptr;
 static Trampoline* Sonic_Delete_t = nullptr;
 
+static const char* const tikal_message[] = {
+	"Gather fifty rings and press the action\nbutton while you jump.",
+	"You'll transform in Super Sonic!\nBut watch out for your ring consumption!",
+	NULL,
+};
+
 bool IsSuperSonic(CharObj2* co2)
 {
 	return (co2->Upgrades & Upgrades_SuperSonic);
@@ -37,6 +43,7 @@ static void CheckTikalVoice(EntityData1* data, CharObj2* co2)
 	{
 		PlayVoice(1676);
 		SetEventFlag((EventFlags)0x39);
+		DisplayHintText(tikal_message, 260);
 		SaveSave();
 	}
 }
