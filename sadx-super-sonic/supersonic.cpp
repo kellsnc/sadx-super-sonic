@@ -88,7 +88,8 @@ void DetransformSuperSonic(EntityData1* data, CharObj2* co2)
 		}
 
 		co2->Powerups &= ~Powerups_Invincibility;
-		co2->AnimationThing.AnimData = SonicAnimData;
+		
+		UnsetSuperAnims(co2);
 
 		// If it's player 1, play sound & reset music
 		if (data->CharIndex == 0)
