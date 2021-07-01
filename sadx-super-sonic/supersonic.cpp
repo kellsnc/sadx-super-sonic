@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 
 // Main code for transforming, detransforming, losing rings, etc.
 
@@ -6,10 +6,31 @@ static Trampoline* Sonic_Exec_t = nullptr;
 static Trampoline* Sonic_Display_t = nullptr;
 static Trampoline* Sonic_Delete_t = nullptr;
 
-static const char* const tikal_message[] = {
+static const char* const tikal_message_en[] = {
 	"Gather fifty rings and press the action\nbutton while you jump.",
 	"You'll transform in Super Sonic!\nBut watch out for your ring consumption!",
 	NULL,
+};
+
+static const char* const tikal_message_fr[] = {
+	"Collectez cinquante anneaux et appuyez sur le\nbouton d'action pendant un saut.",
+	"Vous vous transformerez en Super Sonic !\nMais attention à vos anneaux !",
+	NULL,
+};
+
+static const char* const tikal_message_ru[] = {
+	"Собрав 50 колец, нажми кнопку\nдействия в прыжке.",
+	"Ты превратишься в Супер Соника!\nНо следи за числом колец!",
+	NULL,
+};
+
+static const char* const* tikal_messages[] = {
+	tikal_message_en, //jp
+	tikal_message_en, //en
+	tikal_message_fr, //fr
+	tikal_message_en, //sp
+	tikal_message_en, //ge
+	tikal_message_ru // extra
 };
 
 bool IsSuperSonic(CharObj2* co2)
@@ -43,7 +64,7 @@ static void CheckTikalVoice(EntityData1* data, CharObj2* co2)
 	{
 		PlayVoice(1676);
 		SetEventFlag((EventFlags)0x39);
-		DisplayHintText(tikal_message, 260);
+		DisplayHintText(tikal_messages[RussianMod == true && TextLanguage == Languages_English ? 5 : TextLanguage], 260);
 		SaveSave();
 	}
 }

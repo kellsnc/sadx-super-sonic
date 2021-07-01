@@ -17,6 +17,8 @@ extern bool ChangeMusic;
 extern bool CustomAnims;
 extern bool EyeTracking;
 
+extern bool RussianMod;
+
 void SuperSonic_Init();
 void Objects_Init();
 void WaterHack_Init();

@@ -17,6 +17,8 @@ bool ChangeMusic = true;
 bool CustomAnims = true;
 bool EyeTracking = true;
 
+bool RussianMod = false;
+
 static const Buttons ButtonsList[]
 {
 	Buttons_B,
@@ -61,6 +63,11 @@ extern "C" {
 		WaterHack_Init(); // Hack to allow the player to float on water when Super Sonic
 		Animations_Init(); // Allow Sonic actions for Super Sonic
 		Physics_Init(path);
+	}
+
+	__declspec(dllexport) void __cdecl OnInitEnd()
+	{
+		RussianMod = GetModuleHandle(L"sadx-russian-mod") != nullptr;
 	}
 
 	__declspec(dllexport) ModInfo SADXModInfo = { ModLoaderVer };
