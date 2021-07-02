@@ -6,6 +6,8 @@ static Trampoline* Sonic_Exec_t = nullptr;
 static Trampoline* Sonic_Display_t = nullptr;
 static Trampoline* Sonic_Delete_t = nullptr;
 
+static int RingTimer = 0;
+
 static const char* const tikal_message_en[] = {
 	"Gather fifty rings and press the action\nbutton while you jump.",
 	"You'll transform in Super Sonic!\nBut watch out for your ring consumption!",
@@ -72,6 +74,7 @@ static void CheckTikalVoice(EntityData1* data, CharObj2* co2)
 static void TransformSuperSonic(EntityData1* data, CharObj2* co2)
 {
 	ForcePlayerAction(data->CharIndex, NextAction_SuperSonic);
+	RingTimer = 0;
 
 	SetSuperAnims(co2);
 
@@ -135,7 +138,9 @@ static void SuperSonic_Rings(EntityData1* data, CharObj2* co2)
 	{
 		if (Rings > 0)
 		{
-			if (FrameCounterUnpaused % 60 == 0)
+			++RingTimer %= 60;
+			
+			if (RingTimer == 0)
 			{
 				AddRings(-1);
 			}
