@@ -55,7 +55,7 @@ static void __cdecl iconHack(NJS_SPRITE* sp, Int n, Float pri, NJD_SPRITE attr)
 {
 	EntityData1* player = EntityData1Ptrs[0];
 
-	if (player)
+	if (player && player->CharID == Characters_Sonic)
 	{
 		CharObj2* co2 = CharObj2Ptrs[0];
 
