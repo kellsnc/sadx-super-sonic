@@ -50,7 +50,7 @@ static void SSTikalHintCheck(ObjectMaster* obj, EntityData1* data, EntityData1* 
 {
 	if (IsPlayerInsideSphere(&data->Position, 7.0f) == 1)
 	{
-		if (player->CharIndex == Characters_Sonic)
+		if (player->CharIndex == Characters_Sonic && IsSuperSonic(CharObj2Ptrs[0]) == false)
 		{
 			PlayVoice(1676);
 			DisplayHintText(tikal_messages[RussianMod == true && TextLanguage == Languages_English ? 5 : TextLanguage], 260);
