@@ -16,6 +16,12 @@ static const char* const tikal_message_fr[] = {
 	NULL,
 };
 
+static const char* const tikal_message_es[] = {
+	"Reúne 50 anillos y presiona el botón\nde acción mientras saltas.",
+	"¡Te transformarás en Súper Sonic!\n¡Sólo cuida el consumo de anillos!",
+	NULL,
+};
+
 static const char* const tikal_message_ru[] = {
 	"Собрав 50 колец, нажми кнопку\nдействия в прыжке.",
 	"Ты превратишься в Супер Соника!\nНо следи за числом колец!",
@@ -24,9 +30,9 @@ static const char* const tikal_message_ru[] = {
 
 static const char* const* tikal_messages[] = {
 	tikal_message_en, //jp
-	tikal_message_en, //en
-	tikal_message_fr, //fr
-	tikal_message_en, //sp
+	tikal_message_en,
+	tikal_message_fr,
+	tikal_message_es,
 	tikal_message_en, //ge
 	tikal_message_ru // extra
 };
