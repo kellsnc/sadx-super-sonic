@@ -13,39 +13,12 @@ static NJS_SPRITE  HYOJI_ZANKI_SS_SPRITE = { {}, 1.0f, 1.0f, 0, &HYOJI_ZANKI_SS_
 
 static int RingTimer = 0;
 
-static const char* const tikal_message_en[] = {
-	"Gather fifty rings and press the action\nbutton while you jump.",
-	"You'll transform in Super Sonic!\nBut watch out for your ring consumption!",
-	NULL,
-};
-
-static const char* const tikal_message_fr[] = {
-	"Collectez cinquante anneaux et appuyez sur le\nbouton d'action pendant un saut.",
-	"Vous vous transformerez en Super Sonic !\nMais attention à vos anneaux !",
-	NULL,
-};
-
-static const char* const tikal_message_ru[] = {
-	"Собрав 50 колец, нажми кнопку\nдействия в прыжке.",
-	"Ты превратишься в Супер Соника!\nНо следи за числом колец!",
-	NULL,
-};
-
-static const char* const* tikal_messages[] = {
-	tikal_message_en, //jp
-	tikal_message_en, //en
-	tikal_message_fr, //fr
-	tikal_message_en, //sp
-	tikal_message_en, //ge
-	tikal_message_ru // extra
-};
-
 bool IsSuperSonic(CharObj2* co2)
 {
 	return (co2->Upgrades & Upgrades_SuperSonic);
 }
 
-static bool IsStoryFinished()
+bool IsStoryFinished()
 {
 	return GetEventFlag(EventFlags_SuperSonicAdventureComplete);
 }
@@ -82,19 +55,6 @@ static void Sonic_Display_r(task* tsk)
 	SuperSonic_HackDisplay(co2);
 
 	TARGET_DYNAMIC(Sonic_Display)(tsk);
-}
-
-static void CheckTikalVoice(EntityData1* data, CharObj2* co2)
-{
-	if (EnableTikalUnusedVoice == true && IsStoryFinished() == true &&
-	GetEventFlag((EventFlags)0x39) == false && RemoveLimitations == false &&
-	GameState == 15 && CurrentLevel < LevelIDs_Chaos0)
-	{
-		PlayVoice(1676);
-		SetEventFlag((EventFlags)0x39);
-		DisplayHintText(tikal_messages[RussianMod == true && TextLanguage == Languages_English ? 5 : TextLanguage], 260);
-		SaveSave();
-	}
 }
 
 static void TransformSuperSonic(EntityData1* data, CharObj2* co2)
@@ -230,7 +190,6 @@ static void Sonic_Exec_r(task* tsk)
 		if (data->Action == Act_Sonic_Init)
 		{
 			InitSuperAnims(data);
-			CheckTikalVoice(data, co2);
 		}
 		else
 		{

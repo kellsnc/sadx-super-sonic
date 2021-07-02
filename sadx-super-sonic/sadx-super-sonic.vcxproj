@@ -118,6 +118,7 @@
     </ClCompile>
     <ClCompile Include="physics.cpp" />
     <ClCompile Include="supersonic.cpp" />
+    <ClCompile Include="tikal.cpp" />
     <ClCompile Include="water-hack.cpp" />
   </ItemGroup>
   <ItemGroup>

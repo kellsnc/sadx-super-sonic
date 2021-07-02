@@ -25,8 +25,10 @@ void Objects_Init();
 void WaterHack_Init();
 void Physics_Init(const char* path);
 void Animations_Init();
+void SSTikalHint_Init();
 
 bool IsSuperSonic(CharObj2* co2);
+bool IsStoryFinished();
 void DetransformSuperSonic(EntityData1* data, CharObj2* co2);
 bool UseAdvancedSuperSonic();
 void SuperSonic_HackDisplay(CharObj2* co2);
