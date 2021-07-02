@@ -16,6 +16,7 @@ extern bool DisableAura;
 extern bool ChangeMusic;
 extern bool CustomAnims;
 extern bool EyeTracking;
+extern bool LifeIcon;
 
 extern bool RussianMod;
 

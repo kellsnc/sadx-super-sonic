@@ -6,6 +6,11 @@ static Trampoline* Sonic_Exec_t = nullptr;
 static Trampoline* Sonic_Display_t = nullptr;
 static Trampoline* Sonic_Delete_t = nullptr;
 
+static NJS_TEXNAME HYOJI_ZANKI_SS_TEXNAME = {};
+static NJS_TEXLIST HYOJI_ZANKI_SS_TEXLIST = { &HYOJI_ZANKI_SS_TEXNAME, 1 };
+static NJS_TEXANIM HYOJI_ZANKI_SS_TEXANIM = { 0x20, 0x20, 0, 0, 0, 0, 0x100, 0x100, 0, 0x20 };
+static NJS_SPRITE  HYOJI_ZANKI_SS_SPRITE = { {}, 1.0f, 1.0f, 0, &HYOJI_ZANKI_SS_TEXLIST, &HYOJI_ZANKI_SS_TEXANIM };
+
 static int RingTimer = 0;
 
 static const char* const tikal_message_en[] = {
@@ -43,6 +48,27 @@ bool IsSuperSonic(CharObj2* co2)
 static bool IsStoryFinished()
 {
 	return GetEventFlag(EventFlags_SuperSonicAdventureComplete);
+}
+
+// Hack the icon sprite drawing function, if player 1 is super sonic, swap for another sprite.
+static void __cdecl iconHack(NJS_SPRITE* sp, Int n, Float pri, NJD_SPRITE attr)
+{
+	EntityData1* player = EntityData1Ptrs[0];
+
+	if (player)
+	{
+		CharObj2* co2 = CharObj2Ptrs[0];
+
+		if (co2 && IsSuperSonic(co2))
+		{
+			HYOJI_ZANKI_SS_SPRITE.p.x = Hud_RingTimeLife.p.x;
+			HYOJI_ZANKI_SS_SPRITE.p.y = Hud_RingTimeLife.p.y;
+			njDrawSprite2D_ForcePriority(&HYOJI_ZANKI_SS_SPRITE, 0, pri, attr);
+			return;
+		}
+	}
+	
+	njDrawSprite2D_ForcePriority(sp, n, pri, attr);
 }
 
 static void Sonic_Display_r(task* tsk)
@@ -230,7 +256,13 @@ static void Sonic_Exec_r(task* tsk)
 			else if (AlwaysSuperSonic == true)
 			{
 				TransformSuperSonic(data, co2);
-				LoadPVM("SUPERSONIC", &SUPERSONIC_TEXLIST); // just in case
+
+				LoadPVM("SUPERSONIC", &SUPERSONIC_TEXLIST);
+
+				if (LifeIcon)
+				{
+					LoadPVM("hyoji_zanki_ss", &HYOJI_ZANKI_SS_TEXLIST);
+				}
 			}
 		}
 	}
@@ -259,4 +291,10 @@ void SuperSonic_Init() {
 	
 	// Always initialize Super Sonic weld data
 	WriteData<2>(reinterpret_cast<Uint8*>(0x0049AC6A), 0x90i8);
+
+	if (LifeIcon == true)
+	{
+		HelperFunctionsGlobal.RegisterCharacterPVM(Characters_Sonic, { "hyoji_zanki_ss", &HYOJI_ZANKI_SS_TEXLIST });
+		WriteCall((void*)0x425E74, iconHack);
+	}
 }

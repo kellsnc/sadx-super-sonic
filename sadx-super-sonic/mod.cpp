@@ -16,6 +16,7 @@ bool DisableAura = false;
 bool ChangeMusic = true;
 bool CustomAnims = true;
 bool EyeTracking = true;
+bool LifeIcon = true;
 
 bool RussianMod = false;
 
@@ -43,6 +44,7 @@ static void ReadConfig(const char* path) {
 	CustomAnims = config->getBool("General", "CustomAnims", true);
 	ChangeMusic = config->getBool("Sounds", "ChangeMusic", true);
 	EyeTracking = config->getBool("General", "EyeTracking", true);
+	LifeIcon = config->getBool("General", "LifeIcon", true);
 	
 	if (AlwaysSuperSonic == true || config->getBool("General", "RemoveLimitations", false)) {
 		RemoveLimitations = true;
