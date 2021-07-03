@@ -4,22 +4,34 @@
 
 static Trampoline* LoadLevel_t = nullptr;
 
+static const char* const tikal_message_jp[] = {
+	"\a\203\212\203\223\203\117\202\36050\214\302\217\127\202\337\202\304\201\101\n\203\127\203\203\203\223\203\166\222\206\202\311\203\101\203\116\203\126\203\207\203\223\203\173\203\136\203\223\202\360\211\237\202\271\202\316\201\102" /* "\aリングを50個集めて、\nジャンプ中にアクションボタンを押せば。" */,
+	"\a\203\130\201\133\203\160\201\133\203\134\203\152\203\142\203\116\202\311\225\317\220\147\202\305\202\253\202\351\202\315\202\270\202\346\201\111\n\203\212\203\223\203\117\202\314\217\301\224\357\202\311\213\103\202\360\202\302\202\257\202\304\201\111" /* "\aスーパーソニックに変身できるはずよ！\nリングの消費に気をつけて！" */,
+	NULL
+};
+
 static const char* const tikal_message_en[] = {
-	"Gather fifty rings and press the action\nbutton while you jump.",
+	"Gather 50 rings and press the action\nbutton while you jump.",
 	"You'll transform into Super Sonic!\nBut watch out for your ring consumption!",
-	NULL,
+	NULL
 };
 
 static const char* const tikal_message_fr[] = {
-	"Collectez cinquante anneaux et appuyez sur le\nbouton d'action pendant un saut.",
+	"Collectez 50 anneaux et appuyez sur le\nbouton d'action pendant un saut.",
 	"Vous vous transformerez en Super Sonic !\nMais attention à vos anneaux !",
-	NULL,
+	NULL
 };
 
 static const char* const tikal_message_es[] = {
 	"Reúne 50 anillos y presiona el botón\nde acción mientras saltas.",
 	"¡Te transformarás en Súper Sonic!\n¡Sólo cuida el consumo de anillos!",
-	NULL,
+	NULL
+};
+
+static const char* const tikal_message_ge[] = {
+	"Sammle 50 Ringe und drücke die Aktionstaste,\nwährend du springst.",
+	"Du wirst dich in Super Sonic verwandeln!\nAber achten Sie auf Ihren Ringverbrauch!",
+	NULL
 };
 
 static const char* const tikal_message_ru[] = {
@@ -29,11 +41,11 @@ static const char* const tikal_message_ru[] = {
 };
 
 static const char* const* tikal_messages[] = {
-	tikal_message_en, //jp
+	tikal_message_jp,
 	tikal_message_en,
 	tikal_message_fr,
 	tikal_message_es,
-	tikal_message_en, //ge
+	tikal_message_ge,
 	tikal_message_ru // extra
 };
 
