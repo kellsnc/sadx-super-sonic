@@ -34,19 +34,12 @@ static const char* const tikal_message_ge[] = {
 	NULL
 };
 
-static const char* const tikal_message_ru[] = {
-	"Собрав 50 колец, нажми кнопку\nдействия в прыжке.",
-	"Ты превратишься в Супер Соника!\nНо следи за числом колец!",
-	NULL,
-};
-
-static const char* const* tikal_messages[] = {
+__declspec(dllexport) const char* const* tikal_messages[] = {
 	tikal_message_jp,
 	tikal_message_en,
 	tikal_message_fr,
 	tikal_message_es,
-	tikal_message_ge,
-	tikal_message_ru // extra
+	tikal_message_ge
 };
 
 enum SSTikalHintActs
@@ -65,7 +58,7 @@ static void SSTikalHintCheck(ObjectMaster* obj, EntityData1* data, EntityData1* 
 		if (player->CharIndex == Characters_Sonic && IsSuperSonic(CharObj2Ptrs[0]) == false)
 		{
 			PlayVoice(1676);
-			DisplayHintText(tikal_messages[RussianMod == true && TextLanguage == Languages_English ? 5 : TextLanguage], 260);
+			DisplayHintText(tikal_messages[TextLanguage], 260);
 			NullifyVelocity(EntityData2Ptrs[0], CharObj2Ptrs[0]);
 			SetHintChildData(obj->Child, 4.0f, 1.0f);
 			PlaySound(6, 0, 0, 0);

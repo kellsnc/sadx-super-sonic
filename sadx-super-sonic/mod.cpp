@@ -18,8 +18,6 @@ bool CustomAnims = true;
 bool EyeTracking = true;
 bool LifeIcon = true;
 
-bool RussianMod = false;
-
 static const Buttons ButtonsList[]
 {
 	Buttons_B,
@@ -66,11 +64,6 @@ extern "C" {
 		Animations_Init(); // Allow Sonic actions for Super Sonic
 		Physics_Init(path);
 		SSTikalHint_Init();
-	}
-
-	__declspec(dllexport) void __cdecl OnInitEnd()
-	{
-		RussianMod = GetModuleHandle(L"sadx-russian-mod") != nullptr;
 	}
 
 	__declspec(dllexport) ModInfo SADXModInfo = { ModLoaderVer };
