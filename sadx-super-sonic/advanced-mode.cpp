@@ -34,15 +34,18 @@ void SuperSonic_Actions(EntityData1* data, motionwk* mwp, CharObj2* co2)
     }
 
     // Run next actions again, fixes weird things
-    if (data->Status & Status_HoldObject)
+    if (data->Action != Act_Sonic_Stand)
     {
-        Sonic_HoldingObject_NAct(data, co2, (EntityData2*)mwp);
+        if (data->Status & Status_HoldObject)
+        {
+            Sonic_HoldingObject_NAct(data, co2, (EntityData2*)mwp);
+        }
+        else
+        {
+            Sonic_NAct(co2, data, (EntityData2*)mwp);
+        }
     }
-    else
-    {
-        Sonic_NAct(co2, data, (EntityData2*)mwp);
-    }
-
+    
     // Use Super Sonic actions when we can, force Sonic's when it's better
     if (IsSuperSonic(co2) == true)
     {
