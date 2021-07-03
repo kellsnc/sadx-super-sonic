@@ -69,6 +69,7 @@ void InitSuperAnims(EntityData1* data)
 				case Anm_Sonic_Roll:
 				case Anm_Sonic_PinBall:
 					SuperSonicAnimData[i] = SonicAnimData[Anm_SuperSonic_Jump];
+					SuperSonicAnimData[i].Property = SonicAnimData[i].Property;
 					break;
 				default:
 					SuperSonicAnimData[i] = SonicAnimData[i];
