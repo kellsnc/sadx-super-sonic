@@ -16,7 +16,7 @@ extern bool DisableAura;
 extern bool ChangeMusic;
 extern bool CustomAnims;
 extern bool EyeTracking;
-extern bool LifeIcon;
+extern bool HUDIcons;
 
 void SuperSonic_Init();
 void Objects_Init();
@@ -24,6 +24,7 @@ void WaterHack_Init();
 void Physics_Init(const char* path);
 void Animations_Init();
 void SSTikalHint_Init();
+void HudInit();
 
 bool IsSuperSonic(CharObj2* co2);
 bool IsStoryFinished();
@@ -37,3 +38,4 @@ void SuperSonic_Actions(EntityData1* data, motionwk* mwp, CharObj2* co2);
 void SetSuperAnims(CharObj2* co2);
 void UnsetSuperAnims(CharObj2* co2);
 void InitSuperAnims(EntityData1* data);
+void LoadIconTextures();

@@ -16,7 +16,7 @@ bool DisableAura = false;
 bool ChangeMusic = true;
 bool CustomAnims = true;
 bool EyeTracking = true;
-bool LifeIcon = true;
+bool HUDIcons = true;
 
 static const Buttons ButtonsList[]
 {
@@ -42,7 +42,7 @@ static void ReadConfig(const char* path) {
 	CustomAnims = config->getBool("General", "CustomAnims", true);
 	ChangeMusic = config->getBool("Sounds", "ChangeMusic", true);
 	EyeTracking = config->getBool("General", "EyeTracking", true);
-	LifeIcon = config->getBool("General", "LifeIcon", true);
+	HUDIcons = config->getBool("General", "HUDIcons", true);
 	
 	if (AlwaysSuperSonic == true || config->getBool("General", "RemoveLimitations", false)) {
 		RemoveLimitations = true;
@@ -64,6 +64,7 @@ extern "C" {
 		Animations_Init(); // Allow Sonic actions for Super Sonic
 		Physics_Init(path);
 		SSTikalHint_Init();
+		HudInit();
 	}
 
 	__declspec(dllexport) ModInfo SADXModInfo = { ModLoaderVer };
