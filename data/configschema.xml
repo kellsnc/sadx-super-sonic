@@ -5,18 +5,57 @@
       <Property name="ExtendedGameplay" type="bool" defaultvalue="True" display="Extended Gameplay">
         <HelpText>Super Sonic will be able to do all of Sonic's actions with appropriate animations.</HelpText>
       </Property>
-      <Property name="ChangeMusic" type="bool" defaultvalue="True" display="Change music when transforming">
-        <HelpText>The game will play Super Sonic's theme upon transformation.</HelpText>
-      </Property>
       <Property name="RemoveLimitations" type="bool" defaultvalue="False" display="Remove limitations">
         <HelpText>Remove the need for 50 rings &amp; completed story.</HelpText>
-      </Property>
-      <Property name="AlwaysSuperSonic" type="bool" defaultvalue="False" display="Always Super Sonic (experimental)">
-        <HelpText>Sonic will always be Super Sonic.</HelpText>
       </Property>
       <Property name="CustomPhysics" type="bool" defaultvalue="True" display="Custom Physics">
         <HelpText>Use more appropriate physics for Super Sonic when outside of the last story.</HelpText>
       </Property>
+      <Property name="AlwaysSuperSonic" type="bool" defaultvalue="False" display="Always Super Sonic">
+        <HelpText>Sonic will always be Super Sonic.</HelpText>
+      </Property>
+      <Property name="TransformButton" type="Buttons" defaultvalue="0" display="Transform Button" />
+      <Property name="DetransformButton" type="bool" defaultvalue="True" display="Enable detransformation button">
+        <HelpText>If disabled, you will have to wait until you no longer have rings to detransform.</HelpText>
+      </Property>
+      <Property name="EyeTracking" type="bool" defaultvalue="True" display="Eye tracking">
+        <HelpText>Super Sonic will be able to look at stuff like Sonic.</HelpText>
+      </Property>
+      <Property name="HUDIcons" type="bool" defaultvalue="True" display="HUD Icons">
+        <HelpText>Super Sonic will have life &amp; 1up icons.</HelpText>
+      </Property>
+      <Property name="CustomAnims" type="bool" defaultvalue="True" display="Custom Animations">
+        <HelpText>Super Sonic's head is centered differently so any animation editing the head position will look terrible. This uses custom animations to fix it.</HelpText>
+      </Property>
+      <Property name="DisableAura" type="AuraOptions" defaultvalue="False" display="Disable Aura">
+        <HelpText>Super Sonic will no longer have an aura.</HelpText>
+      </Property>
+    </Group>
+    <Group name="Sounds">
+      <Property name="ChangeMusic" type="bool" defaultvalue="True" display="Change music when transforming">
+        <HelpText>The game will play Super Sonic's theme upon transformation.</HelpText>
+      </Property>
+      <Property name="EnableTransformationVoice" type="bool" defaultvalue="True" display="Enable transformation voice">
+        <HelpText>Voices that play when transforming to Super Sonic or reverting to Sonic.</HelpText>
+      </Property>
+      <Property name="EnableTikalUnusedVoice" type="bool" defaultvalue="True" display="Restore Tikal's unused voice">
+        <HelpText>Once the story is completed, Tikal will tell you how to transform into Super Sonic.</HelpText>
+      </Property>
     </Group>
   </Groups>
+  <Enums>
+    <Enum name="Buttons">
+      <EnumMember name="0" display="B" />
+      <EnumMember name="1" display="X" />
+      <EnumMember name="2" display="Y" />
+      <EnumMember name="3" display="C" />
+      <EnumMember name="4" display="D" />
+      <EnumMember name="5" display="Z" />
+    </Enum>
+    <Enum name="AuraOptions">
+      <EnumMember name="False" display="False" />
+      <EnumMember name="True" display="True" />
+      <EnumMember name="ExceptBoss" display="True except vs. Chaos" />
+    </Enum>
+  </Enums>
 </ConfigSchema>

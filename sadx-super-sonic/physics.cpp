@@ -88,7 +88,8 @@ static void __cdecl Sonic_SuperPhysics_Load_r(task* tsk)
 	}
 }
 
-void Physics_Init(const char* path) {
+void Physics_Init(const char* path)
+{
 	Sonic_SuperPhysics_Load_t = new Trampoline((int)Sonic_SuperPhysics_Load, (int)Sonic_SuperPhysics_Load + 0x6, Sonic_SuperPhysics_Load_r);
 
 	if (CustomPhysics == true) {

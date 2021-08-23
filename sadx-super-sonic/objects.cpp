@@ -59,7 +59,7 @@ static void SonicChargeSpindashEffect_r(ObjectMaster* obj)
 static void Sonic_SuperAura_Load_r(ObjectMaster* obj)
 {
 	// Disable in menus or option enabled
-	if (GameState == 21 || DisableAura == true)
+	if (GameState == 21 || !(DisableAura == AuraOptions::False || (DisableAura == AuraOptions::ExceptBoss && CurrentLevel == LevelIDs_PerfectChaos && CurrentAct == 0)))
 	{
 		obj->MainSub = DeleteObject_;
 		return;

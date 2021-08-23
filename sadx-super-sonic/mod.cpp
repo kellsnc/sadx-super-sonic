@@ -5,6 +5,7 @@
 HelperFunctions HelperFunctionsGlobal;
 
 Buttons TransformButton = Buttons_B;
+AuraOptions DisableAura = AuraOptions::False;
 bool EnableTransformationVoice = true;
 bool EnableTikalUnusedVoice = true;
 bool RemoveLimitations = false;
@@ -12,7 +13,6 @@ bool DetransformButton = true;
 bool AlwaysSuperSonic = false;
 bool ExtendedGamePlay = true;
 bool CustomPhysics = true;
-bool DisableAura = false;
 bool ChangeMusic = true;
 bool CustomAnims = true;
 bool EyeTracking = true;
@@ -38,11 +38,21 @@ static void ReadConfig(const char* path) {
 	AlwaysSuperSonic = config->getBool("General", "AlwaysSuperSonic", false);
 	ExtendedGamePlay = config->getBool("General", "ExtendedGameplay", true);
 	CustomPhysics = config->getBool("General", "CustomPhysics", true);
-	DisableAura = config->getBool("General", "DisableAura", false);
 	CustomAnims = config->getBool("General", "CustomAnims", true);
 	ChangeMusic = config->getBool("Sounds", "ChangeMusic", true);
 	EyeTracking = config->getBool("General", "EyeTracking", true);
 	HUDIcons = config->getBool("General", "HUDIcons", true);
+
+	std::string aurastr = config->getString("General", "DisableAura", "False");
+
+	if (!aurastr.compare("True"))
+	{
+		DisableAura = AuraOptions::True;
+	}
+	else if (!aurastr.compare("ExceptBoss"))
+	{
+		DisableAura = AuraOptions::ExceptBoss;
+	}
 	
 	if (AlwaysSuperSonic == true || config->getBool("General", "RemoveLimitations", false)) {
 		RemoveLimitations = true;
