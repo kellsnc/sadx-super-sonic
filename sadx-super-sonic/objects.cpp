@@ -17,7 +17,7 @@ static void LoadSonicDashTrail_r(EntityData1* player)
 	{
 		obj = LoadObject(LoadObj_Data1, 6, SonicDashTrail_Init);
 	}
-	
+
 	if (obj)
 	{
 		obj->Data1->CharIndex = player->CharIndex;
@@ -37,7 +37,7 @@ static void LoadSonicDashEffect_r(EntityData1* player)
 	{
 		obj = LoadObject(LoadObj_Data1, 5, (ObjectFuncPtr)0x4A2A40);
 	}
-	
+
 	if (obj)
 	{
 		obj->Data1->CharIndex = player->CharIndex;
@@ -89,4 +89,11 @@ void Objects_Init()
 	}
 
 	WriteJump(Sonic_SuperAura_Load, Sonic_SuperAura_Load_r);
+
+	//move Jump Panel collision pos y from 1.5 to 4.0 (Fix Super Sonic stuck/missing jump panel)
+	WriteData<1>((int*)0x97dfa7, 0x40);
+	WriteData<1>((int*)0x97dfa6, 0x80);
+	//same
+	WriteData<1>((int*)0x97dfd7, 0x40);
+	WriteData<1>((int*)0x97dfd6, 0x80);
 }
