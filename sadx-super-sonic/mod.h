@@ -33,6 +33,7 @@ void Animations_Init();
 void SSTikalHint_Init();
 void HudInit();
 
+bool IsPerfectChaosLevel();
 bool IsSuperSonic(CharObj2* co2);
 bool IsStoryFinished();
 void DetransformSuperSonic(EntityData1* data, CharObj2* co2);

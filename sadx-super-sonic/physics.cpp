@@ -65,7 +65,7 @@ static void __cdecl Sonic_SuperPhysicsLevel_Main(task* tsk)
 
 static void __cdecl Sonic_SuperPhysics_Load_r(task* tsk)
 {
-	if (LastStoryFlag == true || (CurrentLevel == LevelIDs_PerfectChaos && CurrentAct == 0))
+	if (IsPerfectChaosLevel())
 	{
 		TARGET_DYNAMIC(Sonic_SuperPhysics_Load)(tsk);
 

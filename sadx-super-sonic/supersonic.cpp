@@ -153,13 +153,18 @@ static bool Blacklist_NormalSuperSonic(EntityData1* data, CharObj2* co2)
 		(data->NextAction == 12 || (data->NextAction == 13 && CurrentLevel == LevelIDs_TwinklePark));
 }
 
+bool IsPerfectChaosLevel()
+{
+	return LastStoryFlag == 1 || (CurrentLevel == LevelIDs_PerfectChaos && CurrentAct == 0);
+}
+
 static void Sonic_Exec_r(task* tsk)
 {
 	EntityData1* data = (EntityData1*)tsk->twp;
 	motionwk* mwp = tsk->mwp;
 	CharObj2* co2 = (CharObj2*)mwp->work.ptr;
 
-	if (LastStoryFlag == false && MetalSonicFlag == false && !(CurrentLevel == LevelIDs_PerfectChaos && CurrentAct == 0))
+	if (IsPerfectChaosLevel() == false && MetalSonicFlag == false)
 	{
 		if (data->Action == Act_Sonic_Init)
 		{
