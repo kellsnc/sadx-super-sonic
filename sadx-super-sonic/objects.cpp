@@ -1,6 +1,8 @@
 #include "pch.h"
 
-// Code to adapt Sonic sub objects to Super Sonic
+// Code to adapt some objects to Super Sonic
+
+DataArray(CollisionData, JumpPanel_Collision_, 0x97DF68, 4);
 
 static Trampoline* Sonic_DisplayLightDashModel_t = nullptr;
 
@@ -90,10 +92,9 @@ void Objects_Init()
 
 	WriteJump(Sonic_SuperAura_Load, Sonic_SuperAura_Load_r);
 
-	//move Jump Panel collision pos y from 1.5 to 4.0 (Fix Super Sonic stuck/missing jump panel)
-	WriteData<1>((int*)0x97dfa7, 0x40);
-	WriteData<1>((int*)0x97dfa6, 0x80);
-	//same
-	WriteData<1>((int*)0x97dfd7, 0x40);
-	WriteData<1>((int*)0x97dfd6, 0x80);
+	// Fix Jump Panel collision placement
+	JumpPanel_Collision_[1].center.y = 4.0f;
+	JumpPanel_Collision_[2].center.y = 4.0f;
+	JumpPanel_Collision_[3].center.y = 2.0f;
+	JumpPanel_Collision_[3].a = 7.0f;
 }

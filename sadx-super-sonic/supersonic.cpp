@@ -159,7 +159,7 @@ static void Sonic_Exec_r(task* tsk)
 	motionwk* mwp = tsk->mwp;
 	CharObj2* co2 = (CharObj2*)mwp->work.ptr;
 
-	if (LastStoryFlag == false && MetalSonicFlag == false && CurrentLevel != LevelIDs_PerfectChaos)
+	if (LastStoryFlag == false && MetalSonicFlag == false && !(CurrentLevel == LevelIDs_PerfectChaos && CurrentAct == 0))
 	{
 		if (data->Action == Act_Sonic_Init)
 		{
