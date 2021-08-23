@@ -72,12 +72,15 @@ void SuperSonic_Actions(EntityData1* data, motionwk* mwp, CharObj2* co2)
         case Act_SuperSonic_Jump:
             data->Action = Act_Sonic_Jump;
             break;
-        case Act_Sonic_JumpPanel: // sadx is bad
-            data->Action = Act_Sonic_Fall;
-            NullifyVelocity((EntityData2*)mwp, co2);
-            PrintDebug("[SuperSonic] Invalid action \"Act_Sonic_JumpPanel\" cancelled.\n");
-
+        case Act_Sonic_JumpPanel:
+            if (++data->field_A == 100) { //fail safe: fix super sonic stuck infinitely after the last panel.
+                data->Action = Act_Sonic_Fall;
+                data->field_A = 0;
+            }
             break;
+        case Act_Sonic_JumpPanelOn:
+               data->field_A = 0;
+               break;
         }
     }
 }
