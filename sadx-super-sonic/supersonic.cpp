@@ -260,7 +260,8 @@ static void __declspec(naked) SonicNAct_asm()
 	}
 }
 
-void SuperSonic_Init() {
+void SuperSonic_Init()
+{
 	HelperFunctionsGlobal.RegisterCharacterPVM(Characters_Sonic, { "SUPERSONIC", &SUPERSONIC_TEXLIST });
 
 	Sonic_Exec_t = new Trampoline((int)Sonic_Main, (int)Sonic_Main + 0x7, Sonic_Exec_r);

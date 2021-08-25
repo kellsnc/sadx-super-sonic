@@ -35,13 +35,6 @@ void InitSuperAnims(EntityData1* data)
 {
 	if (animationsLoaded == false)
 	{
-		if (EyeTracking == true)
-		{
-			SuperSonicEyeList[0] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling;
-			SuperSonicEyeList[1] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling->child->child->sibling->sibling->child->child->sibling;
-			SuperSonicEyeList[2] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling->child->child->sibling->child->child->sibling;
-		}
-		
 		if (UseAdvancedSuperSonic() == true)
 		{
 			// Fill the animation table at init in case mods edit animations
@@ -189,5 +182,12 @@ void Animations_Init()
 			LoadAnimationFile(&customAnims[2], "SS_053");
 			LoadAnimationFile(&customAnims[3], "SS_052");
 		}
+	}
+
+	if (EyeTracking == true)
+	{
+		SuperSonicEyeList[0] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling;
+		SuperSonicEyeList[1] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling->child->child->sibling->sibling->child->child->sibling;
+		SuperSonicEyeList[2] = SONIC_OBJECTS[22]->child->child->sibling->sibling->sibling->sibling->sibling->child->child->sibling->child->child->sibling;
 	}
 }
