@@ -5,6 +5,7 @@
 static Trampoline* Sonic_Exec_t = nullptr;
 static Trampoline* Sonic_Display_t = nullptr;
 static Trampoline* Sonic_Delete_t = nullptr;
+static Trampoline* SonicNAct_t = nullptr;
 
 static int RingTimer = 0;
 
@@ -164,17 +165,6 @@ static void Sonic_Exec_r(task* tsk)
 	motionwk* mwp = tsk->mwp;
 	CharObj2* co2 = (CharObj2*)mwp->work.ptr;
 
-	// In case an external mod set Super Sonic, todo: move to NAct
-	if (data->NextAction == NextAction_SuperSonic)
-	{
-		SetSuperAnims(co2);
-
-		if (!(data->Status & Status_DoNextAction))
-		{
-			data->NextAction = 0;
-		}
-	}
-
 	if (IsPerfectChaosLevel() == false && MetalSonicFlag == false)
 	{
 		if (data->Action == Act_Sonic_Init)
@@ -226,12 +216,61 @@ void Sonic_Delete_r(task* tsk) {
 	TARGET_DYNAMIC(Sonic_Delete)(tsk);
 }
 
+signed int __cdecl SonicNAct_original(CharObj2* co2, EntityData1* data, EntityData2* data2)
+{
+	const auto SonicNAct_ptr = SonicNAct_t->Target();
+	signed int result;
+
+	__asm
+	{
+		push[data2]
+		mov edi, [data]
+		mov eax, [co2]
+		call SonicNAct_ptr
+		add esp, 4
+		mov result, eax
+	}
+
+	return result;
+}
+
+signed int __cdecl SonicNAct_r(CharObj2* co2, EntityData1* data, EntityData2* data2)
+{
+	// In case an external mod set Super Sonic
+	if (data->NextAction == NextAction_SuperSonic && (data->Status & Status_DoNextAction))
+	{
+		SetSuperAnims(co2);
+	}
+
+	return SonicNAct_original(co2, data, data2);
+}
+
+static void __declspec(naked) SonicNAct_asm()
+{
+	__asm
+	{
+		push[esp + 04h]
+		push edi
+		push eax
+		call SonicNAct_r
+		add esp, 4
+		pop edi
+		add esp, 4
+		retn
+	}
+}
+
 void SuperSonic_Init() {
 	HelperFunctionsGlobal.RegisterCharacterPVM(Characters_Sonic, { "SUPERSONIC", &SUPERSONIC_TEXLIST });
 
 	Sonic_Exec_t = new Trampoline((int)Sonic_Main, (int)Sonic_Main + 0x7, Sonic_Exec_r);
 	Sonic_Display_t = new Trampoline((int)Sonic_Display, (int)Sonic_Display + 0x7, Sonic_Display_r);
 	Sonic_Delete_t = new Trampoline((int)Sonic_Delete, (int)Sonic_Delete + 0x5, Sonic_Delete_r);
+
+	if (UseAdvancedSuperSonic())
+	{
+		SonicNAct_t = new Trampoline(0x00495FA0, 0x00495FA6, SonicNAct_asm);
+	}
 	
 	// Always initialize Super Sonic weld data
 	WriteData<2>(reinterpret_cast<Uint8*>(0x0049AC6A), 0x90i8);
