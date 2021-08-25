@@ -164,6 +164,17 @@ static void Sonic_Exec_r(task* tsk)
 	motionwk* mwp = tsk->mwp;
 	CharObj2* co2 = (CharObj2*)mwp->work.ptr;
 
+	// In case an external mod set Super Sonic, todo: move to NAct
+	if (data->NextAction == NextAction_SuperSonic)
+	{
+		SetSuperAnims(co2);
+
+		if (!(data->Status & Status_DoNextAction))
+		{
+			data->NextAction = 0;
+		}
+	}
+
 	if (IsPerfectChaosLevel() == false && MetalSonicFlag == false)
 	{
 		if (data->Action == Act_Sonic_Init)
