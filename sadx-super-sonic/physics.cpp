@@ -69,8 +69,9 @@ static void __cdecl Sonic_SuperPhysics_Load_r(task* tsk)
 	{
 		TARGET_DYNAMIC(Sonic_SuperPhysics_Load)(tsk);
 
-		// Make sure their win height hack is restored
-		WriteData((float*)0x494E16, 10.0f);
+		// Restore Super Sonic's win height hack
+		WriteData(reinterpret_cast<int*>(0x00494E13), 0x002446C7);
+		WriteData(reinterpret_cast<float*>(0x494E16), 10.0f);
 	}
 	else
 	{
@@ -82,7 +83,7 @@ static void __cdecl Sonic_SuperPhysics_Load_r(task* tsk)
 		SetSuperPhysics(&co2->PhysicsData);
 
 		// Remove Super Sonic's win height hack
-		WriteData((float*)0x494E16, 0.0f);
+		WriteData<7>(reinterpret_cast<Uint8*>(0x00494E13), 0x90i8);
 
 		tsk->exec(tsk);
 	}
@@ -92,7 +93,8 @@ void Physics_Init(const char* path)
 {
 	Sonic_SuperPhysics_Load_t = new Trampoline((int)Sonic_SuperPhysics_Load, (int)Sonic_SuperPhysics_Load + 0x6, Sonic_SuperPhysics_Load_r);
 
-	if (CustomPhysics == true) {
+	if (CustomPhysics == true)
+	{
 		const IniFile* physics = new IniFile(std::string(path) + "\\physics.ini");
 
 		SuperSonicDecel = physics->getFloat("SuperSonic", "SuperSonicDecel", -0.006f);
