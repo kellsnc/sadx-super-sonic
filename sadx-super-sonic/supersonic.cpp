@@ -237,7 +237,7 @@ signed int __cdecl SonicNAct_original(CharObj2* co2, EntityData1* data, EntityDa
 signed int __cdecl SonicNAct_r(CharObj2* co2, EntityData1* data, EntityData2* data2)
 {
 	// In case an external mod set Super Sonic
-	if (data->NextAction == NextAction_SuperSonic && (data->Status & Status_DoNextAction))
+	if (IsPerfectChaosLevel() == false && data->NextAction == NextAction_SuperSonic && (data->Status & Status_DoNextAction))
 	{
 		SetSuperAnims(co2);
 	}

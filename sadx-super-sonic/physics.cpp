@@ -3,6 +3,7 @@
 // Code to replace Super Sonic physics with custom, softer ones
 
 static Trampoline* Sonic_SuperPhysics_Load_t = nullptr;
+static Trampoline* ResetAngle_t = nullptr;
 
 static float SuperSonicDecel = *(float*)0x49439D; // -0.001f
 static float SuperSonicAirDecel = *(float*)0x4943A7; // -0.002f
@@ -89,12 +90,25 @@ static void __cdecl Sonic_SuperPhysics_Load_r(task* tsk)
 	}
 }
 
+// Fix Super Sonic hardcoded behaviour in ResetAngle
+static void __cdecl ResetAngle_r(EntityData1* data1, EntityData2* data2, CharObj2* co2)
+{
+	if (IsPerfectChaosLevel() == false && co2->Upgrades & Upgrades_SuperSonic)
+	{
+		co2->Upgrades &= ~Upgrades_SuperSonic;
+		TARGET_DYNAMIC(ResetAngle)(data1, data2, co2);
+		co2->Upgrades |= Upgrades_SuperSonic;
+	}
+	else
+	{
+		TARGET_DYNAMIC(ResetAngle)(data1, data2, co2);
+	}
+}
+
 void Physics_Init(const char* path)
 {
 	Sonic_SuperPhysics_Load_t = new Trampoline((int)Sonic_SuperPhysics_Load, (int)Sonic_SuperPhysics_Load + 0x6, Sonic_SuperPhysics_Load_r);
-
-	// Fix springs
-	WriteData<2>(reinterpret_cast<void*>(0x00443AF5), 0x90);
+	ResetAngle_t = new Trampoline(0x443AD0, 0x443AD7, ResetAngle_r);
 
 	if (CustomPhysics == true)
 	{
