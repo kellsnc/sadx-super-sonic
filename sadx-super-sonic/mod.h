@@ -40,6 +40,7 @@ void DetransformSuperSonic(EntityData1* data, CharObj2* co2);
 bool UseAdvancedSuperSonic();
 void SuperSonic_HackDisplay(CharObj2* co2);
 void RestoreMusic();
+void RunSuperMusic();
 void TransformMusicAndSound();
 void DetransformMusicAndSound();
 void SuperSonic_Actions(EntityData1* data, motionwk* mwp, CharObj2* co2);

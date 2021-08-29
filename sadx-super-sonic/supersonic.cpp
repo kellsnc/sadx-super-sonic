@@ -41,7 +41,8 @@ static void TransformSuperSonic(EntityData1* data, CharObj2* co2)
 	SetSuperAnims(co2);
 
 	// If it's player 1, play sound & update music
-	if (data->CharIndex == 0) {
+	if (data->CharIndex == 0)
+	{
 		TransformMusicAndSound();
 	}
 }
@@ -184,6 +185,8 @@ static void Sonic_Exec_r(task* tsk)
 			if (IsSuperSonic(co2) == true)
 			{
 				co2->Powerups |= Powerups_Invincibility;
+
+				RunSuperMusic();
 
 				SuperSonic_Actions(data, mwp, co2); // advanced actions if enabled
 				SuperSonic_Rings(data, co2); // deplete rings if enabled

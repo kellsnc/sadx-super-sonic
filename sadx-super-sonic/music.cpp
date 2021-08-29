@@ -4,6 +4,10 @@
 * Changes to force the last boss music if the option enabled, and to perform transformation voices
 */
 
+static short last_level = 0;
+static short last_act = 0;
+static int   level_song = 0;
+
 static const int clips[] = {
 	402,
 	508,
@@ -16,8 +20,27 @@ void RestoreMusic()
 {
 	if (ChangeMusic == true && CurrentSong == MusicIDs_ThemeOfSuperSonic)
 	{
-		CurrentSong = LastSong;
+		if (!Music_Enabled)
+		{
+			return;
+		}
+
+		LastSong = CurrentSong = level_song;
 	}
+}
+
+void RunSuperMusic()
+{
+	if (!Music_Enabled || CurrentSong == MusicIDs_ThemeOfSuperSonic || ChangeMusic == false)
+	{
+		return;
+	}
+
+	last_level = CurrentLevel;
+	last_act = CurrentAct;
+
+	level_song = LastSong;
+	LastSong = CurrentSong = MusicIDs_ThemeOfSuperSonic;
 }
 
 void TransformMusicAndSound()
@@ -27,11 +50,7 @@ void TransformMusicAndSound()
 		PlayVoice(396);
 	}
 	
-	if (ChangeMusic == true)
-	{
-		LastSong = CurrentSong;
-		CurrentSong = MusicIDs::MusicIDs_ThemeOfSuperSonic;
-	}
+	RunSuperMusic();
 }
 
 void DetransformMusicAndSound()
