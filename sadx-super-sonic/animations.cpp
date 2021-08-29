@@ -4,8 +4,6 @@
 * Custom animation list for Super Sonic
 */
 
-FastcallFunctionPointer(void, SuperSonic_WalkAni, (CharObj2* co2, EntityData2* data2), 0x491820);
-
 static Trampoline* Sonic_WalkAni_t = nullptr;
 static Trampoline* Sonic_GroundAnim_t = nullptr;
 
@@ -31,7 +29,7 @@ void UnsetSuperAnims(CharObj2* co2)
 	}
 }
 
-void InitSuperAnims(EntityData1* data)
+void InitSuperSonicAnims()
 {
 	if (animationsLoaded == false)
 	{
@@ -92,10 +90,13 @@ void InitSuperAnims(EntityData1* data)
 		
 		animationsLoaded = true;
 	}
+}
 
+void InitSuperSonicEyes(int player)
+{
 	if (EyeTracking == true)
 	{
-		CollisionCrashThing_Load(SuperSonicEyeList, data->CharIndex);
+		CollisionCrashThing_Load(SuperSonicEyeList, player);
 	}
 }
 

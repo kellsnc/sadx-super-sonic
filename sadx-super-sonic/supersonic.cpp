@@ -170,7 +170,8 @@ static void Sonic_Exec_r(task* tsk)
 	{
 		if (data->Action == Act_Sonic_Init)
 		{
-			InitSuperAnims(data);
+			InitSuperSonicAnims();
+			InitSuperSonicEyes(data->CharIndex);
 		}
 		else
 		{
