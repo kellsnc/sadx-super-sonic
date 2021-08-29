@@ -93,6 +93,9 @@ void Physics_Init(const char* path)
 {
 	Sonic_SuperPhysics_Load_t = new Trampoline((int)Sonic_SuperPhysics_Load, (int)Sonic_SuperPhysics_Load + 0x6, Sonic_SuperPhysics_Load_r);
 
+	// Fix springs
+	WriteData<2>(reinterpret_cast<void*>(0x00443AF5), 0x90);
+
 	if (CustomPhysics == true)
 	{
 		const IniFile* physics = new IniFile(std::string(path) + "\\physics.ini");
