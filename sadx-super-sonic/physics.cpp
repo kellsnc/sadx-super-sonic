@@ -69,10 +69,6 @@ static void __cdecl Sonic_SuperPhysics_Load_r(task* tsk)
 	if (IsPerfectChaosLevel())
 	{
 		TARGET_DYNAMIC(Sonic_SuperPhysics_Load)(tsk);
-
-		// Restore Super Sonic's win height hack
-		WriteData(reinterpret_cast<int*>(0x00494E13), 0x002446C7);
-		WriteData(reinterpret_cast<float*>(0x494E16), 10.0f);
 	}
 	else
 	{
@@ -82,9 +78,6 @@ static void __cdecl Sonic_SuperPhysics_Load_r(task* tsk)
 		tsk->dest = Sonic_SuperPhysicsLevel_Delete;
 
 		SetSuperPhysics(&co2->PhysicsData);
-
-		// Remove Super Sonic's win height hack
-		WriteData<7>(reinterpret_cast<Uint8*>(0x00494E13), 0x90i8);
 
 		tsk->exec(tsk);
 	}

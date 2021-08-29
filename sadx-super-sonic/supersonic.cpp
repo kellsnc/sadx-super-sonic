@@ -6,6 +6,7 @@ static Trampoline* Sonic_Exec_t = nullptr;
 static Trampoline* Sonic_Display_t = nullptr;
 static Trampoline* Sonic_Delete_t = nullptr;
 static Trampoline* SonicNAct_t = nullptr;
+static Trampoline* SuperSonicNAct_t = nullptr;
 
 static int RingTimer = 0;
 
@@ -260,6 +261,56 @@ static void __declspec(naked) SonicNAct_asm()
 	}
 }
 
+signed int __cdecl SuperSonicNAct_original(EntityData2* data2, CharObj2* co2, EntityData1* data)
+{
+	const auto SuperSonicNAct_ptr = SuperSonicNAct_t->Target();
+	signed int result;
+
+	__asm
+	{
+		mov esi, [data]
+		mov ecx, [co2]
+		mov eax, [data2]
+		call SuperSonicNAct_ptr
+		mov result, eax
+	}
+
+	return result;
+}
+
+signed int __cdecl SuperSonicNAct_r(EntityData2* data2, CharObj2* co2, EntityData1* data)
+{
+	// In case an external mod set Super Sonic
+	if (IsPerfectChaosLevel() == false && data->NextAction == NextAction_Winning && (data->Status & Status_DoNextAction))
+	{
+		data->Action = Act_Sonic_ObjectControl;
+		co2->AnimationThing.Index = Anm_SuperSonic_Win;
+		NullifyVelocity(data2, co2);
+		data->Rotation.z = 0;
+		data->Rotation.x = 0;
+		data->Status &= ~(Status_OnPath | Status_Attack | Status_Ball);
+		StopPlayerLookAt(0);
+		return true;
+	}
+
+	return SuperSonicNAct_original(data2, co2, data);
+}
+
+static void __declspec(naked) SuperSonicNAct_asm()
+{
+	__asm
+	{
+		push esi
+		push ecx
+		push eax
+		call  SuperSonicNAct_r
+		add esp, 4
+		pop ecx
+		pop esi
+		retn
+	}
+}
+
 void SuperSonic_Init()
 {
 	HelperFunctionsGlobal.RegisterCharacterPVM(Characters_Sonic, { "SUPERSONIC", &SUPERSONIC_TEXLIST });
@@ -267,6 +318,7 @@ void SuperSonic_Init()
 	Sonic_Exec_t = new Trampoline((int)Sonic_Main, (int)Sonic_Main + 0x7, Sonic_Exec_r);
 	Sonic_Display_t = new Trampoline((int)Sonic_Display, (int)Sonic_Display + 0x7, Sonic_Display_r);
 	Sonic_Delete_t = new Trampoline((int)Sonic_Delete, (int)Sonic_Delete + 0x5, Sonic_Delete_r);
+	SuperSonicNAct_t = new Trampoline(0x00494CD0, 0x00494CD6, SuperSonicNAct_asm); // fix winning position
 
 	if (UseAdvancedSuperSonic())
 	{

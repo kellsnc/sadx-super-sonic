@@ -12,6 +12,7 @@ FunctionPointer(void, SetHintPos, (NJS_VECTOR*, NJS_VECTOR*, float), 0x4A34B0);
 FunctionPointer(void, StopPlayerEyeTarget, (unsigned __int8 player), 0x441080);
 FunctionPointer(void, PlaySound3D, (int ID, void* entity, int a3, int volume, int length, EntityData1* data), 0x424880);
 FunctionPointer(ObjectMaster*, LoadTikalChild, (ObjectMaster* obj, char*, NJS_VECTOR*), 0x4A3B70);
+FunctionPointer(void, StopPlayerLookAt, (uint8_t id), 0x441080);
 
 //signed int __usercall Sonic_HoldingObject_NAct@<eax>(EntityData1* data@<ecx>, int a2@<edx>, CharObj2* co2@<eax>, void* data2)
 static const void* const Sonic_HoldingObject_NActPtr = (void*)0x496880;
