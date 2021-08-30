@@ -29,9 +29,9 @@ void RestoreMusic()
 	}
 }
 
-void RunSuperMusic()
+void SetSuperMusic()
 {
-	if (!Music_Enabled || CurrentSong == MusicIDs_ThemeOfSuperSonic || ChangeMusic == false)
+	if (!Music_Enabled || CurrentSong == MusicIDs_ThemeOfSuperSonic)
 	{
 		return;
 	}
@@ -43,6 +43,17 @@ void RunSuperMusic()
 	LastSong = CurrentSong = MusicIDs_ThemeOfSuperSonic;
 }
 
+void RunSuperMusic()
+{
+	if (ChangeMusic == true)
+	{
+		if (CurrentSong != -1 && (CurrentLevel != last_level || CurrentAct != last_act))
+		{
+			SetSuperMusic();
+		}
+	}
+}
+
 void TransformMusicAndSound()
 {
 	if (EnableTransformationVoice == true)
@@ -50,7 +61,10 @@ void TransformMusicAndSound()
 		PlayVoice(396);
 	}
 	
-	RunSuperMusic();
+	if (ChangeMusic == true)
+	{
+		SetSuperMusic();
+	}
 }
 
 void DetransformMusicAndSound()
