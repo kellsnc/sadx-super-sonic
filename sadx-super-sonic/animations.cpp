@@ -54,7 +54,6 @@ void InitSuperSonicAnims()
 				case Anm_SuperSonic_Jump:
 					SuperSonicAnimData[i] = SonicAnimData[i];
 					break;
-				case Anm_Sonic_Jump:
 				case Anm_Sonic_JumpOrSpin:
 				case Anm_Sonic_Bowling:
 				case Anm_Sonic_Roll:

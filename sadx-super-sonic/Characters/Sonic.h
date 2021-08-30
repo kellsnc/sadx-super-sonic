@@ -198,7 +198,7 @@ enum SonicAnimations : unsigned __int16 {
 	Anm_Sonic_BoardBrakeRight,
 	Anm_Sonic_BoardBrakeLeft,
 	Anm_Sonic_BoardJumpFall,
-	Anm_Sonic_Jump,
+	Anm_Sonic_BoardJump,
 	Anm_Sonic_LeanRight,
 	Anm_Sonic_LeanLeft,
 	Anm_Sonic_BoardHitLR,
