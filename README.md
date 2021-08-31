@@ -42,6 +42,7 @@ RemoveLimitations=False ; Removes the completed story and 50 rings limitations.
 CustomPhysics=True ; Use nerfed physics value.
 AlwaysSuperSonic=False
 TransformButton=0 ; 0 = B, 1 = X, 2 = Y, 3 = C, 4 = D, 5 = Z
+DetransformButton=True ; If false, you cannot transform back using the transform button.
 EyeTracking=True ; Super Sonic head can turn toward entities.
 HUDIcons=True ; Replace Sonic life icon with a custom Super Sonic one upon transformation.
 CustomAnims=True ; Use custom animations to fix some buggy animations.
