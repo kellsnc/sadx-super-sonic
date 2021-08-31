@@ -88,6 +88,7 @@ void Objects_Init()
 		WriteData((ObjectFuncPtr*)0x49AE58, SonicChargeSpindashEffect_r);
 
 		Sonic_DisplayLightDashModel_t = new Trampoline((int)Sonic_DisplayLightDashModel, (int)Sonic_DisplayLightDashModel + 0x5, Sonic_DisplayLightDashModel_r);
+		WriteCall((void*)0x494B27, Sonic_DisplayLightDashModel_r); // DC Conversion compatibility
 	}
 
 	WriteJump(Sonic_SuperAura_Load, Sonic_SuperAura_Load_r);
