@@ -6,7 +6,7 @@ static int __stdcall SuperWaterCheck_C(EntityData1* data1, CharObj2* co2)
 {
 	auto pad = ControllerPointers[static_cast<int>(data1->CharIndex)];
 
-	if (data1->CharID == Characters_Sonic && IsSuperSonic(co2))
+	if (/*data1->CharID == Characters_Sonic &&*/ IsSuperSonic(co2))
 	{
 		return pad && !(pad->HeldButtons & Buttons_Y);
 	}
