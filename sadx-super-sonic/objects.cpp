@@ -93,9 +93,9 @@ void Objects_Init()
 
 	WriteJump(Sonic_SuperAura_Load, Sonic_SuperAura_Load_r);
 
-	// Fix Jump Panel collision placement
-	JumpPanel_Collision_[1].center.y = 4.0f;
-	JumpPanel_Collision_[2].center.y = 4.0f;
+	//Fix Jump Panel collision placement
+	JumpPanel_Collision_[1].center.y = 2.0f;
+	JumpPanel_Collision_[2].center.y = 2.0f;
 	JumpPanel_Collision_[3].center.y = 2.0f;
 	JumpPanel_Collision_[3].a = 7.0f;
 }
