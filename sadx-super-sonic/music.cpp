@@ -31,7 +31,7 @@ void RestoreMusic()
 
 void SetSuperMusic()
 {
-	if (!Music_Enabled || CurrentSong == MusicIDs_ThemeOfSuperSonic)
+	if (!Music_Enabled || CurrentSong == MusicIDs_ThemeOfSuperSonic || EV_MainThread_ptr)
 	{
 		return;
 	}
