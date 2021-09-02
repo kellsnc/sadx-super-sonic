@@ -36,7 +36,6 @@ static void __cdecl Sonic_SuperPhysicsLevel_Delete(task* tsk)
 	}
 }
 
-bool test = false;
 static void __cdecl Sonic_SuperPhysicsLevel_Main(task* tsk)
 {
 	CharObj2* co2 = CharObj2Ptrs[tsk->awp->work.sl[0]];
@@ -51,10 +50,8 @@ static void __cdecl Sonic_SuperPhysicsLevel_Main(task* tsk)
 	{
 		if (IsEventPerforming() == true)
 		{
-
 			ResetSuperPhysics(&co2->PhysicsData, Characters_Sonic);
 			tsk->awp->work.sl[1] = 1;
-			test = true;
 		}
 	}
 	else
