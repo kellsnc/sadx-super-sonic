@@ -6,6 +6,7 @@ DataArray(CollisionData, JumpPanel_Collision_, 0x97DF68, 4);
 
 static Trampoline* Sonic_DisplayLightDashModel_t = nullptr;
 
+
 static void LoadSonicDashTrail_r(EntityData1* player)
 {
 	ObjectMaster* obj = nullptr;
@@ -78,6 +79,7 @@ static void __cdecl Sonic_DisplayLightDashModel_r(EntityData1* data, EntityData2
 		TARGET_DYNAMIC(Sonic_DisplayLightDashModel)(data, data2, co2);
 	}
 }
+
 
 void Objects_Init()
 {

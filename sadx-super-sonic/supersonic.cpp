@@ -189,7 +189,7 @@ static void Sonic_Exec_r(task* tsk)
 				RunSuperMusic();
 
 				SuperSonic_Actions(data, mwp, co2); // advanced actions if enabled
-				SuperSonic_Rings(data, co2); // deplete rings if enabled
+				SuperSonic_Rings(data, co2); // delete rings if enabled
 				
 				// if advanced super sonic is disabled, detransform Super on invalid actions.
 				if (UseAdvancedSuperSonic() == false && Blacklist_NormalSuperSonic(data, co2))
