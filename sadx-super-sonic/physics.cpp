@@ -4,7 +4,6 @@
 
 static Trampoline* Sonic_SuperPhysics_Load_t = nullptr;
 static Trampoline* ResetAngle_t = nullptr;
-static Trampoline* SpringB_Main_t = nullptr;
 
 static float SuperSonicDecel = *(float*)0x49439D; // -0.001f
 static float SuperSonicAirDecel = *(float*)0x4943A7; // -0.002f
@@ -100,32 +99,11 @@ static void __cdecl ResetAngle_r(EntityData1* data1, EntityData2* data2, CharObj
 	}
 }
 
-void __cdecl SpringB_Main_r(ObjectMaster* obj) {
-
-	EntityData1* data = obj->Data1;
-
-	for (uint8_t i = 0; i < MaxPlayers; i++) {
-
-		if (!EntityData1Ptrs[i])
-			continue;
-
-		CharObj2* co2 = CharObj2Ptrs[i];
-
-		if (data->Action == 2) {
-			if (IsSuperSonic(co2)) {
-				ResetSuperPhysics(&co2->PhysicsData, Characters_Sonic);
-			}
-		}
-	}
-
-	TARGET_DYNAMIC(SpringB_Main)(obj);
-}
 
 void Physics_Init(const char* path)
 {
 	Sonic_SuperPhysics_Load_t = new Trampoline((int)Sonic_SuperPhysics_Load, (int)Sonic_SuperPhysics_Load + 0x6, Sonic_SuperPhysics_Load_r);
 	ResetAngle_t = new Trampoline(0x443AD0, 0x443AD7, ResetAngle_r);
-	SpringB_Main_t = new Trampoline((int)SpringB_Main, (int)SpringB_Main + 0x5, SpringB_Main_r);
 
 	if (CustomPhysics == true)
 	{
