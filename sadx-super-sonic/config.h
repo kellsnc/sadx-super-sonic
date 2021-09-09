@@ -21,4 +21,8 @@ extern bool CustomPhysics;
 extern bool ChangeMusic;
 extern bool CustomAnims;
 extern bool EyeTracking;
+extern bool WalkOnWater;
 extern bool HUDIcons;
+
+extern bool PatchPhysics;
+extern bool PatchWater;

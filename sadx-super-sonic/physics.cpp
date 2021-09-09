@@ -141,9 +141,13 @@ void __cdecl SpringB_Main_r(ObjectMaster* obj)
 void Physics_Init(const char* path)
 {
 	Sonic_SuperPhysics_Load_t = new Trampoline((int)Sonic_SuperPhysics_Load, (int)Sonic_SuperPhysics_Load + 0x6, Sonic_SuperPhysics_Load_r);
-	ResetAngle_t = new Trampoline(0x443AD0, 0x443AD7, ResetAngle_r);
-	SpringB_Main_t = new Trampoline((int)SpringB_Main, (int)SpringB_Main + 0x5, SpringB_Main_r);
-
+	
+	if (PatchPhysics == true)
+	{
+		ResetAngle_t = new Trampoline(0x443AD0, 0x443AD7, ResetAngle_r);
+		SpringB_Main_t = new Trampoline((int)SpringB_Main, (int)SpringB_Main + 0x5, SpringB_Main_r);
+	}
+	
 	if (CustomPhysics == true)
 	{
 		const IniFile* physics = new IniFile(std::string(path) + "\\physics.ini");

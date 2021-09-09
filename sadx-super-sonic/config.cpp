@@ -12,7 +12,11 @@ bool CustomPhysics = true;
 bool ChangeMusic = true;
 bool CustomAnims = true;
 bool EyeTracking = true;
+bool WalkOnWater = true;
 bool HUDIcons = true;
+
+bool PatchPhysics = true;
+bool PatchWater = false;
 
 static const Buttons ButtonsList[]
 {
@@ -38,7 +42,11 @@ void ReadConfig(const char* path)
 	CustomAnims = config->getBool("General", "CustomAnims", true);
 	ChangeMusic = config->getBool("Sounds", "ChangeMusic", true);
 	EyeTracking = config->getBool("General", "EyeTracking", true);
+	WalkOnWater = config->getBool("General", "WalkOnWater", true);
 	HUDIcons = config->getBool("General", "HUDIcons", true);
+
+	PatchPhysics = config->getBool("Patches", "Physics", true);
+	PatchWater = config->getBool("Patches", "Water", true);
 
 	std::string aurastr = config->getString("General", "DisableAura", "False");
 
