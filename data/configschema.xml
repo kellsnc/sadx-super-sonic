@@ -18,6 +18,9 @@
       <Property name="DetransformButton" type="bool" defaultvalue="True" display="Enable detransformation button">
         <HelpText>If disabled, you will have to wait until you no longer have rings to detransform.</HelpText>
       </Property>
+      <Property name="WalkOnWater" type="bool" defaultvalue="True" display="Walk on water">
+        <HelpText>Super Sonic will by default walk on water. Press Y to dive.</HelpText>
+      </Property>
       <Property name="EyeTracking" type="bool" defaultvalue="True" display="Eye tracking">
         <HelpText>Super Sonic will be able to look at stuff like Sonic.</HelpText>
       </Property>
@@ -40,6 +43,14 @@
       </Property>
       <Property name="EnableTikalUnusedVoice" type="bool" defaultvalue="True" display="Restore Tikal's unused voice">
         <HelpText>Once the story is completed, Tikal will tell you how to transform into Super Sonic.</HelpText>
+      </Property>
+    </Group>
+    <Group name="Patches">
+      <Property name="Physics" type="bool" defaultvalue="True" display="Patch physics issues">
+        <HelpText>The game has hardcoded behaviour for Super Sonic that breaks springs and slopes.</HelpText>
+      </Property>
+      <Property name="Water" type="bool" defaultvalue="True" display="Patch water issues">
+        <HelpText>This patches some water issues in Emerald Coast and Lost World. Disable if custom levels are affected.</HelpText>
       </Property>
     </Group>
   </Groups>
