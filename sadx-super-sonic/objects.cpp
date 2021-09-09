@@ -3,9 +3,7 @@
 // Code to adapt some objects to Super Sonic
 
 DataArray(CollisionData, JumpPanel_Collision_, 0x97DF68, 4);
-
 static Trampoline* Sonic_DisplayLightDashModel_t = nullptr;
-static Trampoline* SpringB_Main_t = nullptr;
 
 static void LoadSonicDashTrail_r(EntityData1* player)
 {
@@ -80,29 +78,6 @@ static void __cdecl Sonic_DisplayLightDashModel_r(EntityData1* data, EntityData2
 	}
 }
 
-
-void __cdecl SpringB_Main_r(ObjectMaster* obj) {
-
-	EntityData1* data = obj->Data1;
-
-	for (uint8_t i = 0; i < MaxPlayers; i++) {
-
-		if (!EntityData1Ptrs[i])
-			continue;
-
-		CharObj2* co2 = CharObj2Ptrs[i];
-
-		if (data->Action == 2) {
-			if (IsSuperSonic(co2) && EntityData1Ptrs[i]->CharID == Characters_Sonic) {
-				co2->PhysicsData.AirDecel = PhysicsArray[Characters_Sonic].AirDecel;
-			}
-		}
-	}
-
-	TARGET_DYNAMIC(SpringB_Main)(obj);
-}
-
-
 void Objects_Init()
 {
 	if (ExtendedGamePlay == true)
@@ -115,7 +90,6 @@ void Objects_Init()
 		WriteCall((void*)0x494B27, Sonic_DisplayLightDashModel_r); // DC Conversion compatibility
 	}
 
-	SpringB_Main_t = new Trampoline((int)SpringB_Main, (int)SpringB_Main + 0x5, SpringB_Main_r);
 	WriteJump(Sonic_SuperAura_Load, Sonic_SuperAura_Load_r);
 
 	//Fix Jump Panel collision placement
