@@ -11,6 +11,7 @@
 #include "UsercallFunctionHandler.h"
 
 #include "mod.h"
+#include "config.h"
 #include "sadx-utils.h"
 #include "ninja-utils.h"
 
