@@ -58,6 +58,7 @@ void InitSuperSonicAnims()
 				case Anm_Sonic_Bowling:
 				case Anm_Sonic_Roll:
 				case Anm_Sonic_PinBall:
+				case Anm_Sonic_SpinBall:
 					SuperSonicAnimData[i] = SonicAnimData[Anm_SuperSonic_Jump];
 					SuperSonicAnimData[i].Property = SonicAnimData[i].Property;
 					break;
