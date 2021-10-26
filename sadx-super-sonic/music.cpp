@@ -18,7 +18,7 @@ static const int clips[] = {
 
 void RestoreMusic()
 {
-	if (ChangeMusic == true && CurrentSong == MusicIDs_ThemeOfSuperSonic)
+	if (CurrentLevel != LevelIDs_PerfectChaos && ChangeMusic == true && CurrentSong == MusicIDs_ThemeOfSuperSonic)
 	{
 		if (!Music_Enabled)
 		{
@@ -31,7 +31,7 @@ void RestoreMusic()
 
 void SetSuperMusic()
 {
-	if (!Music_Enabled || CurrentSong == MusicIDs_ThemeOfSuperSonic || EV_MainThread_ptr)
+	if (CurrentLevel == LevelIDs_PerfectChaos || !Music_Enabled || CurrentSong == MusicIDs_ThemeOfSuperSonic || EV_MainThread_ptr)
 	{
 		return;
 	}
@@ -45,7 +45,7 @@ void SetSuperMusic()
 
 void RunSuperMusic()
 {
-	if (ChangeMusic == true)
+	if (CurrentLevel != LevelIDs_PerfectChaos && ChangeMusic == true)
 	{
 		if (CurrentSong != -1 && (CurrentLevel != last_level || CurrentAct != last_act))
 		{

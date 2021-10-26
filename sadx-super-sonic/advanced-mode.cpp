@@ -14,12 +14,10 @@ void SuperSonic_HackDisplay(CharObj2* co2)
         if (SuperSonicFlag == 1)
         {
             WriteData((NJS_TEXLIST**)0x4949E9, &SUPERSONIC_TEXLIST); // Force Super Sonic's texlist
-            WriteData<1>((void*)0x494AED, co2->AnimationThing.Index); // Hack for the ball not to flash
         }
         else
         {
             WriteData((NJS_TEXLIST**)0x4949E9, &SONIC_TEXLIST);
-            WriteData<1>((void*)0x494AED, 0x91);
         }
     }
 }
