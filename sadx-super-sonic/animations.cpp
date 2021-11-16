@@ -4,12 +4,15 @@
 * Custom animation list for Super Sonic
 */
 
+extern "C" __declspec(dllexport) unsigned int SSAnimCount = SonicAnimData_Length;
+extern "C" __declspec(dllexport) AnimData* SSAnimData = SonicAnimData;
+
 static Trampoline* Sonic_WalkAni_t = nullptr;
 static Trampoline* Sonic_GroundAnim_t = nullptr;
 
 static NJS_OBJECT* SuperSonicEyeList[3];
 static AnimationFile* customAnims[4] = {};
-static AnimData_t SuperSonicAnimData[SonicAnimData_Length];
+static AnimData_t* SuperSonicAnimData;
 
 static bool animationsLoaded = false;
 
@@ -35,8 +38,10 @@ void InitSuperSonicAnims()
 	{
 		if (UseAdvancedSuperSonic() == true)
 		{
+			SuperSonicAnimData = new AnimData_t[SSAnimCount];
+
 			// Fill the animation table at init in case mods edit animations
-			for (int i = 0; i < SonicAnimData_Length; ++i)
+			for (int i = 0; i < SSAnimCount; ++i)
 			{
 				switch (i)
 				{
@@ -52,21 +57,21 @@ void InitSuperSonicAnims()
 				case Anm_SuperSonic_Win:
 				case Anm_SuperSonic_WinToStand:
 				case Anm_SuperSonic_Jump:
-					SuperSonicAnimData[i] = SonicAnimData[i];
+					SuperSonicAnimData[i] = SSAnimData[i];
 					break;
 				case Anm_Sonic_JumpOrSpin:
 				case Anm_Sonic_Bowling:
 				case Anm_Sonic_Roll:
 				case Anm_Sonic_PinBall:
 				case Anm_Sonic_SpinBall:
-					SuperSonicAnimData[i] = SonicAnimData[Anm_SuperSonic_Jump];
-					SuperSonicAnimData[i].Property = SonicAnimData[i].Property;
+					SuperSonicAnimData[i] = SSAnimData[Anm_SuperSonic_Jump];
+					SuperSonicAnimData[i].Property = SSAnimData[i].Property;
 					break;
 				default:
-					SuperSonicAnimData[i] = SonicAnimData[i];
+					SuperSonicAnimData[i] = SSAnimData[i];
 					SuperSonicAnimData[i].Animation = new NJS_ACTION();
 					SuperSonicAnimData[i].Animation->object = SONIC_OBJECTS[22];
-					SuperSonicAnimData[i].Animation->motion = SonicAnimData[i].Animation->motion;
+					SuperSonicAnimData[i].Animation->motion = SSAnimData[i].Animation->motion;
 					break;
 				}
 			}
@@ -81,7 +86,7 @@ void InitSuperSonicAnims()
 
 			if (AlwaysSuperSonic == true)
 			{
-				CharSelDataList[0].anonymous_1[0] = SonicAnimData[Anm_SuperSonic_Stand].Animation;
+				CharSelDataList[0].anonymous_1[0] = SSAnimData[Anm_SuperSonic_Stand].Animation;
 				CharSelDataList[0].anonymous_1[1]->object = SONIC_OBJECTS[22];
 				CharSelDataList[0].anonymous_1[2]->object = SONIC_OBJECTS[22];
 				CharSelDataList[0].TextureList = &SUPERSONIC_TEXLIST;

@@ -161,18 +161,19 @@ bool IsPerfectChaosLevel()
 	return LastStoryFlag == 1 || (CurrentLevel == LevelIDs_PerfectChaos && CurrentAct == 0);
 }
 
-static void Sonic_Exec_r(task* tsk)
+static void Sonic_Exec_r(task* tp)
 {
-	EntityData1* data = (EntityData1*)tsk->twp;
-	motionwk* mwp = tsk->mwp;
+	EntityData1* data = (EntityData1*)tp->twp;
+	motionwk* mwp = tp->mwp;
 	CharObj2* co2 = (CharObj2*)mwp->work.ptr;
 
 	if (IsPerfectChaosLevel() == false && MetalSonicFlag == false)
 	{
 		if (data->Action == Act_Sonic_Init)
 		{
-			InitSuperSonicAnims();
 			InitSuperSonicEyes(data->CharIndex);
+			TARGET_DYNAMIC(Sonic_Exec)(tp);
+			InitSuperSonicAnims();
 		}
 		else
 		{
@@ -206,7 +207,7 @@ static void Sonic_Exec_r(task* tsk)
 		}
 	}
 
-	TARGET_DYNAMIC(Sonic_Exec)(tsk);
+	TARGET_DYNAMIC(Sonic_Exec)(tp);
 }
 
 void Sonic_Delete_r(task* tsk) {

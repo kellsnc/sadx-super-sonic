@@ -4,8 +4,6 @@
 
 extern HelperFunctions HelperFunctionsGlobal;
 
-
-
 void SuperSonic_Init();
 void Objects_Init();
 void WaterHack_Init();
