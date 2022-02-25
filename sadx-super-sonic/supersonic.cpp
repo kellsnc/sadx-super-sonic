@@ -158,7 +158,7 @@ static bool Blacklist_NormalSuperSonic(EntityData1* data, CharObj2* co2)
 
 bool IsPerfectChaosLevel()
 {
-	return LastStoryFlag == 1 || (CurrentLevel == LevelIDs_PerfectChaos && CurrentAct == 0);
+	return CurrentLevel == LevelIDs_PerfectChaos && CurrentAct == 0;
 }
 
 static void Sonic_Exec_r(task* tp)
