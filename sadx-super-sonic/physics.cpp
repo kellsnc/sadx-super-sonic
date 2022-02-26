@@ -113,7 +113,7 @@ static void __cdecl ResetAngle_r(EntityData1* data1, EntityData2* data2, CharObj
 }
 
 // HACK: Reset AirDecel when taking a spring. The value is restored in Sonic_SuperPhysics_Main.
-void __cdecl SpringB_Main_r(ObjectMaster* obj)
+static void __cdecl SpringB_Main_r(ObjectMaster* obj)
 {
 	auto data = obj->Data1;
 

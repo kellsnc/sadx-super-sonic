@@ -173,7 +173,7 @@ static void __cdecl SSTikalHint_Main(ObjectMaster* obj)
 	}
 }
 
-static void LoadLevel_r()
+static void __cdecl LoadLevel_r()
 {
 	TARGET_DYNAMIC(LoadLevel)();
 

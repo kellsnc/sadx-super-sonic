@@ -5,7 +5,7 @@
 DataArray(CollisionData, JumpPanel_Collision_, 0x97DF68, 4);
 static Trampoline* Sonic_DisplayLightDashModel_t = nullptr;
 
-static void LoadSonicDashTrail_r(EntityData1* player)
+static void __cdecl LoadSonicDashTrail_r(EntityData1* player)
 {
 	ObjectMaster* obj = nullptr;
 	CharObj2* co2 = CharObj2Ptrs[player->CharIndex];
@@ -25,7 +25,7 @@ static void LoadSonicDashTrail_r(EntityData1* player)
 	}
 }
 
-static void LoadSonicDashEffect_r(EntityData1* player)
+static void __cdecl LoadSonicDashEffect_r(EntityData1* player)
 {
 	ObjectMaster* obj = nullptr;
 	CharObj2* co2 = CharObj2Ptrs[player->CharIndex];
@@ -45,7 +45,7 @@ static void LoadSonicDashEffect_r(EntityData1* player)
 	}
 }
 
-static void SonicChargeSpindashEffect_r(ObjectMaster* obj)
+static void __cdecl SonicChargeSpindashEffect_r(ObjectMaster* obj)
 {
 	CharObj2* co2 = CharObj2Ptrs[obj->Data1->CharIndex];
 

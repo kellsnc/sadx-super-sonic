@@ -28,23 +28,23 @@ static void __declspec(naked) SuperWaterCheck()
 		// Save whatever's in EAX
 		push eax
 
-			push[esp + 6A8h + 4h + 0Ch]	// CharObj2
-			push ebx						// EntityData1
-			call SuperWaterCheck_C
+		push[esp + 6A8h + 4h + 0Ch]	// CharObj2
+		push ebx						// EntityData1
+		call SuperWaterCheck_C
 
-			test eax, eax
+		test eax, eax
 
-			jnz is_true
+		jnz is_true
 
-			// Restore EAX
-			pop eax
-
-			jmp surface_water
-
-			is_true :
 		// Restore EAX
 		pop eax
-			jmp surface_solid
+
+		jmp surface_water
+
+		is_true :
+		// Restore EAX
+		pop eax
+		jmp surface_solid
 	}
 }
 
