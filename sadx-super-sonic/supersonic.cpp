@@ -316,8 +316,18 @@ static void __declspec(naked) SuperSonicNAct_asm()
 	}
 }
 
+FunctionPointer(void, EV_InitPlayer, (int a1), 0x431780);
+
+void SuperSonic_UntransfoCutscene(int a1)
+{
+	DetransformSuperSonic(EntityData1Ptrs[a1], CharObj2Ptrs[a1]);
+	EV_InitPlayer(a1);
+}
+
 void SuperSonic_Init()
 {
+
+	WriteCall((void*)0x65A433, SuperSonic_UntransfoCutscene);
 	HelperFunctionsGlobal.RegisterCharacterPVM(Characters_Sonic, { "SUPERSONIC", &SUPERSONIC_TEXLIST });
 
 	Sonic_Exec_t = new Trampoline((int)Sonic_Main, (int)Sonic_Main + 0x7, Sonic_Exec_r);
