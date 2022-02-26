@@ -109,7 +109,6 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="hud.cpp" />
     <ClCompile Include="mod.cpp" />
-    <ClCompile Include="advanced-mode.cpp" />
     <ClCompile Include="music.cpp" />
     <ClCompile Include="ninja-utils.cpp" />
     <ClCompile Include="objects.cpp" />

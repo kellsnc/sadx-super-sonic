@@ -62,9 +62,6 @@
     <ClCompile Include="water-hack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="advanced-mode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="supersonic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

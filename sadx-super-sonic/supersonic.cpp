@@ -20,15 +20,34 @@ bool IsStoryFinished()
 	return GetEventFlag(EventFlags_SuperSonicAdventureComplete);
 }
 
-static void Sonic_Display_r(task* tsk)
+bool IsPerfectChaosLevel()
+{
+	return CurrentLevel == LevelIDs_PerfectChaos && CurrentAct == 0;
+}
+
+bool UseAdvancedSuperSonic()
+{
+	return ExtendedGamePlay == true && (AlwaysSuperSonic == true || IsEventPerforming() == false);
+}
+
+static void __cdecl njSetTextureHack(NJS_TEXLIST* texlist)
+{
+	if (SuperSonicFlag)
+	{
+		njSetTexture(&SUPERSONIC_TEXLIST);
+	}
+	else
+	{
+		njSetTexture(texlist);
+	}
+}
+
+static void __cdecl Sonic_Display_r(task* tsk)
 {
 	CharObj2* co2 = (CharObj2*)tsk->mwp->work.ptr;
 
 	// Just a flag to change sonic's lighting, no other use
 	SuperSonicFlag = IsSuperSonic(co2) == true ? 1 : 0;
-
-	// If Advanced Super Sonic is enabled, do trickery to play any animation with SS.
-	SuperSonic_HackDisplay(co2);
 
 	TARGET_DYNAMIC(Sonic_Display)(tsk);
 }
@@ -60,7 +79,7 @@ static void CheckSuperSonicTransform(EntityData1* data, CharObj2* co2)
 	}
 }
 
-void DetransformSuperSonic(EntityData1* data, CharObj2* co2)
+static void DetransformSuperSonic(EntityData1* data, CharObj2* co2)
 {
 	if (AlwaysSuperSonic == false)
 	{
@@ -135,6 +154,57 @@ static void Sonic_NewActions(EntityData1* data, motionwk* mwp, CharObj2* co2)
 	}
 }
 
+static void SuperSonic_Actions(EntityData1* data, motionwk* mwp, CharObj2* co2)
+{
+	// Skip if disabled
+	if (UseAdvancedSuperSonic() == false || data->Action == Act_Sonic_Death)
+	{
+		return;
+	}
+
+	// Run next actions again, fixes weird things
+	if (data->Action != Act_Sonic_Stand)
+	{
+		if (data->Status & Status_HoldObject)
+		{
+			Sonic_HoldingObject_NAct(data, co2, (EntityData2*)mwp);
+		}
+		else
+		{
+			Sonic_NAct(co2, data, (EntityData2*)mwp);
+		}
+	}
+
+	// Use Super Sonic actions when we can, force Sonic's when it's better
+	if (IsSuperSonic(co2) == true)
+	{
+		switch (data->Action)
+		{
+		case Act_SuperSonic_Stand:
+			data->Action = Act_Sonic_Stand;
+			break;
+		case Act_SuperSonic_Walk:
+			data->Action = Act_Sonic_Walk;
+			break;
+		case Act_SuperSonic_Launched:
+			data->Action = Act_Sonic_Launch;
+			break;
+		case Act_SuperSonic_Spring:
+			data->Action = Act_Sonic_Spring;
+			break;
+		case Act_SuperSonic_Homing:
+			data->Action = Act_Sonic_HomingAttack;
+			break;
+		case Act_Sonic_Path:
+			data->Action = Act_SuperSonic_Path;
+			break;
+		case Act_SuperSonic_Jump:
+			data->Action = Act_Sonic_Jump;
+			break;
+		}
+	}
+}
+
 static bool Blacklist_NormalSuperSonic(EntityData1* data, CharObj2* co2)
 {
 	switch (CurrentLevel)
@@ -156,12 +226,7 @@ static bool Blacklist_NormalSuperSonic(EntityData1* data, CharObj2* co2)
 		(data->NextAction == 12 || (data->NextAction == 13 && CurrentLevel == LevelIDs_TwinklePark));
 }
 
-bool IsPerfectChaosLevel()
-{
-	return CurrentLevel == LevelIDs_PerfectChaos && CurrentAct == 0;
-}
-
-static void Sonic_Exec_r(task* tp)
+static void __cdecl Sonic_Exec_r(task* tp)
 {
 	EntityData1* data = (EntityData1*)tp->twp;
 	motionwk* mwp = tp->mwp;
@@ -210,7 +275,7 @@ static void Sonic_Exec_r(task* tp)
 	TARGET_DYNAMIC(Sonic_Exec)(tp);
 }
 
-void Sonic_Delete_r(task* tsk) {
+static void __cdecl Sonic_Delete_r(task* tsk) {
 	EntityData1* data = (EntityData1*)tsk->twp;
 	
 	// Restore things if the player is deleted, useful for compatiblity with Character Select
@@ -226,7 +291,6 @@ signed int __cdecl SonicNAct_original(CharObj2* co2, EntityData1* data, EntityDa
 {
 	const auto SonicNAct_ptr = SonicNAct_t->Target();
 	signed int result;
-
 	__asm
 	{
 		push[data2]
@@ -236,13 +300,12 @@ signed int __cdecl SonicNAct_original(CharObj2* co2, EntityData1* data, EntityDa
 		add esp, 4
 		mov result, eax
 	}
-
 	return result;
 }
 
 signed int __cdecl SonicNAct_r(CharObj2* co2, EntityData1* data, EntityData2* data2)
 {
-	// In case an external mod set Super Sonic
+	// In case an external mod sets Super Sonic
 	if (IsPerfectChaosLevel() == false && data->NextAction == NextAction_SuperSonic && (data->Status & Status_DoNextAction))
 	{
 		SetSuperAnims(co2);
@@ -270,7 +333,6 @@ signed int __cdecl SuperSonicNAct_original(EntityData2* data2, CharObj2* co2, En
 {
 	const auto SuperSonicNAct_ptr = SuperSonicNAct_t->Target();
 	signed int result;
-
 	__asm
 	{
 		mov esi, [data]
@@ -279,13 +341,12 @@ signed int __cdecl SuperSonicNAct_original(EntityData2* data2, CharObj2* co2, En
 		call SuperSonicNAct_ptr
 		mov result, eax
 	}
-
 	return result;
 }
 
 signed int __cdecl SuperSonicNAct_r(EntityData2* data2, CharObj2* co2, EntityData1* data)
 {
-	// In case an external mod set Super Sonic
+	// In case an external mod unsets Super Sonic
 	if (IsPerfectChaosLevel() == false && data->NextAction == NextAction_Winning && (data->Status & Status_DoNextAction))
 	{
 		data->Action = Act_Sonic_ObjectControl;
@@ -295,6 +356,7 @@ signed int __cdecl SuperSonicNAct_r(EntityData2* data2, CharObj2* co2, EntityDat
 		data->Rotation.x = 0;
 		data->Status &= ~(Status_OnPath | Status_Attack | Status_Ball);
 		StopPlayerLookAt(0);
+		UnsetSuperAnims(co2);
 		return true;
 	}
 
@@ -316,18 +378,8 @@ static void __declspec(naked) SuperSonicNAct_asm()
 	}
 }
 
-FunctionPointer(void, EV_InitPlayer, (int a1), 0x431780);
-
-void SuperSonic_UntransfoCutscene(int a1)
-{
-	DetransformSuperSonic(EntityData1Ptrs[a1], CharObj2Ptrs[a1]);
-	EV_InitPlayer(a1);
-}
-
 void SuperSonic_Init()
 {
-
-	WriteCall((void*)0x65A433, SuperSonic_UntransfoCutscene);
 	HelperFunctionsGlobal.RegisterCharacterPVM(Characters_Sonic, { "SUPERSONIC", &SUPERSONIC_TEXLIST });
 
 	Sonic_Exec_t = new Trampoline((int)Sonic_Main, (int)Sonic_Main + 0x7, Sonic_Exec_r);
@@ -338,6 +390,7 @@ void SuperSonic_Init()
 	if (UseAdvancedSuperSonic())
 	{
 		SonicNAct_t = new Trampoline(0x00495FA0, 0x00495FA6, SonicNAct_asm);
+		WriteCall((void*)0x4949ED, njSetTextureHack);
 	}
 	
 	// Always initialize Super Sonic weld data
