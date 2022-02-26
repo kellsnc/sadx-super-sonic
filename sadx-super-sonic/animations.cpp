@@ -16,8 +16,77 @@ static AnimData_t* SuperSonicAnimData;
 
 static bool animationsLoaded = false;
 
+static void InitSuperSonicAnims()
+{
+	if (UseAdvancedSuperSonic() == true)
+	{
+		SuperSonicAnimData = new AnimData_t[SSAnimCount];
+
+		// Fill the animation table at init in case mods edit animations
+		for (int i = 0; i < SSAnimCount; ++i)
+		{
+			switch (i)
+			{
+			case Anm_SuperSonic_Stand:
+			case Anm_SuperSonic_StandToMove:
+			case Anm_SuperSonic_Move1:
+			case Anm_SuperSonic_Move2:
+			case Anm_SuperSonic_Move3:
+			case Anm_SuperSonic_Spring:
+			case Anm_SuperSonic_SpringFall:
+			case Anm_SuperSonic_Fall:
+			case Anm_SuperSonic_Land:
+			case Anm_SuperSonic_Win:
+			case Anm_SuperSonic_WinToStand:
+			case Anm_SuperSonic_Jump:
+				SuperSonicAnimData[i] = SSAnimData[i];
+				break;
+			case Anm_Sonic_JumpOrSpin:
+			case Anm_Sonic_Bowling:
+			case Anm_Sonic_Roll:
+			case Anm_Sonic_PinBall:
+			case Anm_Sonic_SpinBall:
+				SuperSonicAnimData[i] = SSAnimData[Anm_SuperSonic_Jump];
+				SuperSonicAnimData[i].Property = SSAnimData[i].Property;
+				break;
+			default:
+				SuperSonicAnimData[i] = SSAnimData[i];
+				if (SSAnimData[i].Animation)
+				{
+					SuperSonicAnimData[i].Animation = new NJS_ACTION();
+					SuperSonicAnimData[i].Animation->object = SONIC_OBJECTS[22];
+					SuperSonicAnimData[i].Animation->motion = SSAnimData[i].Animation->motion;
+				}
+				break;
+			}
+		}
+
+		if (CustomAnims == true)
+		{
+			SuperSonicAnimData[19].Animation->motion = customAnims[0]->getmotion();
+			SuperSonicAnimData[66].Animation->motion = customAnims[1]->getmotion();
+			SuperSonicAnimData[67].Animation->motion = customAnims[2]->getmotion();
+			SuperSonicAnimData[68].Animation->motion = customAnims[3]->getmotion();
+		}
+
+		if (AlwaysSuperSonic == true)
+		{
+			CharSelDataList[0].anonymous_1[0] = SSAnimData[Anm_SuperSonic_Stand].Animation;
+			CharSelDataList[0].anonymous_1[1]->object = SONIC_OBJECTS[22];
+			CharSelDataList[0].anonymous_1[2]->object = SONIC_OBJECTS[22];
+			CharSelDataList[0].TextureList = &SUPERSONIC_TEXLIST;
+		}
+	}
+}
+
 void SetSuperAnims(CharObj2* co2)
 {
+	if (animationsLoaded == false)
+	{
+		InitSuperSonicAnims();
+		animationsLoaded = true;
+	}
+
 	if (UseAdvancedSuperSonic() == true)
 	{
 		co2->AnimationThing.AnimData = SuperSonicAnimData;
@@ -29,71 +98,6 @@ void UnsetSuperAnims(CharObj2* co2)
 	if (UseAdvancedSuperSonic() == true)
 	{
 		co2->AnimationThing.AnimData = SonicAnimData;
-	}
-}
-
-void InitSuperSonicAnims()
-{
-	if (animationsLoaded == false)
-	{
-		if (UseAdvancedSuperSonic() == true)
-		{
-			SuperSonicAnimData = new AnimData_t[SSAnimCount];
-
-			// Fill the animation table at init in case mods edit animations
-			for (int i = 0; i < SSAnimCount; ++i)
-			{
-				switch (i)
-				{
-				case Anm_SuperSonic_Stand:
-				case Anm_SuperSonic_StandToMove:
-				case Anm_SuperSonic_Move1:
-				case Anm_SuperSonic_Move2:
-				case Anm_SuperSonic_Move3:
-				case Anm_SuperSonic_Spring:
-				case Anm_SuperSonic_SpringFall:
-				case Anm_SuperSonic_Fall:
-				case Anm_SuperSonic_Land:
-				case Anm_SuperSonic_Win:
-				case Anm_SuperSonic_WinToStand:
-				case Anm_SuperSonic_Jump:
-					SuperSonicAnimData[i] = SSAnimData[i];
-					break;
-				case Anm_Sonic_JumpOrSpin:
-				case Anm_Sonic_Bowling:
-				case Anm_Sonic_Roll:
-				case Anm_Sonic_PinBall:
-				case Anm_Sonic_SpinBall:
-					SuperSonicAnimData[i] = SSAnimData[Anm_SuperSonic_Jump];
-					SuperSonicAnimData[i].Property = SSAnimData[i].Property;
-					break;
-				default:
-					SuperSonicAnimData[i] = SSAnimData[i];
-					SuperSonicAnimData[i].Animation = new NJS_ACTION();
-					SuperSonicAnimData[i].Animation->object = SONIC_OBJECTS[22];
-					SuperSonicAnimData[i].Animation->motion = SSAnimData[i].Animation->motion;
-					break;
-				}
-			}
-
-			if (CustomAnims == true)
-			{
-				SuperSonicAnimData[19].Animation->motion = customAnims[0]->getmotion();
-				SuperSonicAnimData[66].Animation->motion = customAnims[1]->getmotion();
-				SuperSonicAnimData[67].Animation->motion = customAnims[2]->getmotion();
-				SuperSonicAnimData[68].Animation->motion = customAnims[3]->getmotion();
-			}
-
-			if (AlwaysSuperSonic == true)
-			{
-				CharSelDataList[0].anonymous_1[0] = SSAnimData[Anm_SuperSonic_Stand].Animation;
-				CharSelDataList[0].anonymous_1[1]->object = SONIC_OBJECTS[22];
-				CharSelDataList[0].anonymous_1[2]->object = SONIC_OBJECTS[22];
-				CharSelDataList[0].TextureList = &SUPERSONIC_TEXLIST;
-			}
-		}
-		
-		animationsLoaded = true;
 	}
 }
 

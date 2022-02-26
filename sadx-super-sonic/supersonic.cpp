@@ -238,7 +238,6 @@ static void __cdecl Sonic_Exec_r(task* tp)
 		{
 			InitSuperSonicEyes(data->CharIndex);
 			TARGET_DYNAMIC(Sonic_Exec)(tp);
-			InitSuperSonicAnims();
 		}
 		else
 		{
@@ -287,7 +286,7 @@ static void __cdecl Sonic_Delete_r(task* tsk) {
 	TARGET_DYNAMIC(Sonic_Delete)(tsk);
 }
 
-signed int __cdecl SonicNAct_original(CharObj2* co2, EntityData1* data, EntityData2* data2)
+BOOL __cdecl SonicNAct_original(CharObj2* co2, EntityData1* data, EntityData2* data2)
 {
 	const auto SonicNAct_ptr = SonicNAct_t->Target();
 	signed int result;
@@ -303,7 +302,7 @@ signed int __cdecl SonicNAct_original(CharObj2* co2, EntityData1* data, EntityDa
 	return result;
 }
 
-signed int __cdecl SonicNAct_r(CharObj2* co2, EntityData1* data, EntityData2* data2)
+BOOL  __cdecl SonicNAct_r(CharObj2* co2, EntityData1* data, EntityData2* data2)
 {
 	// In case an external mod sets Super Sonic
 	if (IsPerfectChaosLevel() == false && data->NextAction == NextAction_SuperSonic && (data->Status & Status_DoNextAction))
@@ -329,7 +328,7 @@ static void __declspec(naked) SonicNAct_asm()
 	}
 }
 
-signed int __cdecl SuperSonicNAct_original(EntityData2* data2, CharObj2* co2, EntityData1* data)
+BOOL  __cdecl SuperSonicNAct_original(EntityData2* data2, CharObj2* co2, EntityData1* data)
 {
 	const auto SuperSonicNAct_ptr = SuperSonicNAct_t->Target();
 	signed int result;
@@ -344,7 +343,7 @@ signed int __cdecl SuperSonicNAct_original(EntityData2* data2, CharObj2* co2, En
 	return result;
 }
 
-signed int __cdecl SuperSonicNAct_r(EntityData2* data2, CharObj2* co2, EntityData1* data)
+BOOL __cdecl SuperSonicNAct_r(EntityData2* data2, CharObj2* co2, EntityData1* data)
 {
 	// In case an external mod unsets Super Sonic
 	if (IsPerfectChaosLevel() == false && data->NextAction == NextAction_Winning && (data->Status & Status_DoNextAction))
