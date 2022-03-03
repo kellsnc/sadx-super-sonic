@@ -14,6 +14,18 @@ FunctionPointer(void, PlaySound3D, (int ID, void* entity, int a3, int volume, in
 FunctionPointer(ObjectMaster*, LoadTikalChild, (ObjectMaster* obj, char*, NJS_VECTOR*), 0x4A3B70);
 FunctionPointer(void, StopPlayerLookAt, (uint8_t id), 0x441080);
 FastcallFunctionPointer(void, SuperSonic_WalkAni, (CharObj2* co2, EntityData2* data2), 0x491820);
+DataArray(CollisionData, JumpPanel_Collision_, 0x97DF68, 4);
+
+// Symbols:
+#define TWP_PNUM(twp) twp->counter.b[0]
+FunctionPointer(void, PSetDashEffect, (taskwk* twp), 0x494050);
+FunctionPointer(void, PSetSpinDSEffect, (taskwk* twp), 0x4940B0);
+TaskFunc(EffectSpin, 0x4A2A10);
+TaskFunc(EffectSpinDS, 0x4A2A40);
+TaskFunc(EffectDash, 0x4A2AA0);
+TaskFunc(EffectSuperSonicAura, 0x55FAF0);
+TaskFunc(EffectSSSpinDS, 0x55FB20);
+TaskFunc(EffectSSDash, 0x55FB80);
 
 //signed int __usercall Sonic_HoldingObject_NAct@<eax>(EntityData1* data@<ecx>, int a2@<edx>, CharObj2* co2@<eax>, void* data2)
 static const void* const Sonic_HoldingObject_NActPtr = (void*)0x496880;

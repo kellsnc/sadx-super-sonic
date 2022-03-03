@@ -1,80 +1,74 @@
 #include "pch.h"
 
-// Code to adapt some objects to Super Sonic
+// Code to adapt some tasks to Super Sonic
 
-DataArray(CollisionData, JumpPanel_Collision_, 0x97DF68, 4);
-static Trampoline* Sonic_DisplayLightDashModel_t = nullptr;
+Trampoline* SonicChargeBodyDisplay_t = nullptr;
+Trampoline* EffectSuperSonicAura_t   = nullptr;
+Trampoline* PSetSpinDSEffect_t       = nullptr;
+Trampoline* PSetDashEffect_t         = nullptr;
+Trampoline* EffectSpin_t             = nullptr; // PSetSpinEffect is inlined
 
-static void __cdecl LoadSonicDashTrail_r(EntityData1* player)
+static void __cdecl SonicChargeBodyDisplay_r(taskwk* twp, motionwk2* mwp, playerwk* pwp)
 {
-	ObjectMaster* obj = nullptr;
-	CharObj2* co2 = CharObj2Ptrs[player->CharIndex];
-
-	if (IsSuperSonic(co2) == true)
+	if (!IsSuperSonic((CharObj2*)pwp))
 	{
-		obj = LoadObject(LoadObj_Data1, 6, (ObjectFuncPtr)0x55FB80);
-	}
-	else
-	{
-		obj = LoadObject(LoadObj_Data1, 6, SonicDashTrail_Init);
-	}
-
-	if (obj)
-	{
-		obj->Data1->CharIndex = player->CharIndex;
+		TARGET_DYNAMIC(SonicChargeBodyDisplay)(twp, mwp, pwp);
 	}
 }
 
-static void __cdecl LoadSonicDashEffect_r(EntityData1* player)
-{
-	ObjectMaster* obj = nullptr;
-	CharObj2* co2 = CharObj2Ptrs[player->CharIndex];
-
-	if (IsSuperSonic(co2) == true)
-	{
-		obj = LoadObject(LoadObj_Data1, 5, (ObjectFuncPtr)0x55FB20);
-	}
-	else
-	{
-		obj = LoadObject(LoadObj_Data1, 5, (ObjectFuncPtr)0x4A2A40);
-	}
-
-	if (obj)
-	{
-		obj->Data1->CharIndex = player->CharIndex;
-	}
-}
-
-static void __cdecl SonicChargeSpindashEffect_r(ObjectMaster* obj)
-{
-	CharObj2* co2 = CharObj2Ptrs[obj->Data1->CharIndex];
-
-	if (IsSuperSonic(co2) == false)
-	{
-		SonicChargeSpindashEffect(obj);
-	}
-}
-
-static void Sonic_SuperAura_Load_r(ObjectMaster* obj)
+static void __cdecl EffectSuperSonicAura_r(task* tp)
 {
 	// Disable in menus or option enabled
 	if (GameState == 21 || !(DisableAura == AuraOptions::False || (DisableAura == AuraOptions::ExceptBoss && IsPerfectChaosLevel())))
 	{
-		obj->MainSub = DeleteObject_;
+		tp->exec = FreeTask;
 		return;
 	}
 
-	obj->MainSub = Sonic_SuperAura_Main;
-	obj->DisplaySub = Sonic_SuperAura_Display;
-	obj->DeleteSub = Sonic_SuperAura_Delete;
-	*(char*)0x3C69DD0 = 0;
+	TARGET_DYNAMIC(EffectSuperSonicAura)(tp);
 }
 
-static void __cdecl Sonic_DisplayLightDashModel_r(EntityData1* data, EntityData2* data2, CharObj2* co2)
+static void __cdecl PSetSpinDSEffect_r(taskwk* twp)
 {
-	if (IsSuperSonic(co2) == false)
+	auto pnum = TWP_PNUM(twp);
+	auto pwp = playerpwp[pnum];
+
+	if (IsSuperSonic((CharObj2*)pwp))
 	{
-		TARGET_DYNAMIC(Sonic_DisplayLightDashModel)(data, data2, co2);
+		auto tp = CreateElementalTask(2u, LEV_6, EffectSSSpinDS);
+		if (tp)
+			TWP_PNUM(tp->twp) = pnum;
+	}
+	else
+	{
+		TARGET_DYNAMIC(PSetSpinDSEffect)(twp);
+	}
+}
+
+static void __cdecl PSetDashEffect_r(taskwk* twp)
+{
+	auto pnum = TWP_PNUM(twp);
+	auto pwp = playerpwp[pnum];
+
+	if (IsSuperSonic((CharObj2*)pwp))
+	{
+		auto tp = CreateElementalTask(2u, LEV_6, EffectSSDash);
+		if (tp)
+			TWP_PNUM(tp->twp) = pnum;
+	}
+	else
+	{
+		TARGET_DYNAMIC(PSetDashEffect)(twp);
+	}
+}
+
+static void __cdecl EffectSpin_r(task* tp)
+{
+	auto pwp = playerpwp[TWP_PNUM(tp->twp)];
+
+	if (!IsSuperSonic((CharObj2*)pwp))
+	{
+		TARGET_DYNAMIC(EffectSpin)(tp);
 	}
 }
 
@@ -82,15 +76,15 @@ void Objects_Init()
 {
 	if (ExtendedGamePlay == true)
 	{
-		WriteJump(LoadSonicDashTrail, LoadSonicDashTrail_r);
-		WriteJump((void*)0x4940B0, LoadSonicDashEffect_r);
-		WriteData((ObjectFuncPtr*)0x49AE58, SonicChargeSpindashEffect_r);
+		PSetDashEffect_t         = new Trampoline(0x494050, 0x494055, PSetDashEffect_r);
+		PSetSpinDSEffect_t       = new Trampoline(0x4940B0, 0x4940B5, PSetSpinDSEffect_r);
+		EffectSpin_t             = new Trampoline(0x4A2A10, 0x4A2A15, EffectSpin_r);
 
-		Sonic_DisplayLightDashModel_t = new Trampoline((int)Sonic_DisplayLightDashModel, (int)Sonic_DisplayLightDashModel + 0x5, Sonic_DisplayLightDashModel_r);
-		WriteCall((void*)0x494B27, Sonic_DisplayLightDashModel_r); // DC Conversion compatibility
+		SonicChargeBodyDisplay_t = new Trampoline(0x4A1630, 0x4A1635, SonicChargeBodyDisplay_r);
+		WriteCall((void*)0x494B27, SonicChargeBodyDisplay_r); // DC Conversion compatibility
 	}
 
-	WriteJump(Sonic_SuperAura_Load, Sonic_SuperAura_Load_r);
+	EffectSuperSonicAura_t = new Trampoline(0x55FAF0, 0x55FAF5, EffectSuperSonicAura_r);
 
 	//Fix Jump Panel collision placement
 	JumpPanel_Collision_[1].center.y = 2.0f;
