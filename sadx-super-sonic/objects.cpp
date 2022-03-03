@@ -76,12 +76,10 @@ void Objects_Init()
 {
 	if (ExtendedGamePlay == true)
 	{
+		SonicChargeBodyDisplay_t = new Trampoline(0x4A1630, 0x4A1635, SonicChargeBodyDisplay_r);
 		PSetDashEffect_t         = new Trampoline(0x494050, 0x494055, PSetDashEffect_r);
 		PSetSpinDSEffect_t       = new Trampoline(0x4940B0, 0x4940B5, PSetSpinDSEffect_r);
 		EffectSpin_t             = new Trampoline(0x4A2A10, 0x4A2A15, EffectSpin_r);
-
-		SonicChargeBodyDisplay_t = new Trampoline(0x4A1630, 0x4A1635, SonicChargeBodyDisplay_r);
-		WriteCall((void*)0x494B27, SonicChargeBodyDisplay_r); // DC Conversion compatibility
 	}
 
 	EffectSuperSonicAura_t = new Trampoline(0x55FAF0, 0x55FAF5, EffectSuperSonicAura_r);
