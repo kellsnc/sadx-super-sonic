@@ -4,7 +4,7 @@
 * Custom animation list for Super Sonic
 */
 
-extern "C" __declspec(dllexport) unsigned int SSAnimCount = SonicAnimData_Length;
+extern "C" __declspec(dllexport) unsigned int SSAnimCount = SonicAnimData.size();
 extern "C" __declspec(dllexport) AnimData* SSAnimData = SonicAnimData;
 
 static Trampoline* Sonic_WalkAni_t = nullptr;
