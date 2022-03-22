@@ -3,6 +3,7 @@
 #define TARGET_DYNAMIC(name) ((decltype(name##_r)*)name##_t->Target())
 
 extern HelperFunctions HelperFunctionsGlobal;
+extern NJS_TEXLIST SUPERSONIC_EXTRA_TEXLIST;
 
 void SuperSonic_Init();
 void Objects_Init();
@@ -14,6 +15,7 @@ void HudInit();
 
 bool IsPerfectChaosLevel();
 bool IsSuperSonic(CharObj2* co2);
+bool IsSuperSonic(int pnum);
 bool IsStoryFinished();
 bool UseAdvancedSuperSonic();
 void RestoreMusic();
@@ -24,4 +26,3 @@ void SuperSonic_Actions(EntityData1* data, motionwk* mwp, CharObj2* co2);
 void SetSuperAnims(CharObj2* co2);
 void UnsetSuperAnims(CharObj2* co2);
 void InitSuperSonicEyes(int player);
-void LoadIconTextures();

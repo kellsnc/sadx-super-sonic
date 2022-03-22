@@ -26,6 +26,9 @@ TaskFunc(EffectDash, 0x4A2AA0);
 TaskFunc(EffectSuperSonicAura, 0x55FAF0);
 TaskFunc(EffectSSSpinDS, 0x55FB20);
 TaskFunc(EffectSSDash, 0x55FB80);
+TaskFunc(EffectSpinRibbon, 0x4A1E90);
+TaskFunc(EffectRibbon, 0x4A1BE0);
+TaskFunc(EffectSpinRibbonDisplay, 0x4A1DB0);
 
 //signed int __usercall Sonic_HoldingObject_NAct@<eax>(EntityData1* data@<ecx>, int a2@<edx>, CharObj2* co2@<eax>, void* data2)
 static const void* const Sonic_HoldingObject_NActPtr = (void*)0x496880;

@@ -6,10 +6,6 @@ enum SUPERSONIC_EXTRA
 	SUPERSONIC_EXTRA_1UP
 };
 
-static NJS_TEXNAME SUPERSONIC_EXTRA_TEXNAME[2];
-
-__declspec(dllexport) NJS_TEXLIST SUPERSONIC_EXTRA_TEXLIST = { arrayptrandlength(SUPERSONIC_EXTRA_TEXNAME) };
-
 static NJS_TEXANIM SUPERSONIC_EXTRA_TEXANIM[2] = {
 	{ 0x20, 0x20, 0, 0, 0, 0, 0x100, 0x100, SUPERSONIC_EXTRA_LIFE, 0x20 },
 	{ 0x20, 0x20, 0x10, 0x10, 0, 0, 0xFF, 0xFF, SUPERSONIC_EXTRA_1UP, 0x20 }
@@ -114,19 +110,10 @@ static void __cdecl lifeIconHack(NJS_SPRITE* sp, Int n, Float pri, NJD_SPRITE at
 	njDrawSprite2D_ForcePriority(sp, n, pri, attr);
 }
 
-void LoadIconTextures()
-{
-	if (HUDIcons)
-	{
-		LoadPVM("SUPERSONIC_EXTRA", &SUPERSONIC_EXTRA_TEXLIST);
-	}
-}
-
 void HudInit()
 {
 	if (HUDIcons == true)
 	{
-		HelperFunctionsGlobal.RegisterCharacterPVM(Characters_Sonic, { "SUPERSONIC_EXTRA", &SUPERSONIC_EXTRA_TEXLIST });
 		WriteCall((void*)0x425E74, lifeIconHack);
 		WriteCall((void*)0x4D6944, upIconHack1);
 		WriteCall((void*)0x4D6AC0, upIconHack1);

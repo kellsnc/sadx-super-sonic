@@ -8,11 +8,19 @@ static Trampoline* Sonic_Delete_t = nullptr;
 static Trampoline* SonicNAct_t = nullptr;
 static Trampoline* SuperSonicNAct_t = nullptr;
 
+static NJS_TEXNAME SUPERSONIC_EXTRA_TEXNAME[2];
+NJS_TEXLIST SUPERSONIC_EXTRA_TEXLIST = { arrayptrandlength(SUPERSONIC_EXTRA_TEXNAME) };
+
 static int RingTimer = 0;
 
 bool IsSuperSonic(CharObj2* co2)
 {
 	return (co2->Upgrades & Upgrades_SuperSonic);
+}
+
+bool IsSuperSonic(int pnum)
+{
+	return playerpwp[pnum] && IsSuperSonic((CharObj2*)playerpwp[pnum]);
 }
 
 bool IsStoryFinished()
@@ -83,10 +91,12 @@ static void DetransformSuperSonic(EntityData1* data, CharObj2* co2)
 {
 	if (AlwaysSuperSonic == false)
 	{
-		ForcePlayerAction(data->CharIndex, NextAction_SuperSonicStop);
-
 		co2->Upgrades &= ~(Upgrades_SuperSonic | Powerups_Invincibility | Status_OnPath);
-		DoSonicGroundAnimation(co2, data);
+		
+		if (co2->AnimationThing.Index >= 134 && co2->AnimationThing.Index <= 145)
+		{
+			DoSonicGroundAnimation(co2, data);
+		}
 
 		if (data->Status & Status_Ball)
 		{
@@ -109,6 +119,7 @@ static void CheckSuperSonicDetransform(EntityData1* data, CharObj2* co2)
 {
 	if (IsSuperSonic(co2) == true && ((DetransformButton == true && PressedButtons[data->CharIndex] & TransformButton) || IsEventPerforming() == true))
 	{
+		ForcePlayerAction(data->CharIndex, NextAction_SuperSonicStop);
 		DetransformSuperSonic(data, co2);
 	}
 }
@@ -254,7 +265,7 @@ static void __cdecl Sonic_Exec_r(task* tp)
 				RunSuperMusic();
 
 				SuperSonic_Actions(data, mwp, co2); // advanced actions if enabled
-				SuperSonic_Rings(data, co2); // delete rings if enabled
+				SuperSonic_Rings(data, co2); // deplete rings if enabled
 				
 				// if advanced super sonic is disabled, detransform Super on invalid actions.
 				if (UseAdvancedSuperSonic() == false && Blacklist_NormalSuperSonic(data, co2))
@@ -266,7 +277,7 @@ static void __cdecl Sonic_Exec_r(task* tp)
 			{
 				TransformSuperSonic(data, co2);
 				LoadPVM("SUPERSONIC", &SUPERSONIC_TEXLIST);
-				LoadIconTextures();
+				LoadPVM("SUPERSONIC_EXTRA", &SUPERSONIC_EXTRA_TEXLIST);
 			}
 		}
 	}
@@ -380,6 +391,7 @@ static void __declspec(naked) SuperSonicNAct_asm()
 void SuperSonic_Init()
 {
 	HelperFunctionsGlobal.RegisterCharacterPVM(Characters_Sonic, { "SUPERSONIC", &SUPERSONIC_TEXLIST });
+	HelperFunctionsGlobal.RegisterCharacterPVM(Characters_Sonic, { "SUPERSONIC_EXTRA", &SUPERSONIC_EXTRA_TEXLIST });
 
 	Sonic_Exec_t = new Trampoline((int)Sonic_Main, (int)Sonic_Main + 0x7, Sonic_Exec_r);
 	Sonic_Display_t = new Trampoline((int)Sonic_Display, (int)Sonic_Display + 0x7, Sonic_Display_r);
