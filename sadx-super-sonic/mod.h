@@ -1,6 +1,7 @@
 #pragma once
 
 #define TARGET_DYNAMIC(name) ((decltype(name##_r)*)name##_t->Target())
+#define TaskHook FunctionHook<void, task*>
 
 extern HelperFunctions HelperFunctionsGlobal;
 extern NJS_TEXLIST SUPERSONIC_EXTRA_TEXLIST;

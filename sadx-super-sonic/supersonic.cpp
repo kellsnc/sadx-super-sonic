@@ -1,12 +1,14 @@
 ﻿#include "pch.h"
+#include "FunctionHook.h"
+#include "UsercallFunctionHandler.h"
 
 // Main code for transforming, detransforming, losing rings, etc.
 
-static Trampoline* Sonic_Exec_t = nullptr;
-static Trampoline* Sonic_Display_t = nullptr;
-static Trampoline* Sonic_Delete_t = nullptr;
-static Trampoline* SonicNAct_t = nullptr;
-static Trampoline* SuperSonicNAct_t = nullptr;
+TaskHook Sonic_Exec_t(SonicTheHedgehog);
+TaskHook Sonic_Display_t(SonicDisplay);
+TaskHook Sonic_Delete_t(SonicDestruct);
+UsercallFunc(signed int, SuperSonicNAct_t, (motionwk2* a1, playerwk* a2, taskwk* a3), (a1, a2, a3), 0x494CD0, rEAX, rEAX, rECX, rESI);
+UsercallFunc(signed int, SonicNAct_t, (taskwk* a1, playerwk* a2, motionwk2* a3), (a1, a2, a3), 0x496880, rEAX, rECX, rEAX, stack4);
 
 static NJS_TEXNAME SUPERSONIC_EXTRA_TEXNAME[2];
 NJS_TEXLIST SUPERSONIC_EXTRA_TEXLIST = { arrayptrandlength(SUPERSONIC_EXTRA_TEXNAME) };
@@ -57,7 +59,7 @@ static void __cdecl Sonic_Display_r(task* tsk)
 	// Just a flag to change sonic's lighting, no other use
 	SuperSonicFlag = IsSuperSonic(co2) == true ? 1 : 0;
 
-	TARGET_DYNAMIC(Sonic_Display)(tsk);
+	Sonic_Display_t.Original(tsk);
 }
 
 static void TransformSuperSonic(EntityData1* data, CharObj2* co2)
@@ -248,7 +250,7 @@ static void __cdecl Sonic_Exec_r(task* tp)
 		if (data->Action == Act_Sonic_Init)
 		{
 			InitSuperSonicEyes(data->CharIndex);
-			TARGET_DYNAMIC(Sonic_Exec)(tp);
+			Sonic_Exec_t.Original(tp);
 		}
 		else
 		{
@@ -282,7 +284,7 @@ static void __cdecl Sonic_Exec_r(task* tp)
 		}
 	}
 
-	TARGET_DYNAMIC(Sonic_Exec)(tp);
+	Sonic_Exec_t.Original(tp);
 }
 
 static void __cdecl Sonic_Delete_r(task* tsk) {
@@ -294,98 +296,37 @@ static void __cdecl Sonic_Delete_r(task* tsk) {
 		RestoreMusic();
 	}
 
-	TARGET_DYNAMIC(Sonic_Delete)(tsk);
+	Sonic_Delete_t.Original(tsk);
 }
 
-BOOL __cdecl SonicNAct_original(CharObj2* co2, EntityData1* data, EntityData2* data2)
-{
-	const auto SonicNAct_ptr = SonicNAct_t->Target();
-	signed int result;
-	__asm
-	{
-		push[data2]
-		mov edi, [data]
-		mov eax, [co2]
-		call SonicNAct_ptr
-		add esp, 4
-		mov result, eax
-	}
-	return result;
-}
-
-BOOL  __cdecl SonicNAct_r(CharObj2* co2, EntityData1* data, EntityData2* data2)
+BOOL  __cdecl SonicNAct_r(taskwk* data, playerwk* co2, motionwk2* data2)
 {
 	// In case an external mod sets Super Sonic
-	if (IsPerfectChaosLevel() == false && data->NextAction == NextAction_SuperSonic && (data->Status & Status_DoNextAction))
+	if (IsPerfectChaosLevel() == false && data->smode == NextAction_SuperSonic && (data->flag & Status_DoNextAction))
 	{
-		SetSuperAnims(co2);
+		SetSuperAnims((CharObj2*)co2);
 	}
 
-	return SonicNAct_original(co2, data, data2);
+	return SonicNAct_t.Original(data, co2, data2);
 }
 
-static void __declspec(naked) SonicNAct_asm()
-{
-	__asm
-	{
-		push[esp + 04h]
-		push edi
-		push eax
-		call SonicNAct_r
-		add esp, 4
-		pop edi
-		add esp, 4
-		retn
-	}
-}
-
-BOOL  __cdecl SuperSonicNAct_original(EntityData2* data2, CharObj2* co2, EntityData1* data)
-{
-	const auto SuperSonicNAct_ptr = SuperSonicNAct_t->Target();
-	signed int result;
-	__asm
-	{
-		mov esi, [data]
-		mov ecx, [co2]
-		mov eax, [data2]
-		call SuperSonicNAct_ptr
-		mov result, eax
-	}
-	return result;
-}
-
-BOOL __cdecl SuperSonicNAct_r(EntityData2* data2, CharObj2* co2, EntityData1* data)
+BOOL __cdecl SuperSonicNAct_r(motionwk2* data2, playerwk* co2, taskwk* data)
 {
 	// In case an external mod unsets Super Sonic
-	if (IsPerfectChaosLevel() == false && data->NextAction == NextAction_Winning && (data->Status & Status_DoNextAction))
+	if (IsPerfectChaosLevel() == false && data->smode == NextAction_Winning && (data->flag & Status_DoNextAction))
 	{
-		data->Action = Act_Sonic_ObjectControl;
-		co2->AnimationThing.Index = Anm_SuperSonic_Win;
-		NullifyVelocity(data2, co2);
-		data->Rotation.z = 0;
-		data->Rotation.x = 0;
-		data->Status &= ~(Status_OnPath | Status_Attack | Status_Ball);
+		data->mode = Act_Sonic_ObjectControl;
+		co2->mj.reqaction = Anm_SuperSonic_Win;
+		NullifyVelocity((EntityData2*)data2, (CharObj2*)co2);
+		data->ang.z = 0;
+		data->ang.x = 0;
+		data->flag &= ~(Status_OnPath | Status_Attack | Status_Ball);
 		StopPlayerLookAt(0);
-		UnsetSuperAnims(co2);
+		UnsetSuperAnims((CharObj2*)co2);
 		return true;
 	}
 
-	return SuperSonicNAct_original(data2, co2, data);
-}
-
-static void __declspec(naked) SuperSonicNAct_asm()
-{
-	__asm
-	{
-		push esi
-		push ecx
-		push eax
-		call  SuperSonicNAct_r
-		add esp, 4
-		pop ecx
-		pop esi
-		retn
-	}
+	return SuperSonicNAct_t.Original(data2, co2, data);
 }
 
 void SuperSonic_Init()
@@ -393,14 +334,14 @@ void SuperSonic_Init()
 	HelperFunctionsGlobal.RegisterCharacterPVM(Characters_Sonic, { "SUPERSONIC", &SUPERSONIC_TEXLIST });
 	HelperFunctionsGlobal.RegisterCharacterPVM(Characters_Sonic, { "SUPERSONIC_EXTRA", &SUPERSONIC_EXTRA_TEXLIST });
 
-	Sonic_Exec_t = new Trampoline((int)Sonic_Main, (int)Sonic_Main + 0x7, Sonic_Exec_r);
-	Sonic_Display_t = new Trampoline((int)Sonic_Display, (int)Sonic_Display + 0x7, Sonic_Display_r);
-	Sonic_Delete_t = new Trampoline((int)Sonic_Delete, (int)Sonic_Delete + 0x5, Sonic_Delete_r);
-	SuperSonicNAct_t = new Trampoline(0x00494CD0, 0x00494CD6, SuperSonicNAct_asm); // fix winning position
+	Sonic_Exec_t.Hook(Sonic_Exec_r);
+	Sonic_Display_t.Hook(Sonic_Display_r);
+	Sonic_Delete_t.Hook(Sonic_Delete_r);
+	SuperSonicNAct_t.Hook(SuperSonicNAct_r); // fix winning position
 
 	if (UseAdvancedSuperSonic())
 	{
-		SonicNAct_t = new Trampoline(0x00495FA0, 0x00495FA6, SonicNAct_asm);
+		SonicNAct_t.Hook(SonicNAct_r);
 		WriteCall((void*)0x4949ED, njSetTextureHack);
 	}
 	
