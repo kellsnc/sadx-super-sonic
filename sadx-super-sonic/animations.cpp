@@ -54,7 +54,7 @@ static void InitSuperSonicAnims()
 				if (SSAnimData[i].Animation)
 				{
 					SuperSonicAnimData[i].Animation = new NJS_ACTION();
-					SuperSonicAnimData[i].Animation->object = SONIC_OBJECTS[22];
+					SuperSonicAnimData[i].Animation->object = SSAnimData[134].Animation->object; //take model from SS list to allow mods to replace model
 					SuperSonicAnimData[i].Animation->motion = SSAnimData[i].Animation->motion;
 				}
 				break;
@@ -97,7 +97,7 @@ void UnsetSuperAnims(CharObj2* co2)
 {
 	if (UseAdvancedSuperSonic() == true)
 	{
-		co2->AnimationThing.AnimData = SonicAnimData;
+		co2->AnimationThing.AnimData = pSonicAnimData;
 	}
 }
 

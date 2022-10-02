@@ -15,6 +15,7 @@ FunctionPointer(ObjectMaster*, LoadTikalChild, (ObjectMaster* obj, char*, NJS_VE
 FunctionPointer(void, StopPlayerLookAt, (uint8_t id), 0x441080);
 FastcallFunctionPointer(void, SuperSonic_WalkAni, (CharObj2* co2, EntityData2* data2), 0x491820);
 DataArray(CollisionData, JumpPanel_Collision_, 0x97DF68, 4);
+DataPointer(AnimData*, pSonicAnimData, 0x49AB4D);
 
 // Symbols:
 #define TWP_PNUM(twp) twp->counter.b[0]
