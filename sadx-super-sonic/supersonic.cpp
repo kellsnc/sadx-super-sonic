@@ -10,7 +10,7 @@ TaskHook Sonic_Delete_t(SonicDestruct);
 UsercallFunc(signed int, SuperSonicNAct_t, (motionwk2* a1, playerwk* a2, taskwk* a3), (a1, a2, a3), 0x494CD0, rEAX, rEAX, rECX, rESI);
 UsercallFunc(signed int, SonicNAct_t, (taskwk* a1, playerwk* a2, motionwk2* a3), (a1, a2, a3), 0x496880, rEAX, rECX, rEAX, stack4);
 
-static NJS_TEXNAME SUPERSONIC_EXTRA_TEXNAME[2];
+static NJS_TEXNAME SUPERSONIC_EXTRA_TEXNAME[6];
 NJS_TEXLIST SUPERSONIC_EXTRA_TEXLIST = { arrayptrandlength(SUPERSONIC_EXTRA_TEXNAME) };
 
 static int RingTimer = 0;
