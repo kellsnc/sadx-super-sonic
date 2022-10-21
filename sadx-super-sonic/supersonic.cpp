@@ -42,7 +42,7 @@ bool UseAdvancedSuperSonic()
 
 static void __cdecl njSetTextureHack(NJS_TEXLIST* texlist)
 {
-	if (SuperSonicFlag)
+	if (flagSuperSonicMode)
 	{
 		njSetTexture(&SUPERSONIC_TEXLIST);
 	}
@@ -56,10 +56,10 @@ static void __cdecl Sonic_Display_r(task* tsk)
 {
 	CharObj2* co2 = (CharObj2*)tsk->mwp->work.ptr;
 
-	// Just a flag to change sonic's lighting, no other use
-	SuperSonicFlag = IsSuperSonic(co2) == true ? 1 : 0;
-
+	auto previous_flag = flagSuperSonicMode;
+	flagSuperSonicMode = IsSuperSonic(co2) == true ? 1 : 0;
 	Sonic_Display_t.Original(tsk);
+	flagSuperSonicMode = previous_flag;
 }
 
 static void TransformSuperSonic(EntityData1* data, CharObj2* co2)
@@ -285,6 +285,7 @@ static void __cdecl Sonic_Exec_r(task* tp)
 	}
 
 	Sonic_Exec_t.Original(tp);
+	flagSuperSonicMode = IsSuperSonic(0) ? 1 : 0;
 }
 
 static void __cdecl Sonic_Delete_r(task* tsk) {
