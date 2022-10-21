@@ -1,20 +1,23 @@
 #include "pch.h"
+#include "SADXModLoader.h"
+#include "FunctionHook.h"
+#include "config.h"
 
 // Code to adapt some tasks to Super Sonic
 
-Trampoline* SonicChargeBodyDisplay_t  = nullptr;
-Trampoline* EffectSuperSonicAura_t    = nullptr;
-Trampoline* PSetSpinDSEffect_t        = nullptr;
-Trampoline* PSetDashEffect_t          = nullptr;
-Trampoline* EffectSpin_t              = nullptr; // PSetSpinEffect is inlined
-Trampoline* EffectSpinRibbonDisplay_t = nullptr;
-Trampoline* EffectDrawRibbon_t        = nullptr;
+FunctionHook<void, taskwk*, motionwk2*, playerwk*> SonicChargeBodyDisplay_h(0x4A1630);
+TaskHook EffectSuperSonicAura_h(0x55FAF0);
+FunctionHook<void, taskwk*> PSetSpinDSEffect_h(0x4940B0);
+FunctionHook<void, taskwk*> PSetDashEffect_h(0x494050);
+TaskHook EffectSpin_h(0x4A2A10); // PSetSpinEffect is inlined
+TaskHook EffectSpinRibbonDisplay_h(0x4A1DB0);
+TaskHook EffectDrawRibbon_h(0x4A17B0);
 
 static void __cdecl SonicChargeBodyDisplay_r(taskwk* twp, motionwk2* mwp, playerwk* pwp)
 {
-	if (!IsSuperSonic((CharObj2*)pwp))
+	if (!IsSuperSonic(pwp))
 	{
-		TARGET_DYNAMIC(SonicChargeBodyDisplay)(twp, mwp, pwp);
+		SonicChargeBodyDisplay_h.Original(twp, mwp, pwp);
 	}
 }
 
@@ -27,7 +30,7 @@ static void __cdecl EffectSuperSonicAura_r(task* tp)
 		return;
 	}
 
-	TARGET_DYNAMIC(EffectSuperSonicAura)(tp);
+	EffectSuperSonicAura_h.Original(tp);
 }
 
 static void __cdecl PSetSpinDSEffect_r(taskwk* twp)
@@ -35,7 +38,7 @@ static void __cdecl PSetSpinDSEffect_r(taskwk* twp)
 	auto pnum = TWP_PNUM(twp);
 	auto pwp = playerpwp[pnum];
 
-	if (IsSuperSonic((CharObj2*)pwp))
+	if (IsSuperSonic(pwp))
 	{
 		auto tp = CreateElementalTask(2u, LEV_6, EffectSSSpinDS);
 		if (tp)
@@ -43,7 +46,7 @@ static void __cdecl PSetSpinDSEffect_r(taskwk* twp)
 	}
 	else
 	{
-		TARGET_DYNAMIC(PSetSpinDSEffect)(twp);
+		PSetSpinDSEffect_h.Original(twp);
 	}
 }
 
@@ -52,7 +55,7 @@ static void __cdecl PSetDashEffect_r(taskwk* twp)
 	auto pnum = TWP_PNUM(twp);
 	auto pwp = playerpwp[pnum];
 
-	if (IsSuperSonic((CharObj2*)pwp))
+	if (IsSuperSonic(pwp))
 	{
 		auto tp = CreateElementalTask(2u, LEV_6, EffectSSDash);
 		if (tp)
@@ -60,7 +63,7 @@ static void __cdecl PSetDashEffect_r(taskwk* twp)
 	}
 	else
 	{
-		TARGET_DYNAMIC(PSetDashEffect)(twp);
+		PSetDashEffect_h.Original(twp);
 	}
 }
 
@@ -68,9 +71,9 @@ static void __cdecl EffectSpin_r(task* tp)
 {
 	auto pwp = playerpwp[TWP_PNUM(tp->twp)];
 
-	if (!IsSuperSonic((CharObj2*)pwp))
+	if (!IsSuperSonic(pwp))
 	{
-		TARGET_DYNAMIC(EffectSpin)(tp);
+		EffectSpin_h.Original(tp);
 	}
 }
 
@@ -118,7 +121,7 @@ static void __cdecl EffectSpinRibbonDisplay_r(task* tp)
 	}
 	else
 	{
-		TARGET_DYNAMIC(EffectSpinRibbonDisplay)(tp);
+		EffectSpinRibbonDisplay_h.Original(tp);
 	}
 }
 
@@ -143,7 +146,7 @@ static void __cdecl EffectDrawRibbon_r(task* tp)
 	}
 	else
 	{
-		TARGET_DYNAMIC(EffectDrawRibbon)(tp);
+		EffectDrawRibbon_h.Original(tp);
 	}
 }
 
@@ -163,9 +166,9 @@ static void __cdecl CreateEffectSpinRibbon_r(taskwk* ptwp, int count)
 		spinribbon_twp->scl.y = cinfo->center.y;
 		spinribbon_twp->scl.z = cinfo->center.z;
 
-		float dst = (float)((double)rand() * 0.000030517578 * 15.0 + 25.0);
-		Angle ang1 = -2048 - (Angle)((double)rand() * 0.000030517578 * -12288.0);
-		Angle ang2 = (Angle)((double)rand() * 0.000030517578 * 65536.0);
+		float dst = njRandom() * 15.0f + 25.0f;
+		Angle ang1 = -2048 - (Angle)(njRandom() * -12288.0f);
+		Angle ang2 = (Angle)(njRandom() * 65536.0f);
 		
 		spinribbon_twp->pos.x = njSin(ang2) * njCos(ang1) * dst + spinribbon_twp->scl.x;
 		spinribbon_twp->pos.y = njSin(ang1) * dst + spinribbon_twp->scl.y;
@@ -200,16 +203,16 @@ void Objects_Init()
 {
 	if (ExtendedGamePlay == true)
 	{
-		SonicChargeBodyDisplay_t  = new Trampoline(0x4A1630, 0x4A1635, SonicChargeBodyDisplay_r);
-		PSetDashEffect_t          = new Trampoline(0x494050, 0x494055, PSetDashEffect_r);
-		PSetSpinDSEffect_t        = new Trampoline(0x4940B0, 0x4940B5, PSetSpinDSEffect_r);
-		EffectSpin_t              = new Trampoline(0x4A2A10, 0x4A2A15, EffectSpin_r);
-		EffectSpinRibbonDisplay_t = new Trampoline(0x4A1DB0, 0x4A1DB5, EffectSpinRibbonDisplay_r);
-		EffectDrawRibbon_t        = new Trampoline(0x4A17B0, 0x4A17B6, EffectDrawRibbon_r);
+		SonicChargeBodyDisplay_h.Hook(SonicChargeBodyDisplay_r);
+		PSetDashEffect_h.Hook(PSetDashEffect_r);
+		PSetSpinDSEffect_h.Hook(PSetSpinDSEffect_r);
+		EffectSpin_h.Hook(EffectSpin_r);
+		EffectSpinRibbonDisplay_h.Hook(EffectSpinRibbonDisplay_r);
+		EffectDrawRibbon_h.Hook(EffectDrawRibbon_r);
 		WriteJump((void*)0x4A2040, CreateEffectSpinRibbon_r);
 	}
 
-	EffectSuperSonicAura_t = new Trampoline(0x55FAF0, 0x55FAF5, EffectSuperSonicAura_r);
+	EffectSuperSonicAura_h.Hook(EffectSuperSonicAura_r);
 
 	//Fix Jump Panel collision placement
 	JumpPanel_Collision_[1].center.y = 2.0f;

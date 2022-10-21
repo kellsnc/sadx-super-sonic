@@ -1,4 +1,6 @@
 #include "pch.h"
+#include "SADXModLoader.h"
+#include "config.h"
 
 Buttons TransformButton = Buttons_B;
 AuraOptions DisableAura = AuraOptions::False;

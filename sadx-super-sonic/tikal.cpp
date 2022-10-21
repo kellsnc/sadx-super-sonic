@@ -1,8 +1,11 @@
 ﻿#include "pch.h"
+#include "SADXModLoader.h"
+#include "FunctionHook.h"
+#include "config.h"
 
 // Custom Tikal orb for the unused voice, spawns near Sonic at stage start.
 
-static Trampoline* LoadLevel_t = nullptr;
+FunctionHook<void> LoadLevel_h(0x4159A0);
 
 static const char* tikal_message_jp[] = {
 	"\a\203\212\203\223\203\117\202\36050\214\302\217\127\202\337\202\304\201\101\n\203\127\203\203\203\223\203\166\222\206\202\311\203\101\203\116\203\126\203\207\203\223\203\173\203\136\203\223\202\360\211\237\202\271\202\316\201\102" /* "\aリングを50個集めて、\nジャンプ中にアクションボタンを押せば。" */,
@@ -55,7 +58,7 @@ static void SSTikalHintCheck(ObjectMaster* obj, EntityData1* data, EntityData1* 
 {
 	if (IsPlayerInsideSphere(&data->Position, 7.0f) == 1)
 	{
-		if (player->CharIndex == Characters_Sonic && IsSuperSonic(CharObj2Ptrs[0]) == false)
+		if (player->CharIndex == Characters_Sonic && IsSuperSonic(playerpwp[0]) == false)
 		{
 			PlayVoice(1676);
 			DisplayHintText(tikal_messages[TextLanguage], 260);
@@ -175,7 +178,7 @@ static void __cdecl SSTikalHint_Main(ObjectMaster* obj)
 
 static void __cdecl LoadLevel_r()
 {
-	TARGET_DYNAMIC(LoadLevel)();
+	LoadLevel_h.Original();
 
 	if (EnableTikalUnusedVoice == true && CurrentCharacter == Characters_Sonic && IsStoryFinished() == true &&
 		RemoveLimitations == false && TimeMinutes < 1 && TimeSeconds < 10 && CurrentLevel < LevelIDs_Chaos0 && GameMode == GameModes_Adventure_ActionStg)
@@ -204,5 +207,5 @@ static void __cdecl LoadLevel_r()
 
 void SSTikalHint_Init()
 {
-	LoadLevel_t = new Trampoline(0x4159A0, 0x4159A7, LoadLevel_r, false);
+	LoadLevel_h.Hook(LoadLevel_r);
 }

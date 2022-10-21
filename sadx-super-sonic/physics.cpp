@@ -1,10 +1,13 @@
 #include "pch.h"
+#include "SADXModLoader.h"
+#include "FunctionHook.h"
+#include "config.h"
 
 // Code to replace Super Sonic physics with custom, softer ones
 
-static Trampoline* Sonic_SuperPhysics_Load_t = nullptr;
-static Trampoline* ResetAngle_t = nullptr;
-static Trampoline* SpringB_Main_t = nullptr;
+TaskHook SuperSonicStatusManager_h(0x494350);
+FunctionHook<void, taskwk*, motionwk2*, playerwk*> PResetAngle_h(0x443AD0);
+TaskHook ObjectSpring_h(0x7A4E50);
 
 static float SuperSonicDecel = *(float*)0x49439D; // -0.001f
 static float SuperSonicAirDecel = *(float*)0x4943A7; // -0.002f
@@ -13,53 +16,53 @@ static float SuperSonicYOff = *(float*)0x4943BB; // 6.4f
 
 static bool SpringTaken[8]{};
 
-static void ResetSuperPhysics(PhysicsData* physdata, int character)
+static void ResetSuperPhysics(player_parameter* physdata, int character)
 {
-	physdata->RollDecel = PhysicsArray[character].RollDecel;
-	physdata->AirDecel = PhysicsArray[character].AirDecel;
-	physdata->AirAccel = PhysicsArray[character].AirAccel;
-	physdata->YOff = PhysicsArray[character].YOff;
+	physdata->air_resist = PhysicsArray[character].RollDecel;
+	physdata->air_resist_air = PhysicsArray[character].AirDecel;
+	physdata->air_accel = PhysicsArray[character].AirAccel;
+	physdata->center_height = PhysicsArray[character].YOff;
 }
 
-static void SetSuperPhysics(PhysicsData* physdata)
+static void SetSuperPhysics(player_parameter* physdata)
 {
-	physdata->RollDecel = SuperSonicDecel;
-	physdata->AirDecel = SuperSonicAirDecel;
-	physdata->AirAccel = SuperSonicAirAccel;
-	physdata->YOff = SuperSonicYOff;
+	physdata->air_resist = SuperSonicDecel;
+	physdata->air_resist_air = SuperSonicAirDecel;
+	physdata->air_accel = SuperSonicAirAccel;
+	physdata->center_height = SuperSonicYOff;
 }
 
-static void __cdecl Sonic_SuperPhysicsLevel_Delete(task* tsk)
+static void __cdecl SuperSonicStatusManagerDestructor_r(task* tp)
 {
-	CharObj2* co2 = CharObj2Ptrs[tsk->awp->work.sl[0]];
+	auto* pwp = playerpwp[tp->awp->work.sl[0]];
 
-	if (co2 != nullptr)
+	if (pwp != nullptr)
 	{
-		ResetSuperPhysics(&co2->PhysicsData, EntityData1Ptrs[tsk->awp->work.sl[0]]->CharID);
+		ResetSuperPhysics(&pwp->p, TWP_PNUM(playertwp[tp->awp->work.sl[0]]));
 	}
 }
 
-static void __cdecl Sonic_SuperPhysicsLevel_Main(task* tsk)
+static void __cdecl SuperSonicStatusManagerExecutor_r(task* tp)
 {
-	auto playerid = tsk->awp->work.sl[0];
-	auto pdata = EntityData1Ptrs[playerid];
-	auto co2 = CharObj2Ptrs[playerid];
+	auto playerid = tp->awp->work.sl[0];
+	auto ptwp = playertwp[playerid];
+	auto ppwp = playerpwp[playerid];
 
-	if (tsk->awp->work.sl[1] == 0)
+	if (tp->awp->work.sl[1] == 0)
 	{
 		if (IsEventPerforming() == true)
 		{
 			// If an event occurs, remove the new physics temporarily
-			ResetSuperPhysics(&co2->PhysicsData, Characters_Sonic);
-			tsk->awp->work.sl[1] = 1;
+			ResetSuperPhysics(&ppwp->p, Characters_Sonic);
+			tp->awp->work.sl[1] = 1;
 		}
 		else
 		{
 			// HACK: If a spring has been taken, restore air decel physics
-			if (SpringTaken[pdata->CharID] == true && pdata->Status & Status_Ground)
+			if (SpringTaken[TWP_CHAR(ptwp)] == true && ptwp->flag & Status_Ground)
 			{
-				co2->PhysicsData.AirDecel = SuperSonicAirDecel;
-				SpringTaken[pdata->CharID] = false;
+				ppwp->p.air_resist_air = SuperSonicAirDecel;
+				SpringTaken[TWP_CHAR(ptwp)] = false;
 			}
 		}
 	}
@@ -67,85 +70,85 @@ static void __cdecl Sonic_SuperPhysicsLevel_Main(task* tsk)
 	{
 		if (IsEventPerforming() == false)
 		{
-			SetSuperPhysics(&co2->PhysicsData);
-			tsk->awp->work.sl[1] = 0;
+			SetSuperPhysics(&ppwp->p);
+			tp->awp->work.sl[1] = 0;
 		}
 	}
 
-	if (co2 == nullptr || IsSuperSonic(co2) == false)
+	if (ppwp == nullptr || IsSuperSonic((playerwk*)ppwp) == false)
 	{
-		FreeTask(tsk);
+		FreeTask(tp);
 	}
 }
 
-static void __cdecl Sonic_SuperPhysics_Load_r(task* tsk)
+static void __cdecl SuperSonicStatusManager_r(task* tp)
 {
 	if (IsPerfectChaosLevel())
 	{
-		TARGET_DYNAMIC(Sonic_SuperPhysics_Load)(tsk);
+		SuperSonicStatusManager_h.Original(tp);
 	}
 	else
 	{
-		CharObj2* co2 = CharObj2Ptrs[tsk->awp->work.sl[0]];
+		auto pwp = playerpwp[tp->awp->work.sl[0]];
 
-		tsk->exec = Sonic_SuperPhysicsLevel_Main;
-		tsk->dest = Sonic_SuperPhysicsLevel_Delete;
+		tp->exec = SuperSonicStatusManagerExecutor_r;
+		tp->dest = SuperSonicStatusManagerDestructor_r;
 
-		SetSuperPhysics(&co2->PhysicsData);
+		SetSuperPhysics(&pwp->p);
 
-		tsk->exec(tsk);
+		tp->exec(tp);
 	}
 }
 
-// Fix Super Sonic hardcoded behaviour in ResetAngle
-static void __cdecl ResetAngle_r(EntityData1* data1, EntityData2* data2, CharObj2* co2)
+// Fix Super Sonic hardcoded behaviour in PResetAngle
+static void __cdecl PResetAngle_r(taskwk* twp, motionwk2* mwp, playerwk* pwp)
 {
-	if (IsPerfectChaosLevel() == false && co2->Upgrades & Upgrades_SuperSonic)
+	if (IsPerfectChaosLevel() == false && IsSuperSonic(pwp))
 	{
-		co2->Upgrades &= ~Upgrades_SuperSonic;
-		TARGET_DYNAMIC(ResetAngle)(data1, data2, co2);
-		co2->Upgrades |= Upgrades_SuperSonic;
+		pwp->equipment &= ~Upgrades_SuperSonic;
+		PResetAngle_h.Original(twp, mwp, pwp);
+		pwp->equipment |= Upgrades_SuperSonic;
 	}
 	else
 	{
-		TARGET_DYNAMIC(ResetAngle)(data1, data2, co2);
+		PResetAngle_h.Original(twp, mwp, pwp);
 	}
 }
 
-// HACK: Reset AirDecel when taking a spring. The value is restored in Sonic_SuperPhysics_Main.
-static void __cdecl SpringB_Main_r(ObjectMaster* obj)
+// HACK: Reset air_resist_air when taking a spring. The value is restored in Sonic_SuperPhysics_Main.
+static void __cdecl ObjectSpring_r(task* tp)
 {
-	auto data = obj->Data1;
+	auto twp = tp->twp;
 
-	if (data->Action == 2)
+	if (twp->mode == 2)
 	{
 		for (auto i = 0; i < MaxPlayers; i++)
 		{
-			auto pdata = EntityData1Ptrs[i];
-			auto co2 = CharObj2Ptrs[i];
+			auto ptwp = playertwp[i];
+			auto ppwp = playerpwp[i];
 
-			if (pdata && co2)
+			if (ptwp && ppwp)
 			{
-				if (IsSuperSonic(co2))
+				if (IsSuperSonic(ppwp))
 				{
-					co2->PhysicsData.AirDecel = PhysicsArray[pdata->CharID].AirDecel;
-					SpringTaken[pdata->CharID] = true;
+					ppwp->p.air_resist_air = PhysicsArray[TWP_CHAR(ptwp)].AirDecel;
+					SpringTaken[TWP_CHAR(ptwp)] = true;
 				}
 			}
 		}
 	}
 
-	TARGET_DYNAMIC(SpringB_Main)(obj);
+	ObjectSpring_h.Original(tp);
 }
 
 void Physics_Init(const char* path)
 {
-	Sonic_SuperPhysics_Load_t = new Trampoline((int)Sonic_SuperPhysics_Load, (int)Sonic_SuperPhysics_Load + 0x6, Sonic_SuperPhysics_Load_r);
+	SuperSonicStatusManager_h.Hook(SuperSonicStatusManager_r);
 	
 	if (PatchPhysics == true)
 	{
-		ResetAngle_t = new Trampoline(0x443AD0, 0x443AD7, ResetAngle_r);
-		SpringB_Main_t = new Trampoline((int)SpringB_Main, (int)SpringB_Main + 0x5, SpringB_Main_r);
+		PResetAngle_h.Hook(PResetAngle_r);
+		ObjectSpring_h.Hook(ObjectSpring_r);
 	}
 	
 	if (CustomPhysics == true)

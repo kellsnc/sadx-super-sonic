@@ -1,4 +1,6 @@
 #include "pch.h"
+#include "SADXModLoader.h"
+#include "config.h"
 
 /*
 * Changes to force the last boss music if the option enabled, and to perform transformation voices

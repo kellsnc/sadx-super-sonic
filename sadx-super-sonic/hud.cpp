@@ -1,4 +1,6 @@
 #include "pch.h"
+#include "SADXModLoader.h"
+#include "config.h"
 
 enum SUPERSONIC_EXTRA
 {
@@ -27,13 +29,13 @@ DataPointer(AirBoxWK*, airBoxData, 0x3C5A9D4);
 
 static void __cdecl upIconHack1(NJS_MODEL_SADX* model)
 {
-	EntityData1* player = EntityData1Ptrs[0];
+	auto player = playertwp[0];
 
-	if (player && player->CharID == Characters_Sonic && ItemBox_CurrentItem == 6 && !VerifyTexList(&SUPERSONIC_EXTRA_TEXLIST))
+	if (player && TWP_CHAR(player) == Characters_Sonic && ItemBox_CurrentItem == 6 && !VerifyTexList(&SUPERSONIC_EXTRA_TEXLIST))
 	{
-		CharObj2* co2 = CharObj2Ptrs[0];
+		auto pwp = playerpwp[0];
 
-		if (co2 && IsSuperSonic(co2))
+		if (pwp && IsSuperSonic(pwp))
 		{
 			NJS_TEXLIST* tex = CurrentTexList;
 			njSetTexture(&SUPERSONIC_EXTRA_TEXLIST);
@@ -49,13 +51,13 @@ static void __cdecl upIconHack1(NJS_MODEL_SADX* model)
 
 static void __cdecl upIconHack2(NJS_MODEL_SADX* model)
 {
-	EntityData1* player = EntityData1Ptrs[0];
+	auto player = playertwp[0];
 
-	if (player && player->CharID == Characters_Sonic && airBoxData->id == 6 && !VerifyTexList(&SUPERSONIC_EXTRA_TEXLIST))
+	if (player && TWP_CHAR(player) == Characters_Sonic && airBoxData->id == 6 && !VerifyTexList(&SUPERSONIC_EXTRA_TEXLIST))
 	{
-		CharObj2* co2 = CharObj2Ptrs[0];
+		auto pwp = playerpwp[0];
 
-		if (co2 && IsSuperSonic(co2))
+		if (pwp && IsSuperSonic(pwp))
 		{
 			NJS_TEXLIST* tex = CurrentTexList;
 			njSetTexture(&SUPERSONIC_EXTRA_TEXLIST);
@@ -71,13 +73,13 @@ static void __cdecl upIconHack2(NJS_MODEL_SADX* model)
 
 static void __cdecl upIconHack3(NJS_SPRITE* sp, Int n, Float pri, NJD_SPRITE attr, QueuedModelFlagsB queue_flags)
 {
-	EntityData1* player = EntityData1Ptrs[0];
+	auto player = playertwp[0];
 
-	if (player && player->CharID == Characters_Sonic && sp->tanim->texid == LifeTextures[Characters_Sonic] && !VerifyTexList(&SUPERSONIC_EXTRA_TEXLIST))
+	if (player && TWP_CHAR(player) == Characters_Sonic && sp->tanim->texid == LifeTextures[Characters_Sonic] && !VerifyTexList(&SUPERSONIC_EXTRA_TEXLIST))
 	{
-		CharObj2* co2 = CharObj2Ptrs[0];
+		auto pwp = playerpwp[0];
 
-		if (co2 && IsSuperSonic(co2))
+		if (pwp && IsSuperSonic(pwp))
 		{
 			sp->tlist = &SUPERSONIC_EXTRA_TEXLIST;
 			sp->tanim = SUPERSONIC_EXTRA_TEXANIM;
@@ -92,13 +94,13 @@ static void __cdecl upIconHack3(NJS_SPRITE* sp, Int n, Float pri, NJD_SPRITE att
 // Hack the icon sprite drawing function, if player 1 is super sonic, swap for another sprite.
 static void __cdecl lifeIconHack(NJS_SPRITE* sp, Int n, Float pri, NJD_SPRITE attr)
 {
-	EntityData1* player = EntityData1Ptrs[0];
+	auto player = playertwp[0];
 
-	if (player && player->CharID == Characters_Sonic && !VerifyTexList(&SUPERSONIC_EXTRA_TEXLIST))
+	if (player && TWP_CHAR(player) == Characters_Sonic && !VerifyTexList(&SUPERSONIC_EXTRA_TEXLIST))
 	{
-		CharObj2* co2 = CharObj2Ptrs[0];
+		auto pwp = playerpwp[0];
 
-		if (co2 && IsSuperSonic(co2))
+		if (pwp && IsSuperSonic(pwp))
 		{
 			SUPERSONIC_EXTRA_SPRITE.p.x = Hud_RingTimeLife.p.x;
 			SUPERSONIC_EXTRA_SPRITE.p.y = Hud_RingTimeLife.p.y;

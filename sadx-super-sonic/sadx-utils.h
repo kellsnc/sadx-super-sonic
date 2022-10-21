@@ -13,12 +13,13 @@ FunctionPointer(void, StopPlayerEyeTarget, (unsigned __int8 player), 0x441080);
 FunctionPointer(void, PlaySound3D, (int ID, void* entity, int a3, int volume, int length, EntityData1* data), 0x424880);
 FunctionPointer(ObjectMaster*, LoadTikalChild, (ObjectMaster* obj, char*, NJS_VECTOR*), 0x4A3B70);
 FunctionPointer(void, StopPlayerLookAt, (uint8_t id), 0x441080);
-FastcallFunctionPointer(void, SuperSonic_WalkAni, (CharObj2* co2, EntityData2* data2), 0x491820);
+FastcallFunctionPointer(void, SonicChangeRunningMotionS, (playerwk* pwp, motionwk2* mwp), 0x491820);
 DataArray(CollisionData, JumpPanel_Collision_, 0x97DF68, 4);
-DataPointer(AnimData*, pSonicAnimData, 0x49AB4D);
+DataPointer(PL_ACTION*, pSonicAnimData, 0x49AB4D);
 
 // Symbols:
 #define TWP_PNUM(twp) twp->counter.b[0]
+#define TWP_CHAR(twp) twp->counter.b[1]
 FunctionPointer(void, PSetDashEffect, (taskwk* twp), 0x494050);
 FunctionPointer(void, PSetSpinDSEffect, (taskwk* twp), 0x4940B0);
 TaskFunc(EffectSpin, 0x4A2A10);
@@ -48,13 +49,3 @@ static inline signed int Sonic_HoldingObject_NAct(EntityData1* data, CharObj2* c
 	}
 	return result;
 }
-
-enum CollisionShapes {
-    CollisionShape_Sphere,
-    CollisionShape_Cylinder,
-    CollisionShape_PushCylinder,
-    CollisionShape_Cube,
-    CollisionShape_Cube2,
-    CollisionShape_Capsule,
-    CollisionShape_Capsule2
-};

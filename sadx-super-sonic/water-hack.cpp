@@ -1,11 +1,13 @@
 #include "pch.h"
+#include "SADXModLoader.h"
+#include "config.h"
 
 // By SonicFreak94, prevents Sonic from going through water planes
-static int __stdcall SuperWaterCheck_C(EntityData1* data1, CharObj2* co2)
+static int __stdcall SuperWaterCheck_C(taskwk* twp, playerwk* pwp)
 {
-	auto pad = ControllerPointers[static_cast<int>(data1->CharIndex)];
+	auto pad = ControllerPointers[TWP_PNUM(twp)];
 
-	if (/*data1->CharID == Characters_Sonic &&*/ IsSuperSonic(co2))
+	if (/*TWP_CHAR(twp) == Characters_Sonic &&*/ IsSuperSonic(pwp))
 	{
 		return pad && !(pad->HeldButtons & Buttons_Y);
 	}

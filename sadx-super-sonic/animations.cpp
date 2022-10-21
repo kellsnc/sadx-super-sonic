@@ -1,18 +1,21 @@
 #include "pch.h"
+#include "SADXModLoader.h"
+#include "UsercallFunctionHandler.h"
+#include "config.h"
 
 /*
 * Custom animation list for Super Sonic
 */
 
 extern "C" __declspec(dllexport) unsigned int SSAnimCount = SonicAnimData.size();
-extern "C" __declspec(dllexport) AnimData* SSAnimData = SonicAnimData;
+extern "C" __declspec(dllexport) PL_ACTION* SSAnimData = sonic_action;
 
-static Trampoline* Sonic_WalkAni_t = nullptr;
-static Trampoline* Sonic_GroundAnim_t = nullptr;
+UsercallFuncVoid(SonicChangeRunningMotion_h, (taskwk* twp, motionwk2* mwp, playerwk* pwp), (twp, mwp, pwp), 0x495CD0, rECX, rEDI, rEAX);
+UsercallFuncVoid(SonicChangeWaitingMotion_h, (taskwk* twp, playerwk* pwp), (twp, pwp), 0x491660, rEBX, rESI);
 
 static NJS_OBJECT* SuperSonicEyeList[3];
 static AnimationFile* customAnims[4] = {};
-static AnimData_t* SuperSonicAnimData;
+static PL_ACTION* SuperSonicAnimData;
 
 static bool animationsLoaded = false;
 
@@ -20,7 +23,7 @@ static void InitSuperSonicAnims()
 {
 	if (UseAdvancedSuperSonic() == true)
 	{
-		SuperSonicAnimData = new AnimData_t[SSAnimCount];
+		SuperSonicAnimData = new PL_ACTION[SSAnimCount];
 
 		// Fill the animation table at init in case mods edit animations
 		for (int i = 0; i < SSAnimCount; ++i)
@@ -47,15 +50,15 @@ static void InitSuperSonicAnims()
 			case Anm_Sonic_PinBall:
 			case Anm_Sonic_SpinBall:
 				SuperSonicAnimData[i] = SSAnimData[Anm_SuperSonic_Jump];
-				SuperSonicAnimData[i].Property = SSAnimData[i].Property;
+				SuperSonicAnimData[i].mtnmode = SSAnimData[i].mtnmode;
 				break;
 			default:
 				SuperSonicAnimData[i] = SSAnimData[i];
-				if (SSAnimData[i].Animation)
+				if (SSAnimData[i].actptr)
 				{
-					SuperSonicAnimData[i].Animation = new NJS_ACTION();
-					SuperSonicAnimData[i].Animation->object = SSAnimData[134].Animation->object; //take model from SS list to allow mods to replace model
-					SuperSonicAnimData[i].Animation->motion = SSAnimData[i].Animation->motion;
+					SuperSonicAnimData[i].actptr = new NJS_ACTION();
+					SuperSonicAnimData[i].actptr->object = SSAnimData[134].actptr->object; //take model from SS list to allow mods to replace model
+					SuperSonicAnimData[i].actptr->motion = SSAnimData[i].actptr->motion;
 				}
 				break;
 			}
@@ -63,15 +66,15 @@ static void InitSuperSonicAnims()
 
 		if (CustomAnims == true)
 		{
-			SuperSonicAnimData[19].Animation->motion = customAnims[0]->getmotion();
-			SuperSonicAnimData[66].Animation->motion = customAnims[1]->getmotion();
-			SuperSonicAnimData[67].Animation->motion = customAnims[2]->getmotion();
-			SuperSonicAnimData[68].Animation->motion = customAnims[3]->getmotion();
+			SuperSonicAnimData[19].actptr->motion = customAnims[0]->getmotion();
+			SuperSonicAnimData[66].actptr->motion = customAnims[1]->getmotion();
+			SuperSonicAnimData[67].actptr->motion = customAnims[2]->getmotion();
+			SuperSonicAnimData[68].actptr->motion = customAnims[3]->getmotion();
 		}
 
 		if (AlwaysSuperSonic == true)
 		{
-			CharSelDataList[0].anonymous_1[0] = SSAnimData[Anm_SuperSonic_Stand].Animation;
+			CharSelDataList[0].anonymous_1[0] = SSAnimData[Anm_SuperSonic_Stand].actptr;
 			CharSelDataList[0].anonymous_1[1]->object = SONIC_OBJECTS[22];
 			CharSelDataList[0].anonymous_1[2]->object = SONIC_OBJECTS[22];
 			CharSelDataList[0].TextureList = &SUPERSONIC_TEXLIST;
@@ -79,7 +82,7 @@ static void InitSuperSonicAnims()
 	}
 }
 
-void SetSuperAnims(CharObj2* co2)
+void SetSuperAnims(playerwk* pwp)
 {
 	if (animationsLoaded == false)
 	{
@@ -89,15 +92,15 @@ void SetSuperAnims(CharObj2* co2)
 
 	if (UseAdvancedSuperSonic() == true)
 	{
-		co2->AnimationThing.AnimData = SuperSonicAnimData;
+		pwp->mj.plactptr = SuperSonicAnimData;
 	}
 }
 
-void UnsetSuperAnims(CharObj2* co2)
+void UnsetSuperAnims(playerwk* pwp)
 {
 	if (UseAdvancedSuperSonic() == true)
 	{
-		co2->AnimationThing.AnimData = pSonicAnimData;
+		pwp->mj.plactptr = pSonicAnimData;
 	}
 }
 
@@ -109,72 +112,27 @@ void InitSuperSonicEyes(int player)
 	}
 }
 
-static void __cdecl Sonic_WalkAni_r(EntityData1* data, EntityData2* data2, CharObj2* co2)
+static void __cdecl SonicChangeRunningMotion_r(taskwk* twp, motionwk2* mwp, playerwk* pwp)
 {
-	if (IsSuperSonic(co2))
+	if (IsSuperSonic(pwp))
 	{
-		SuperSonic_WalkAni(co2, data2);
+		SonicChangeRunningMotionS(pwp, mwp);
 	}
 	else
 	{
-		const auto original = Sonic_WalkAni_t->Target();
-
-		__asm
-		{
-			mov eax, co2
-			mov edi, data2
-			mov ecx, data
-			
-			call original
-		}
+		SonicChangeRunningMotion_h.Original(twp, mwp, pwp);
 	}
 }
 
-static void __declspec(naked) Sonic_WalkAni_asm()
+static void __cdecl SonicChangeWaitingMotion_r(taskwk* twp, playerwk* pwp)
 {
-	__asm
+	if (IsSuperSonic(pwp))
 	{
-		push eax
-		push edi
-		push ecx
-		call Sonic_WalkAni_r
-		pop ecx
-		pop edi
-		pop eax
-		retn
-	}
-}
-
-static void __cdecl Sonic_GroundAnim_r(EntityData1* data, CharObj2* co2)
-{
-	if (IsSuperSonic(co2))
-	{
-		co2->AnimationThing.Index = Anm_SuperSonic_Stand;
+		pwp->mj.reqaction = Anm_SuperSonic_Stand;
 	}
 	else
 	{
-		const auto original = Sonic_GroundAnim_t->Target();
-
-		__asm
-		{
-			mov esi, co2
-			mov ebx, data
-
-			call original
-		}
-	}
-}
-
-static void __declspec(naked) Sonic_GroundAnim_asm()
-{
-	__asm
-	{
-		push esi
-		push ebx
-		call Sonic_GroundAnim_r
-		pop ebx
-		pop esi
-		retn
+		SonicChangeWaitingMotion_h.Original(twp, pwp);
 	}
 }
 
@@ -182,8 +140,8 @@ void Animations_Init()
 {
 	if (UseAdvancedSuperSonic() == true)
 	{
-		Sonic_WalkAni_t = new Trampoline(0x495CD0, 0x495CD5, Sonic_WalkAni_asm);
-		Sonic_GroundAnim_t = new Trampoline(0x491660, 0x49166B, Sonic_GroundAnim_asm);
+		SonicChangeRunningMotion_h.Hook(SonicChangeRunningMotion_r);
+		SonicChangeWaitingMotion_h.Hook(SonicChangeWaitingMotion_r);
 		
 		if (CustomAnims == true)
 		{

@@ -15,7 +15,7 @@ void SSTikalHint_Init();
 void HudInit();
 
 bool IsPerfectChaosLevel();
-bool IsSuperSonic(CharObj2* co2);
+bool IsSuperSonic(playerwk* pwp);
 bool IsSuperSonic(int pnum);
 bool IsStoryFinished();
 bool UseAdvancedSuperSonic();
@@ -23,7 +23,6 @@ void RestoreMusic();
 void RunSuperMusic();
 void TransformMusicAndSound();
 void DetransformMusicAndSound();
-void SuperSonic_Actions(EntityData1* data, motionwk* mwp, CharObj2* co2);
-void SetSuperAnims(CharObj2* co2);
-void UnsetSuperAnims(CharObj2* co2);
+void SetSuperAnims(playerwk* co2);
+void UnsetSuperAnims(playerwk* co2);
 void InitSuperSonicEyes(int player);
