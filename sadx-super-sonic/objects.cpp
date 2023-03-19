@@ -17,7 +17,8 @@ static void __cdecl SonicChargeBodyDisplay_r(taskwk* twp, motionwk2* mwp, player
 {
 	if (!IsSuperSonic(pwp))
 	{
-		SonicChargeBodyDisplay_h.Original(twp, mwp, pwp);
+		//SonicChargeBodyDisplay_h.Original(twp, mwp, pwp);
+		Sonic_DisplayLightDashModel((EntityData1*)twp, (EntityData2*)mwp, (CharObj2*)pwp);
 	}
 }
 
@@ -203,7 +204,8 @@ void Objects_Init()
 {
 	if (ExtendedGamePlay == true)
 	{
-		SonicChargeBodyDisplay_h.Hook(SonicChargeBodyDisplay_r);
+		//SonicChargeBodyDisplay_h.Hook(SonicChargeBodyDisplay_r);
+		WriteCall((void*)0x494B27, SonicChargeBodyDisplay_r);
 		PSetDashEffect_h.Hook(PSetDashEffect_r);
 		PSetSpinDSEffect_h.Hook(PSetSpinDSEffect_r);
 		EffectSpin_h.Hook(EffectSpin_r);
