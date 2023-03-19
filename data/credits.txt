@@ -1,0 +1,12 @@
+Code:
+- Kell
+- SonicFreak94
+
+Localization:
+- kawaiikaorichan (Spanish, Japanese)
+- fredbronze (Japanese)
+
+Other:
+- SoloSlacker (life icon)
+- ItsEasyActually (eye tracking help)
+- Sora (fixes)
