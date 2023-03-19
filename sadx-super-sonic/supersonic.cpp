@@ -2,6 +2,7 @@
 #include "SADXModLoader.h"
 #include "FunctionHook.h"
 #include "UsercallFunctionHandler.h"
+#include "multi.h"
 #include "config.h"
 
 // Main code for transforming, detransforming, losing rings, etc.
@@ -15,7 +16,7 @@ UsercallFunc(signed int, SonicNAct_t, (taskwk* a1, playerwk* a2, motionwk2* a3),
 static NJS_TEXNAME SUPERSONIC_EXTRA_TEXNAME[6];
 NJS_TEXLIST SUPERSONIC_EXTRA_TEXLIST = { arrayptrandlength(SUPERSONIC_EXTRA_TEXNAME) };
 
-static int RingTimer = 0;
+static int RingTimer[8] = {};
 
 bool IsSuperSonic(playerwk* pwp)
 {
@@ -66,13 +67,14 @@ static void __cdecl Sonic_Display_r(task* tsk)
 
 static void TransformSuperSonic(taskwk* twp, playerwk* pwp)
 {
-	SetInputP(TWP_PNUM(twp), PL_OP_SUPER);
-	RingTimer = 0;
+	auto pnum = TWP_PNUM(twp);
+	SetInputP(pnum, PL_OP_SUPER);
+	RingTimer[pnum] = 0;
 
 	SetSuperAnims(pwp);
 
 	// If it's player 1, play sound & update music
-	if (TWP_PNUM(twp) == 0)
+	if (pnum == 0)
 	{
 		TransformMusicAndSound();
 	}
@@ -83,7 +85,7 @@ static void CheckSuperSonicTransform(taskwk* twp, playerwk* pwp)
 	if (PressedButtons[TWP_PNUM(twp)] & TransformButton && IsEventPerforming() == false)
 	{
 		// If Super Sonic story is finished & more than 50 rings
-		if (RemoveLimitations == false && (IsStoryFinished() == false || (TWP_PNUM(twp) == 0 && Rings < 50))) {
+		if (RemoveLimitations == false && (IsStoryFinished() == false || GetNumRingM(TWP_PNUM(twp)) < 50)) {
 			return;
 		}
 
@@ -130,20 +132,21 @@ static void CheckSuperSonicDetransform(taskwk* twp, playerwk* pwp)
 static void SuperSonic_Rings(taskwk* twp, playerwk* pwp)
 {
 	// Consume rings:
-	if (RemoveLimitations == false && TWP_PNUM(twp) == 0 && TimeThing == 1)
+	if (RemoveLimitations == false && TimeThing == 1)
 	{
-		if (Rings > 0)
+		auto pnum = TWP_PNUM(twp);
+
+		if (GetNumRingM(pnum) > 0)
 		{
-			++RingTimer %= 60;
+			++RingTimer[pnum] %= 60;
 			
-			if (RingTimer == 0)
+			if (RingTimer[pnum] == 0)
 			{
-				AddRings(-1);
+				AddNumRingM(pnum, -1);
 			}
 		}
 		else
 		{
-			Rings = 0; // just in case
 			DetransformSuperSonic(twp, pwp);
 		}
 	}

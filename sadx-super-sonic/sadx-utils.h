@@ -2,6 +2,12 @@
 
 static constexpr int MaxPlayers = 4;
 
+struct colaround
+{
+	taskwk* twp;
+	float dist;
+};
+
 FunctionPointer(void, DrawCharacterShadow, (EntityData1* a1, struct_a3* a2), 0x49F0B0);
 FunctionPointer(Bool, IsEventPerforming, (), 0x42FB00);
 ObjectFunc(SonicChargeSpindashEffect, 0x4A2A10);
