@@ -9,12 +9,12 @@
 
 extern "C" __declspec(dllexport) unsigned int SSAnimCount = SonicAnimData.size();
 extern "C" __declspec(dllexport) PL_ACTION* SSAnimData = sonic_action;
+extern "C" __declspec(dllexport) AnimationFile* customAnims[4] = {};
 
 UsercallFuncVoid(SonicChangeRunningMotion_h, (taskwk* twp, motionwk2* mwp, playerwk* pwp), (twp, mwp, pwp), 0x495CD0, rECX, rEDI, rEAX);
 UsercallFuncVoid(SonicChangeWaitingMotion_h, (taskwk* twp, playerwk* pwp), (twp, pwp), 0x491660, rEBX, rESI);
 
 static NJS_OBJECT* SuperSonicEyeList[3];
-static AnimationFile* customAnims[4] = {};
 static PL_ACTION* SuperSonicAnimData;
 
 static bool animationsLoaded = false;
