@@ -2,11 +2,6 @@
 
 static constexpr int MaxPlayers = 4;
 
-struct colaround
-{
-	taskwk* twp;
-	float dist;
-};
 
 FunctionPointer(void, DrawCharacterShadow, (EntityData1* a1, struct_a3* a2), 0x49F0B0);
 FunctionPointer(Bool, IsEventPerforming, (), 0x42FB00);
@@ -20,7 +15,6 @@ FunctionPointer(void, PlaySound3D, (int ID, void* entity, int a3, int volume, in
 FunctionPointer(ObjectMaster*, LoadTikalChild, (ObjectMaster* obj, char*, NJS_VECTOR*), 0x4A3B70);
 FunctionPointer(void, StopPlayerLookAt, (uint8_t id), 0x441080);
 FastcallFunctionPointer(void, SonicChangeRunningMotionS, (playerwk* pwp, motionwk2* mwp), 0x491820);
-DataArray(CollisionData, JumpPanel_Collision_, 0x97DF68, 4);
 DataPointer(PL_ACTION*, pSonicAnimData, 0x49AB4D);
 
 // Symbols:
