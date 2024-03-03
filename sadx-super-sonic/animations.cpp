@@ -12,7 +12,6 @@ extern "C" __declspec(dllexport) PL_ACTION * SSAnimData = sonic_action;
 
 UsercallFuncVoid(SonicChangeRunningMotion_h, (taskwk* twp, motionwk2* mwp, playerwk* pwp), (twp, mwp, pwp), 0x495CD0, rECX, rEDI, rEAX);
 UsercallFuncVoid(SonicChangeWaitingMotion_h, (taskwk* twp, playerwk* pwp), (twp, pwp), 0x491660, rEBX, rESI);
-FunctionHook<void> InitSonicAnimData_h(InitSonicAnimData);
 
 static NJS_OBJECT* SuperSonicEyeList[3];
 static PL_ACTION* SuperSonicAnimData;
@@ -128,27 +127,6 @@ static void __cdecl SonicChangeWaitingMotion_r(taskwk* twp, playerwk* pwp)
 	}
 }
 
-static void __cdecl InitSonicAnimData_r()
-{
-	InitSonicAnimData_h.Original();
-
-	if (CustomAnims == true && UseAdvancedSuperSonic() == true)
-	{
-		auto anim = (NJS_MDATA3*)SSAnimData[19].actptr->motion->mdata;
-
-		if (anim && &anim[22])
-		{
-			*anim[22].p = nullptr;
-		}
-
-		for (uint8_t i = 66; i < 69; i++)
-		{
-			auto d = (NJS_MDATA3*)SSAnimData[i].actptr->motion->mdata;
-			if (d && &d[22])
-				*d[22].p = nullptr;
-		}
-	}
-}
 
 void Animations_Init()
 {
@@ -157,7 +135,23 @@ void Animations_Init()
 		SonicChangeRunningMotion_h.Hook(SonicChangeRunningMotion_r);
 		SonicChangeWaitingMotion_h.Hook(SonicChangeWaitingMotion_r);
 
-		InitSonicAnimData_h.Hook(InitSonicAnimData_r);
+		if (CustomAnims == true)
+		{
+
+			auto anim = (NJS_MDATA3*)SONIC_ACTIONS[11]->motion->mdata;
+
+			if (anim && &anim[22])
+			{
+				*anim[22].p = nullptr;
+			}
+
+			for (uint8_t i = 51; i < 54; i++)
+			{
+				auto d = (NJS_MDATA3*)SONIC_ACTIONS[i]->motion->mdata;
+				if (d && &d[22])
+					*d[22].p = nullptr;
+			}
+		}
 	}
 
 	if (EyeTracking == true)
