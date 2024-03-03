@@ -77,6 +77,7 @@ static void TransformSuperSonic(taskwk* twp, playerwk* pwp)
 	if (pnum == 0)
 	{
 		TransformMusicAndSound();
+		UpdateSSIcons(true);
 	}
 }
 
@@ -116,6 +117,7 @@ static void DetransformSuperSonic(taskwk* twp, playerwk* pwp)
 		if (TWP_PNUM(twp) == 0)
 		{
 			DetransformMusicAndSound();
+			UpdateSSIcons(false);
 		}
 	}
 }
@@ -254,6 +256,7 @@ static void __cdecl Sonic_Exec_r(task* tp)
 		if (twp->mode == Act_Sonic_Init)
 		{
 			InitSuperSonicEyes(TWP_PNUM(twp));
+			BackupLifeIcon();
 			Sonic_Exec_t.Original(tp);
 		}
 		else

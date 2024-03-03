@@ -12,7 +12,6 @@ void WaterHack_Init();
 void Physics_Init(const char* path);
 void Animations_Init();
 void SSTikalHint_Init();
-void HudInit();
 
 bool IsPerfectChaosLevel();
 bool IsSuperSonic(playerwk* pwp);
@@ -26,3 +25,6 @@ void DetransformMusicAndSound();
 void SetSuperAnims(playerwk* co2);
 void UnsetSuperAnims(playerwk* co2);
 void InitSuperSonicEyes(int player);
+
+void __cdecl BackupLifeIcon();
+void UpdateSSIcons(bool toggle);
