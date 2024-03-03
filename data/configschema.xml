@@ -27,8 +27,8 @@
       <Property name="HUDIcons" type="bool" defaultvalue="True" display="HUD Icons">
         <HelpText>Super Sonic will have life &amp; 1up icons.</HelpText>
       </Property>
-      <Property name="CustomAnims" type="bool" defaultvalue="True" display="Custom Animations">
-        <HelpText>Super Sonic's head is centered differently so any animation editing the head position will look terrible. This uses custom animations to fix it.</HelpText>
+      <Property name="CustomAnims" type="bool" defaultvalue="True" display="Animations Fixes">
+        <HelpText>Super Sonic's head is centered differently so any animation editing the head position will look terrible. This manually fixes a few legacy animations.</HelpText>
       </Property>
       <Property name="DisableAura" type="AuraOptions" defaultvalue="False" display="Disable Aura">
         <HelpText>Super Sonic will no longer have an aura.</HelpText>
