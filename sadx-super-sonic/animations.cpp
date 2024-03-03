@@ -8,11 +8,11 @@
 */
 
 extern "C" __declspec(dllexport) unsigned int SSAnimCount = SonicAnimData.size();
-extern "C" __declspec(dllexport) PL_ACTION* SSAnimData = sonic_action;
-extern "C" __declspec(dllexport) AnimationFile* customAnims[4] = {};
+extern "C" __declspec(dllexport) PL_ACTION * SSAnimData = sonic_action;
 
 UsercallFuncVoid(SonicChangeRunningMotion_h, (taskwk* twp, motionwk2* mwp, playerwk* pwp), (twp, mwp, pwp), 0x495CD0, rECX, rEDI, rEAX);
 UsercallFuncVoid(SonicChangeWaitingMotion_h, (taskwk* twp, playerwk* pwp), (twp, pwp), 0x491660, rEBX, rESI);
+FunctionHook<void> InitSonicAnimData_h(InitSonicAnimData);
 
 static NJS_OBJECT* SuperSonicEyeList[3];
 static PL_ACTION* SuperSonicAnimData;
@@ -62,14 +62,6 @@ static void InitSuperSonicAnims()
 				}
 				break;
 			}
-		}
-
-		if (CustomAnims == true)
-		{
-			SuperSonicAnimData[19].actptr->motion = customAnims[0]->getmotion();
-			SuperSonicAnimData[66].actptr->motion = customAnims[1]->getmotion();
-			SuperSonicAnimData[67].actptr->motion = customAnims[2]->getmotion();
-			SuperSonicAnimData[68].actptr->motion = customAnims[3]->getmotion();
 		}
 
 		if (AlwaysSuperSonic == true)
@@ -136,20 +128,36 @@ static void __cdecl SonicChangeWaitingMotion_r(taskwk* twp, playerwk* pwp)
 	}
 }
 
+static void __cdecl InitSonicAnimData_r()
+{
+	InitSonicAnimData_h.Original();
+
+	if (CustomAnims == true && UseAdvancedSuperSonic() == true)
+	{
+		auto anim = (NJS_MDATA3*)SSAnimData[19].actptr->motion->mdata;
+
+		if (anim && &anim[22])
+		{
+			*anim[22].p = nullptr;
+		}
+
+		for (uint8_t i = 66; i < 69; i++)
+		{
+			auto d = (NJS_MDATA3*)SSAnimData[i].actptr->motion->mdata;
+			if (d && &d[22])
+				*d[22].p = nullptr;
+		}
+	}
+}
+
 void Animations_Init()
 {
 	if (UseAdvancedSuperSonic() == true)
 	{
 		SonicChangeRunningMotion_h.Hook(SonicChangeRunningMotion_r);
 		SonicChangeWaitingMotion_h.Hook(SonicChangeWaitingMotion_r);
-		
-		if (CustomAnims == true)
-		{
-			LoadAnimationFile(&customAnims[0], "SS_011");
-			LoadAnimationFile(&customAnims[1], "SS_051");
-			LoadAnimationFile(&customAnims[2], "SS_053");
-			LoadAnimationFile(&customAnims[3], "SS_052");
-		}
+
+		InitSonicAnimData_h.Hook(InitSonicAnimData_r);
 	}
 
 	if (EyeTracking == true)
