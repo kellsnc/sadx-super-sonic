@@ -302,6 +302,7 @@ static void __cdecl Sonic_Delete_r(task* tp)
 	// Restore things if the player is deleted, useful for compatiblity with Character Select
 	if (TWP_PNUM(twp) == 0)
 	{
+		UpdateSSIcons(false);
 		RestoreMusic();
 	}
 

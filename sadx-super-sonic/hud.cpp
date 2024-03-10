@@ -21,7 +21,7 @@ void __cdecl BackupLifeIcon()
 
 void UpdateSSIcons(bool toggle)
 {
-	if (HUDIcons == false)
+	if (HUDIcons == false || (toggle == false && (backupLifeIcon == 0 || backupOneUpIcon == 0)))
 		return;
 
 	CON_REGULAR_TEXLIST.textures[SonicSlotConRegular].texaddr = toggle ? SUPERSONIC_EXTRA_TEXLIST.textures[SUPERSONIC_EXTRA_LIFE].texaddr : backupLifeIcon;
