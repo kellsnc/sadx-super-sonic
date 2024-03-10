@@ -48,6 +48,12 @@ static void __cdecl SuperSonicStatusManagerExecutor_r(task* tp)
 	auto ptwp = playertwp[playerid];
 	auto ppwp = playerpwp[playerid];
 
+	if (ppwp == nullptr || IsSuperSonic((playerwk*)ppwp) == false)
+	{
+		FreeTask(tp);
+		return;
+	}
+
 	if (tp->awp->work.sl[1] == 0)
 	{
 		if (IsEventPerforming() == true)
@@ -73,11 +79,6 @@ static void __cdecl SuperSonicStatusManagerExecutor_r(task* tp)
 			SetSuperPhysics(&ppwp->p);
 			tp->awp->work.sl[1] = 0;
 		}
-	}
-
-	if (ppwp == nullptr || IsSuperSonic((playerwk*)ppwp) == false)
-	{
-		FreeTask(tp);
 	}
 }
 

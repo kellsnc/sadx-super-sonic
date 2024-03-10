@@ -66,8 +66,8 @@ static void InitSuperSonicAnims()
 		if (AlwaysSuperSonic == true)
 		{
 			CharSelDataList[0].anonymous_1[0] = SSAnimData[Anm_SuperSonic_Stand].actptr;
-			CharSelDataList[0].anonymous_1[1]->object = SONIC_OBJECTS[22];
-			CharSelDataList[0].anonymous_1[2]->object = SONIC_OBJECTS[22];
+			CharSelDataList[0].anonymous_1[1]->object = SSAnimData[Anm_SuperSonic_Win].actptr->object;
+			CharSelDataList[0].anonymous_1[2]->object = SSAnimData[Anm_SuperSonic_Win].actptr->object;
 			CharSelDataList[0].TextureList = &SUPERSONIC_TEXLIST;
 		}
 	}
